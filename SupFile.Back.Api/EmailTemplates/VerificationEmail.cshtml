@@ -1,0 +1,16 @@
+@model SupFile.Back.Business.Models.Templates.Emails.VerificationEmailModel
+@using System
+
+@{
+var logoUrl = new Uri(Model.BaseUrl, "/Images/Logo.png");
+}
+
+<div style="text-align:center; margin-bottom: 20px;">
+    <img src="@logoUrl" alt="SupFile Logo" style="max-width: 200px;"/>
+</div>
+
+<p>Hello, @Model.UserName,</p>
+<p>
+    Please click <a href="@Model.VerificationUrl">here</a> to verify your email address.
+</p>
+<p>Thanks, <br/> @Model.AppSettings.Name Team</p>

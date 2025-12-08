@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <NeutralLanguage>en</NeutralLanguage>
+        <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="EnumDescriptionResource.resx">
+            <Generator>PublicResXFileCodeGenerator</Generator>
+            <LastGenOutput>EnumDescriptionResource.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="EnumDescriptionResource.fr.resx">
+            <Generator>PublicResXFileCodeGenerator</Generator>
+            <LastGenOutput>EnumDescriptionResource.fr.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="WorkspacesRes.resx">
+            <Generator>PublicResXFileCodeGenerator</Generator>
+            <LastGenOutput>WorkspacesRes.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="SharedRes.resx">
+            <Generator>PublicResXFileCodeGenerator</Generator>
+            <LastGenOutput>SharedRes.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="AuthenticationsRes.resx">
+            <Generator>PublicResXFileCodeGenerator</Generator>
+            <LastGenOutput>AuthenticationsRes.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="EnumDescriptionResource.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>EnumDescriptionResource.resx</DependentUpon>
+        </Compile>
+        <Compile Update="WorkspacesRes.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>WorkspacesRes.resx</DependentUpon>
+        </Compile>
+        <Compile Update="SharedRes.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SharedRes.resx</DependentUpon>
+        </Compile>
+        <Compile Update="AuthenticationsRes.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>AuthenticationsRes.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Update="SonarAnalyzer.CSharp" Version="10.7.0.110445">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+</Project>

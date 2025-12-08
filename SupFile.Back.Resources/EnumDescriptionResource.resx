@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+                xmlns="">
+        <xsd:element name="root" msdata:IsDataSet="true">
+
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="UserStatus_Away" xml:space="preserve">
+        <value>Away</value>
+    </data>
+    <data name="UserStatus_Busy" xml:space="preserve">
+        <value>Busy</value>
+    </data>
+    <data name="UserStatus_Offline" xml:space="preserve">
+        <value>Offline</value>
+    </data>
+    <data name="UserStatus_Invisible" xml:space="preserve">
+        <value>Invisible</value>
+    </data>
+    <data name="UserStatus_Online" xml:space="preserve">
+        <value>Online</value>
+    </data>
+    <data name="UserTheme_Light" xml:space="preserve">
+        <value>Light</value>
+    </data>
+    <data name="UserTheme_Dark" xml:space="preserve">
+        <value>Dark</value>
+    </data>
+    <data name="WorkspaceVisibility_Public" xml:space="preserve">
+        <value>Public</value>
+    </data>
+    <data name="WorkspaceVisibility_Private" xml:space="preserve">
+        <value>Private</value>
+    </data>
+    <data name="ChannelVisibility_Public" xml:space="preserve">
+        <value>Public</value>
+    </data>
+    <data name="ChannelVisibility_Private" xml:space="preserve">
+        <value>Private</value>
+    </data>
+    <data name="UserLanguage_English" xml:space="preserve">
+        <value>English</value>
+    </data>
+    <data name="UserLanguage_French" xml:space="preserve">
+        <value>French</value>
+    </data>
+    <data name="NotificationType_Text" xml:space="preserve">
+        <value>Text</value>
+    </data>
+    <data name="NotificationType_Message" xml:space="preserve">
+        <value>Message</value>
+    </data>
+    <data name="NotificationType_Other" xml:space="preserve">
+        <value>Other</value>
+    </data>
+    <data name="AttachmentType_Image" xml:space="preserve">
+        <value>Image</value>
+    </data>
+    <data name="AttachmentType_Video" xml:space="preserve">
+        <value>Video</value>
+    </data>
+    <data name="AttachmentType_Audio" xml:space="preserve">
+        <value>Audio</value>
+    </data>
+    <data name="AttachmentType_File" xml:space="preserve">
+        <value>File</value>
+    </data>
+    <data name="AttachmentType_Link" xml:space="preserve">
+        <value>Link</value>
+    </data>
+    <data name="PermissionActions_ReadAll" xml:space="preserve">
+        <value>Read all</value>
+    </data>
+    <data name="PermissionActions_ReadOne" xml:space="preserve">
+        <value>Read one</value>
+    </data>
+    <data name="PermissionActions_CreateOne" xml:space="preserve">
+        <value>Create one</value>
+    </data>
+    <data name="PermissionActions_UpdateOne" xml:space="preserve">
+        <value>UpdateOne</value>
+    </data>
+    <data name="PermissionActions_DeleteOne" xml:space="preserve">
+        <value>Delete one</value>
+    </data>
+    <data name="PermissionActions_UpdateOwn" xml:space="preserve">
+        <value>UpdateOwn</value>
+    </data>
+    <data name="PermissionActions_DeleteOwn" xml:space="preserve">
+        <value>Delete own</value>
+    </data>
+    <data name="AttachmentType_ProfilePicture" xml:space="preserve">
+    <value>Profile picture</value>
+  </data>
+</root>

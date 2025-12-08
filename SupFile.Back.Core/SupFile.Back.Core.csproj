@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentResults" Version="3.16.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.3.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SupFile.Back.Resources\SupFile.Back.Resources.csproj"/>
+    </ItemGroup>
+
+</Project>

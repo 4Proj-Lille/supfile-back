@@ -1,0 +1,16 @@
+<Project>
+    <PropertyGroup>
+        <ManagePackageVersionCentrally>true</ManagePackageVersionCentrally>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AnalysisLevel>latest</AnalysisLevel>
+        <AnalysisMode>All</AnalysisMode>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <ImplicitUsings>enable</ImplicitUsings>
+<!--        <PreserveCompilationContext>true</PreserveCompilationContext>-->
+<!--        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
+<!--        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>-->
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    </PropertyGroup>
+</Project>

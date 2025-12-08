@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+                xmlns="">
+        <xsd:element name="root" msdata:IsDataSet="true">
+
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="UserStatus_Offline" xml:space="preserve">
+        <value>Hors ligne</value>
+    </data>
+    <data name="UserStatus_Online" xml:space="preserve">
+        <value>En ligne</value>
+    </data>
+    <data name="UserStatus_Invisible" xml:space="preserve">
+        <value>Invisible</value>
+    </data>
+    <data name="UserStatus_Away" xml:space="preserve">
+        <value>Absent</value>
+    </data>
+    <data name="UserStatus_Busy" xml:space="preserve">
+        <value>Occupé</value>
+    </data>
+    <data name="UserTheme_Dark" xml:space="preserve">
+        <value>Sombre</value>
+    </data>
+    <data name="UserTheme_Light" xml:space="preserve">
+        <value>Clair</value>
+    </data>
+    <data name="WorkspaceVisibility_Private" xml:space="preserve">
+        <value>Privée</value>
+    </data>
+    <data name="WorkspaceVisibility_Public" xml:space="preserve">
+        <value>Publique</value>
+    </data>
+    <data name="ChannelVisibility_Private" xml:space="preserve">
+        <value>Privée</value>
+    </data>
+    <data name="ChannelVisibility_Public" xml:space="preserve">
+        <value>Publique</value>
+    </data>
+    <data name="UserLanguage_English" xml:space="preserve">
+        <value>Anglais</value>
+    </data>
+    <data name="UserLanguage_French" xml:space="preserve">
+        <value>Français</value>
+    </data>
+    <data name="NotificationType_Text" xml:space="preserve">
+        <value>Texte</value>
+    </data>
+    <data name="NotificationType_Message" xml:space="preserve">
+        <value>Message</value>
+    </data>
+    <data name="NotificationType_Other" xml:space="preserve">
+        <value>Autre</value>
+    </data>
+    <data name="AttachmentType_Video" xml:space="preserve">
+        <value>Vidéo</value>
+    </data>
+    <data name="AttachmentType_Link" xml:space="preserve">
+        <value>Lien</value>
+    </data>
+    <data name="AttachmentType_Image" xml:space="preserve">
+        <value>Image</value>
+    </data>
+    <data name="AttachmentType_File" xml:space="preserve">
+        <value>Fichier</value>
+    </data>
+    <data name="AttachmentType_Audio" xml:space="preserve">
+        <value>Audio</value>
+    </data>
+    <data name="PermissionActions_CreateOne" xml:space="preserve">
+        <value>Créer un</value>
+    </data>
+    <data name="PermissionActions_DeleteOne" xml:space="preserve">
+        <value>Supprimer un</value>
+    </data>
+    <data name="PermissionActions_DeleteOwn" xml:space="preserve">
+        <value>Supprimer son</value>
+    </data>
+    <data name="PermissionActions_ReadAll" xml:space="preserve">
+        <value>Lire plusieurs</value>
+    </data>
+    <data name="PermissionActions_ReadOne" xml:space="preserve">
+        <value>Lire un</value>
+    </data>
+    <data name="PermissionActions_UpdateOne" xml:space="preserve">
+        <value>Mettre à jour un</value>
+    </data>
+    <data name="PermissionActions_UpdateOwn" xml:space="preserve">
+        <value>Mettre à jour plusieurs</value>
+    </data>
+    <data name="AttachmentType_ProfilePicture" xml:space="preserve">
+    <value>Photo de profil</value>
+  </data>
+</root>
