@@ -10,6 +10,13 @@ public class ApplicationUser : BaseEntity<ApplicationUser, int>, IEntity<Applica
     /// </summary>
     public ApplicationUser()
     {
+        #region Generated Constructor
+
+        OwnerDirectory = new HashSet<Directory>();
+        OwnerFile = new HashSet<File>();
+        UserShares = new HashSet<Share>();
+
+        #endregion
     }
 
     #region Generated Relationships
@@ -75,5 +82,33 @@ public class ApplicationUser : BaseEntity<ApplicationUser, int>, IEntity<Applica
     /// </value>
     public Guid? ProfilePictureId { get; set; }
 
+    #endregion
+    
+    #region Generated Relationships
+    
+    /// <summary>
+    ///     Gets or sets the navigation collection for entity <see cref="Directory" />.
+    /// </summary>
+    /// <value>
+    ///     The navigation collection for entity <see cref="Directory" />.
+    /// </value>
+    public virtual ICollection<Directory> OwnerDirectory { get; }
+    
+    /// <summary>
+    ///     Gets or sets the navigation collection for entity <see cref="File" />.
+    /// </summary>
+    /// <value>
+    ///     The navigation collection for entity <see cref="File" />.
+    /// </value>
+    public virtual ICollection<File> OwnerFile { get; }
+    
+    /// <summary>
+    ///     Gets or sets the navigation collection for entity <see cref="Share" />.
+    /// </summary>
+    /// <value>
+    ///     The navigation collection for entity <see cref="Share" />.
+    /// </value>
+    public virtual ICollection<Share> UserShares { get; }
+    
     #endregion
 }
