@@ -1,4 +1,30 @@
 ﻿services:
+  
+  supchat.api:
+    image: supfile.back.api
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: SupFile.Back.Api/Dockerfile
+    networks:
+      - supfileback_default
+    depends_on:
+      postgres:
+        condition: service_healthy
+      azureblobstorage:
+        condition: service_healthy
+      papercut:
+        condition: service_started
+        required: false
+    ports:
+      - "5263:5263"
+      - "7268:7268"
+    env_file:
+      - .env
+    profiles:
+      - Dev
+      - Prod
+  
   postgres:
     image: postgres
     restart: always
