@@ -10,12 +10,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SupFile.Back.Data", "SupFil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SupFile.Back.Resources", "SupFile.Back.Resources\SupFile.Back.Resources.csproj", "{F3D18EB5-260A-486B-A7B2-4B4D44D580D4}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{666B539D-57AF-4701-AFE1-0C2830143CE0}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{29B04D89-0F99-4ABC-BBEE-A7106B74C254}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		readme.md = readme.md
 		directory.build.props = directory.build.props
-		supfile-dev.pfx = supfile-dev.pfx
+		.env = .env
 	EndProjectSection
 EndProject
 Global
