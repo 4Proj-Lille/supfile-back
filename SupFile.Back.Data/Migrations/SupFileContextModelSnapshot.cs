@@ -156,37 +156,46 @@ namespace SupFile.Back.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
+                        .HasColumnName("Id")
                         .HasColumnOrder(0);
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("FirstName");
 
                     b.Property<Guid?>("IdentityUserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("IdentityUserId");
 
                     b.Property<int>("Language")
-                        .HasColumnType("integer");
+                        .HasColumnType("int")
+                        .HasColumnName("Language");
 
                     b.Property<string>("LastName")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("LastName");
 
                     b.Property<Guid?>("ProfilePictureId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("Username");
 
                     b.HasKey("Id");
 
                     b.HasIndex("IdentityUserId")
                         .IsUnique();
 
-                    b.ToTable("ApplicationUsers");
+                    b.ToTable("User", "public");
                 });
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.AuthIdentityUser", b =>
@@ -264,152 +273,124 @@ namespace SupFile.Back.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
+                        .HasColumnName("Id")
                         .HasColumnOrder(0);
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("OwnerApplicationUserDirectoryId")
-                        .HasColumnType("integer");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Name");
 
                     b.Property<int>("OwnerId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ParentDirectoryId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int")
+                        .HasColumnName("OwnerId");
 
                     b.Property<int?>("ParentId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int")
+                        .HasColumnName("ParentId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerApplicationUserDirectoryId");
+                    b.HasIndex("OwnerId");
 
-                    b.HasIndex("ParentDirectoryId");
+                    b.HasIndex("ParentId");
 
-                    b.ToTable("Directory");
+                    b.ToTable("Directory", "public");
                 });
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.File", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
+                        .HasColumnName("Id")
                         .HasColumnOrder(0);
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<int>("DirectoryId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int")
+                        .HasColumnName("DirectoryId");
 
                     b.Property<string>("Extension")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Extension");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("OwnerApplicationUserFileId")
-                        .HasColumnType("integer");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Name");
 
                     b.Property<int>("OwnerId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int")
+                        .HasColumnName("OwnerId");
 
-                    b.Property<int>("Path")
-                        .HasColumnType("integer");
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)")
+                        .HasColumnName("Path");
 
-                    b.Property<int>("Size")
-                        .HasColumnType("integer");
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("Size");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DirectoryId");
 
-                    b.HasIndex("OwnerApplicationUserFileId");
+                    b.HasIndex("OwnerId");
 
-                    b.ToTable("File");
+                    b.ToTable("File", "public");
                 });
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Link", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
+                        .HasColumnName("Id")
                         .HasColumnOrder(0);
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp")
+                        .HasColumnName("ExpirationDate");
 
-                    b.Property<int?>("ShareDirectoryId")
-                        .HasColumnType("integer");
+                    b.Property<int>("ShareDirectoryId")
+                        .HasColumnType("int")
+                        .HasColumnName("ShareDirectoryId");
 
-                    b.Property<int?>("ShareFileId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ShareLinkDirectoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ShareLinkFileId")
-                        .HasColumnType("integer");
+                    b.Property<int>("ShareFileId")
+                        .HasColumnType("int")
+                        .HasColumnName("ShareFileId");
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("Name");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ShareLinkDirectoryId");
-
-                    b.HasIndex("ShareLinkFileId");
-
-                    b.ToTable("Link");
-                });
-
-            modelBuilder.Entity("SupFile.Back.Core.Entities.Share", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnOrder(0);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Permission")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int?>("ShareDirectoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ShareFileId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ShareUserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Type");
 
                     b.HasKey("Id");
 
@@ -417,9 +398,52 @@ namespace SupFile.Back.Data.Migrations
 
                     b.HasIndex("ShareFileId");
 
-                    b.HasIndex("ShareUserId");
+                    b.ToTable("Link", "public");
+                });
 
-                    b.ToTable("Share");
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Share", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Permission");
+
+                    b.Property<int?>("ShareDirectoryId")
+                        .HasColumnType("int")
+                        .HasColumnName("ShareDirectoryId");
+
+                    b.Property<int?>("ShareFileId")
+                        .HasColumnType("int")
+                        .HasColumnName("ShareFileId");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Type");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShareDirectoryId");
+
+                    b.HasIndex("ShareFileId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Share", "public");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -477,7 +501,9 @@ namespace SupFile.Back.Data.Migrations
                 {
                     b.HasOne("SupFile.Back.Core.Entities.Auth.AuthIdentityUser", "IdentityUser")
                         .WithOne("ApplicationUser")
-                        .HasForeignKey("SupFile.Back.Core.Entities.ApplicationUser", "IdentityUserId");
+                        .HasForeignKey("SupFile.Back.Core.Entities.ApplicationUser", "IdentityUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_User_ApplicationUser");
 
                     b.Navigation("IdentityUser");
                 });
@@ -485,14 +511,17 @@ namespace SupFile.Back.Data.Migrations
             modelBuilder.Entity("SupFile.Back.Core.Entities.Directory", b =>
                 {
                     b.HasOne("SupFile.Back.Core.Entities.ApplicationUser", "OwnerApplicationUserDirectory")
-                        .WithMany("OwnerDirectory")
-                        .HasForeignKey("OwnerApplicationUserDirectoryId")
+                        .WithMany("OwnerDirectories")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("Directories_User_Id_fk");
 
                     b.HasOne("SupFile.Back.Core.Entities.Directory", "ParentDirectory")
                         .WithMany("ParentDirectories")
-                        .HasForeignKey("ParentDirectoryId");
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("DirectoryParent___fk");
 
                     b.Navigation("OwnerApplicationUserDirectory");
 
@@ -505,28 +534,36 @@ namespace SupFile.Back.Data.Migrations
                         .WithMany("Files")
                         .HasForeignKey("DirectoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("Files_Directory_Id_fk");
 
-                    b.HasOne("SupFile.Back.Core.Entities.ApplicationUser", "OwnerApplicationUserFile")
-                        .WithMany("OwnerFile")
-                        .HasForeignKey("OwnerApplicationUserFileId")
+                    b.HasOne("SupFile.Back.Core.Entities.ApplicationUser", "OwnerApplicationUser")
+                        .WithMany("OwnerFiles")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("Files_User_Id_fk");
 
                     b.Navigation("FileDirectory");
 
-                    b.Navigation("OwnerApplicationUserFile");
+                    b.Navigation("OwnerApplicationUser");
                 });
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Link", b =>
                 {
                     b.HasOne("SupFile.Back.Core.Entities.Directory", "ShareLinkDirectory")
                         .WithMany("Links")
-                        .HasForeignKey("ShareLinkDirectoryId");
+                        .HasForeignKey("ShareDirectoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("Link_Directory_Id_fk");
 
                     b.HasOne("SupFile.Back.Core.Entities.File", "ShareLinkFile")
                         .WithMany("Links")
-                        .HasForeignKey("ShareLinkFileId");
+                        .HasForeignKey("ShareFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("Link_File_Id_fk");
 
                     b.Navigation("ShareLinkDirectory");
 
@@ -537,17 +574,22 @@ namespace SupFile.Back.Data.Migrations
                 {
                     b.HasOne("SupFile.Back.Core.Entities.Directory", "ShareDirectory")
                         .WithMany("Shares")
-                        .HasForeignKey("ShareDirectoryId");
+                        .HasForeignKey("ShareDirectoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("Share_Directory_Id_fk");
 
                     b.HasOne("SupFile.Back.Core.Entities.File", "ShareFile")
                         .WithMany("Shares")
-                        .HasForeignKey("ShareFileId");
+                        .HasForeignKey("ShareFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("Share_File_Id_fk");
 
                     b.HasOne("SupFile.Back.Core.Entities.ApplicationUser", "ShareUser")
                         .WithMany("UserShares")
-                        .HasForeignKey("ShareUserId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("Shares_User_Id_fk");
 
                     b.Navigation("ShareDirectory");
 
@@ -558,9 +600,9 @@ namespace SupFile.Back.Data.Migrations
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.ApplicationUser", b =>
                 {
-                    b.Navigation("OwnerDirectory");
+                    b.Navigation("OwnerDirectories");
 
-                    b.Navigation("OwnerFile");
+                    b.Navigation("OwnerFiles");
 
                     b.Navigation("UserShares");
                 });

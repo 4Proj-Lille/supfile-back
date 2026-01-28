@@ -29,6 +29,16 @@ public class SupFileContext : IdentityDbContext<AuthIdentityUser, IdentityRole<G
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        
+        #region Generated Configuration
+
+        modelBuilder.ApplyConfiguration(new ApplicationUserMap());
+        modelBuilder.ApplyConfiguration(new DirectoryMap());
+        modelBuilder.ApplyConfiguration(new FileMap());
+        modelBuilder.ApplyConfiguration(new ShareMap());
+        modelBuilder.ApplyConfiguration(new LinkMap());
+
+        #endregion
     }
 
     #region Generated Properties

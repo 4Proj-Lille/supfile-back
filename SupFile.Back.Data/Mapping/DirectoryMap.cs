@@ -49,7 +49,7 @@ namespace SupFile.Back.Data.Mapping
 
             // relationships
             builder.HasOne(t => t.OwnerApplicationUserDirectory)
-                .WithMany(t => t.OwnerDirectory)
+                .WithMany(t => t.OwnerDirectories)
                 .HasForeignKey(d => d.OwnerId)
                 .HasConstraintName("Directories_User_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);

@@ -95,7 +95,7 @@ public class File : BaseEntity<File, int>, IEntity<File, int>
     ///     The navigation property for entity <see cref="ApplicationUser" />.
     /// </value>
     /// <seealso cref="OwnerId" />
-    public virtual ApplicationUser OwnerApplicationUserFile { get; set; } = null!;
+    public virtual ApplicationUser OwnerApplicationUser { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the navigation property for entity <see cref="Directory" />.
