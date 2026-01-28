@@ -46,26 +46,26 @@ namespace SupFile.Back.Data.Mapping
                 .HasColumnName("ExpirationDate")
                 .HasColumnType("timestamp");
             
-            builder.Property(t => t.ShareFileId)
+            builder.Property(t => t.ShareMediaId)
                 .IsRequired()
-                .HasColumnName("ShareFileId")
+                .HasColumnName("ShareMediaId")
                 .HasColumnType("int");
             
-            builder.Property(t => t.ShareDirectoryId)
+            builder.Property(t => t.ShareFolderId)
                 .IsRequired()
-                .HasColumnName("ShareDirectoryId")
+                .HasColumnName("ShareFolderId")
                 .HasColumnType("int");
             
             // relationships
-            builder.HasOne(t => t.ShareLinkDirectory)
+            builder.HasOne(t => t.ShareLinkFolder)
                 .WithMany(t => t.Links)
-                .HasForeignKey(d => d.ShareDirectoryId)
-                .HasConstraintName("Link_Directory_Id_fk")
+                .HasForeignKey(d => d.ShareFolderId)
+                .HasConstraintName("Link_Folder_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
             
             builder.HasOne(t => t.ShareLinkFile)
                 .WithMany(t => t.Links)
-                .HasForeignKey(d => d.ShareFileId)
+                .HasForeignKey(d => d.ShareMediaId)
                 .HasConstraintName("Link_File_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
             
@@ -97,11 +97,11 @@ namespace SupFile.Back.Data.Mapping
             /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Link.ExpirationDate" /></summary>
             public const string ExpirationDate = "ExpirationDate";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Link.ShareFileId" /></summary>
-            public const string ShareFileId = "ShareFileId";
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Link.ShareMediaId" /></summary>
+            public const string ShareFileId = "ShareMediaId";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Link.ShareDirectoryId" /></summary>
-            public const string ShareDirectoryId = "ShareDirectoryId";
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Link.ShareFolderId" /></summary>
+            public const string ShareFolderId = "ShareFolderId";
         }
 
         #endregion

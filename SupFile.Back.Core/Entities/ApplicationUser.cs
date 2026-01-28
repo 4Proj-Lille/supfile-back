@@ -12,8 +12,8 @@ public class ApplicationUser : BaseEntity<ApplicationUser, int>, IEntity<Applica
     {
         #region Generated Constructor
 
-        OwnerDirectories = new HashSet<Directory>();
-        OwnerFiles = new HashSet<File>();
+        OwnerFolders = new HashSet<Folder>();
+        OwnerMedias = new HashSet<Media>();
         UserShares = new HashSet<Share>();
 
         #endregion
@@ -92,15 +92,15 @@ public class ApplicationUser : BaseEntity<ApplicationUser, int>, IEntity<Applica
     /// <value>
     ///     The navigation collection for entity <see cref="Directory" />.
     /// </value>
-    public virtual ICollection<Directory> OwnerDirectories { get; }
+    public virtual ICollection<Folder> OwnerFolders { get; }
     
     /// <summary>
-    ///     Gets or sets the navigation collection for entity <see cref="File" />.
+    ///     Gets or sets the navigation collection for entity <see cref="Media" />.
     /// </summary>
     /// <value>
-    ///     The navigation collection for entity <see cref="File" />.
+    ///     The navigation collection for entity <see cref="Media" />.
     /// </value>
-    public virtual ICollection<File> OwnerFiles { get; }
+    public virtual ICollection<Media> OwnerMedias { get; }
     
     /// <summary>
     ///     Gets or sets the navigation collection for entity <see cref="Share" />.

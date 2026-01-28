@@ -3,23 +3,23 @@
 namespace SupFile.Back.Data.Mapping
 {
     /// <summary>
-    /// Allows configuration for an entity type <see cref="SupFile.Back.Core.Entities.Directory" />
+    /// Allows configuration for an entity type <see cref="SupFile.Back.Core.Entities.Folder" />
     /// </summary>
-    public partial class DirectoryMap
-        : IEntityTypeConfiguration<SupFile.Back.Core.Entities.Directory>
+    public partial class FolderMap
+        : IEntityTypeConfiguration<SupFile.Back.Core.Entities.Folder>
     {
         /// <summary>
-        /// Configures the entity of type <see cref="SupFile.Back.Core.Entities.Directory" />
+        /// Configures the entity of type <see cref="SupFile.Back.Core.Entities.Folder" />
         /// </summary>
         /// <param name="builder">The builder to be used to configure the entity type.</param>
         public void Configure(
-            Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<SupFile.Back.Core.Entities.Directory>
+            Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<SupFile.Back.Core.Entities.Folder>
                 builder)
         {
             #region Generated Configure
 
             // table
-            builder.ToTable("Directory", "public");
+            builder.ToTable("Folder", "public");
 
             // key
             builder.HasKey(t => t.Id);
@@ -48,16 +48,16 @@ namespace SupFile.Back.Data.Mapping
             
 
             // relationships
-            builder.HasOne(t => t.OwnerApplicationUserDirectory)
-                .WithMany(t => t.OwnerDirectories)
+            builder.HasOne(t => t.OwnerApplicationUserFolder)
+                .WithMany(t => t.OwnerFolders)
                 .HasForeignKey(d => d.OwnerId)
-                .HasConstraintName("Directories_User_Id_fk")
+                .HasConstraintName("Folders_User_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
             
-            builder.HasOne(t => t.ParentDirectory)
-                .WithMany(t => t.ParentDirectories)
+            builder.HasOne(t => t.ParentFolder)
+                .WithMany(t => t.ParentFolders)
                 .HasForeignKey(d => d.ParentId)
-                .HasConstraintName("DirectoryParent___fk")
+                .HasConstraintName("FolderParent___fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.SetNull);
 
             #endregion
@@ -67,25 +67,25 @@ namespace SupFile.Back.Data.Mapping
 
         public readonly struct Table
         {
-            /// <summary>Table Schema name constant for entity <see cref="SupFile.Back.Core.Entities.Directory" /></summary>
+            /// <summary>Table Schema name constant for entity <see cref="SupFile.Back.Core.Entities.Folder" /></summary>
             public const string Schema = "public";
 
-            /// <summary>Table Name constant for entity <see cref="SupFile.Back.Core.Entities.Directory" /></summary>
-            public const string Name = "Directory";
+            /// <summary>Table Name constant for entity <see cref="SupFile.Back.Core.Entities.Folder" /></summary>
+            public const string Name = "Folder";
         }
 
         public readonly struct Columns
         {
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Directory.Id" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Folder.Id" /></summary>
             public const string Id = "Id";
 
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Directory.Name" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Folder.Name" /></summary>
             public const string Name = "Name";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Directory.OwnerId" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Folder.OwnerId" /></summary>
             public const string OwnerId = "OwnerId";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Directory.ParentId" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Folder.ParentId" /></summary>
             public const string ParentId = "ParentId";
         }
 

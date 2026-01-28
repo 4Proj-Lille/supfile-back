@@ -33,8 +33,8 @@ public class SupFileContext : IdentityDbContext<AuthIdentityUser, IdentityRole<G
         #region Generated Configuration
 
         modelBuilder.ApplyConfiguration(new ApplicationUserMap());
-        modelBuilder.ApplyConfiguration(new DirectoryMap());
-        modelBuilder.ApplyConfiguration(new FileMap());
+        modelBuilder.ApplyConfiguration(new FolderMap());
+        modelBuilder.ApplyConfiguration(new MediaMap());
         modelBuilder.ApplyConfiguration(new ShareMap());
         modelBuilder.ApplyConfiguration(new LinkMap());
 
