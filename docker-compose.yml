@@ -1,0 +1,77 @@
+﻿services:
+  supfile.api:
+    image: supfile.back.api
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: SupFile.Back.Api/Dockerfile
+    networks:
+      - supfileback_default
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5263:5263"
+      - "7268:7268"
+    env_file:
+      - .env
+    profiles:
+      - Dev
+      - Prod
+  
+  postgres:
+    image: postgres
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - supfileback_default
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    env_file:
+      - .env
+    profiles:
+      - Dev
+      - Prod
+
+  azureblobstorage:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    volumes:
+      - blobstorage_data:/data
+    profiles:
+      - Dev
+      - Prod
+    networks:
+      - supfileback_default
+    ports:
+      - "10000:10000"
+    command: "azurite-blob --blobHost 0.0.0.0 -l /data"
+    healthcheck:
+      test: nc 127.0.0.1 10000 -z
+      interval: 1s
+      retries: 30
+  
+  papercut:
+    image: changemakerstudiosus/papercut-smtp:latest
+    ports:
+      - "25:25"
+      - "8080:80"
+    profiles:
+      - Dev
+    networks:
+      - supfileback_default
+
+
+volumes:
+  postgres_data:
+  blobstorage_data:
+
+networks:
+  supfileback_default:
+    driver: bridge

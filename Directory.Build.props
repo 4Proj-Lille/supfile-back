@@ -7,6 +7,7 @@
         <AnalysisLevel>latest</AnalysisLevel>
         <AnalysisMode>All</AnalysisMode>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
         <ImplicitUsings>enable</ImplicitUsings>
 <!--        <PreserveCompilationContext>true</PreserveCompilationContext>-->
 <!--        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->

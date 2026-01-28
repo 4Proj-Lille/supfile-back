@@ -1,0 +1,22 @@
+project:
+    namespace: "SupFile.Back"
+    directory: ./
+    nullable: true
+database:
+    provider: PostgreSQL
+    connectionString: "Host=localhost,1433;Database=SupFile-Dev;Username=bcrepin;Password=MyStrongPassword123"
+data:
+    context:
+        name: "SupFileContext"
+        baseClass: DbContext
+        namespace: "{Project.Namespace}.Data.Context"
+        directory: 'generatedDB/{Project.Namespace}.Data/Context'
+        document: true
+    entity:
+        namespace: "{Project.Namespace}.Core.Entities"
+        directory: 'generatedDB/{Project.Namespace}.Core/Entities'
+        document: true
+    mapping:
+        namespace: "{Project.Namespace}.Data.Mapping"
+        directory: 'generatedDB/{Project.Namespace}.Data/Mapping'
+        document: true
