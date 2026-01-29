@@ -6,8 +6,10 @@ internal static class DependencyInjection
 {
     public static WebApplicationBuilder AddSettings(this WebApplicationBuilder builder)
     {
-        builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
-        builder.Services.Configure<BlobStorageSettings>(builder.Configuration.GetSection(nameof(BlobStorageSettings)));
+        builder.Services.AddOptions<AppSettings>().BindConfiguration(nameof(AppSettings)).ValidateDataAnnotations()
+            .ValidateOnStart();
+        builder.Services.AddOptions<SmtpSettings>().BindConfiguration(nameof(SmtpSettings));
+        builder.Services.AddOptions<BlobStorageSettings>().BindConfiguration(nameof(BlobStorageSettings));
 
         return builder;
     }
@@ -50,30 +52,29 @@ internal static class DependencyInjection
         builder.Services.AddBusinessServices(builder.Configuration);
         builder.Services.AddDataRepositories();
         builder.Services.AddSeeders();
+        
+        var smptSettings = builder.Configuration.GetSection(nameof(SmtpSettings)).Get<SmtpSettings>();
+
+        // builder.Services
+        //     .AddFluentEmail(
+        //         smptSettings.MailFrom,
+        //         smptSettings.MailFromDisplayName
+        //     );
 
         builder.Services
             .AddFluentEmail(
-                builder.Configuration["Email:SenderEmail"],
-                builder.Configuration["Email:SenderName"]
-            );
-
-        builder.Services
-            .AddFluentEmail(
-                builder.Configuration["Email:SenderEmail"],
-                builder.Configuration["Email:SenderName"]
+                smptSettings.MailFrom,
+                smptSettings.MailFromDisplayName
             )
             .AddRazorRenderer()
             .AddSmtpSender(() => new SmtpClient
             {
-                Host = builder.Configuration["Email:Host"] ?? throw new InvalidOperationException(),
-                Port = builder.Configuration.GetValue<int>("Email:Port"),
-                EnableSsl = builder.Configuration.GetValue<bool>("Email:UseSSl"),
+                Host = smptSettings.Server ?? throw new InvalidOperationException(),
+                Port = smptSettings.Port,
+                EnableSsl = smptSettings.UseSsl,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(
-                    builder.Configuration["Email:Username"],
-                    builder.Configuration["Email:Password"]
-                )
+                Credentials = new NetworkCredential(smptSettings.Username, smptSettings.Password)
             });
 
         builder.Services.AddValidatorsFromAssemblyContaining<Program>();
@@ -167,14 +168,14 @@ internal static class DependencyInjection
 
         builder.Services.AddCors(options =>
         {
-        options.AddPolicy(CorsOptions.PolicyName, policy =>
-        {
-           policy
-                .WithOrigins(corsOptions.AllowedOrigins)
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials();
-        });
+            options.AddPolicy(CorsOptions.PolicyName, policy =>
+            {
+                policy
+                    .WithOrigins(corsOptions.AllowedOrigins)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+            });
         });
 
         return builder;

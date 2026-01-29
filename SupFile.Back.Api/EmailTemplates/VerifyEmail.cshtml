@@ -1,0 +1,36 @@
+@model SupFile.Back.Business.Models.Templates.Emails.VerificationEmailModel
+
+<!DOCTYPE html>
+<html>
+<body
+    style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #ccc; line-height: 1.6;">
+
+@* Logo *@
+@if (!string.IsNullOrEmpty(Model.AppSettings.LogoUrl))
+{
+    <div style="text-align:center; margin-bottom: 30px;">
+        <img src="@Model.AppSettings.LogoUrl" alt="@Model.AppSettings.Name" style="max-width:48px; height:auto;"/>
+    </div>
+}
+
+<p style="margin-bottom: 25px;">Hello @Model.UserName,</p>
+
+<p style="margin-bottom: 25px;">Thank you for registering. Please verify your email by clicking the button below:</p>
+
+<p style="text-align:center; margin-bottom: 25px;">
+    <a href="@Model.VerificationUrl"
+       style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+        Verify Email
+    </a>
+</p>
+
+<p style="margin-bottom: 25px;">If the button doesn’t work, copy and paste this URL into your browser:</p>
+<p style="margin-bottom: 30px;"><a href="@Model.VerificationUrl">@Model.VerificationUrl</a></p>
+
+<hr style="margin-bottom: 20px;"/>
+<footer style="font-size: 12px; color: gray; text-align:center;">
+    &copy; @System.DateTime.Now.Year @Model.AppSettings.Name. All rights reserved.
+</footer>
+
+</body>
+</html>

@@ -2,6 +2,8 @@
   supfile.api:
     image: supfile.back.api
     pull_policy: build
+    stdin_open: true 
+    tty: true
     build:
       context: .
       dockerfile: SupFile.Back.Api/Dockerfile
@@ -10,6 +12,8 @@
     depends_on:
       postgres:
         condition: service_healthy
+      smtp4dev:
+        condition: service_started
     ports:
       - "5263:5263"
       - "7268:7268"
@@ -21,6 +25,8 @@
   
   postgres:
     image: postgres
+    stdin_open: true
+    tty: true
     restart: always
     volumes:
       - pgdata:/var/lib/postgresql
@@ -42,6 +48,8 @@
 
   azureblobstorage:
     image: mcr.microsoft.com/azure-storage/azurite:latest
+    stdin_open: true
+    tty: true
     volumes:
       - blobstorage_data:/data
     profiles:
@@ -57,20 +65,25 @@
       interval: 1s
       retries: 30
   
-  papercut:
-    image: changemakerstudiosus/papercut-smtp:latest
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    stdin_open: true
+    tty: true
+    restart: always
     ports:
-      - "25:25"
-      - "8080:80"
-    profiles:
-      - Dev
+      - '127.0.0.1:5000:80'    # Web interface
+    volumes:
+      - smtp4dev-data:/smtp4dev
     networks:
       - supfileback_default
-
+    environment:
+      - ServerOptions__Urls=http://*:80
+      - ServerOptions__HostName=smtp4dev
 
 volumes:
   postgres_data:
   blobstorage_data:
+  smtp4dev-data:
 
 networks:
   supfileback_default:

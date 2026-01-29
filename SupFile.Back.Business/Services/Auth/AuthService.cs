@@ -1,29 +1,25 @@
+using Microsoft.Extensions.Hosting;
+
 namespace SupFile.Back.Business.Services.Auth;
 
 public class AuthService : IAuthService
 {
     private readonly AppSettings _appSettings;
     private readonly IAuthTokenProcessor _authTokenProcessor;
-    private readonly IFluentEmail _fluentEmail;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUserRepository _userRepository;
-    private readonly IUserService _userService;
+    private readonly IEmailService _emailService;
 
     public AuthService(
         IAuthTokenProcessor authTokenProcessor,
         UserManager<ApplicationUser> userManager,
-        IUserRepository userRepository,
         IOptions<AppSettings> appSettings,
-        IFluentEmail fluentEmail,
-        IUserService userService
+        IEmailService emailService
     )
     {
         _authTokenProcessor = authTokenProcessor;
         _userManager = userManager;
-        _userRepository = userRepository;
         _appSettings = appSettings.Value;
-        _fluentEmail = fluentEmail;
-        _userService = userService;
+        _emailService = emailService;
     }
 
     public async Task<Result<ResponseLoginDto>> RefreshTokenAsync(string refreshToken)
@@ -117,27 +113,6 @@ public class AuthService : IAuthService
             return Result.Fail(new BadRequestError(result.Errors.First().Description));
         }
 
-        // var newUser = new ApplicationUser
-        // {
-        //     FirstName = registerDto.UserName,
-        //     IdentityUserId = identityUser.Id,
-        //     Username = registerDto.UserName,
-        //     Language = UserLanguage.English
-        // };
-        //     
-        // var addUserResult = await _userService.AddUser(newUser);
-        // if (addUserResult.IsFailed)
-        // {
-        //     return Result.Fail<bool>(addUserResult.Errors);
-        // }
-
-        // var addUserRoleResult = await _generalRoleService.AddUserRole(newUser.Id);
-        //
-        // if (addUserRoleResult.IsFailed)
-        // {
-        //     return Result.Fail<bool>(addUserRoleResult.Errors);
-        // }
-
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(identityUser);
         var verificationUrl = new Uri(QueryHelpers.AddQueryString(
             callbackBaseUrl.ToString(),
@@ -148,20 +123,23 @@ public class AuthService : IAuthService
             }
         ));
 
-        try
+
+        var (template, subject) = EmailTemplateConstants.VerifyEmail;
+        var isEmailSent = await _emailService.SendEmailAsync(
+            identityUser.Email,
+            subject,
+            template,
+            new VerificationEmailModel
+            {
+                UserName = identityUser.UserName!,
+                VerificationUrl = verificationUrl,
+                AppSettings = _appSettings,
+                BaseUrl = callbackBaseUrl,
+            });
+
+        if (isEmailSent.IsFailed)
         {
-            await _fluentEmail
-                .To(identityUser.Email)
-                .Subject($"Email verification for {_appSettings.Name}")
-                .Body(
-                    $"<h2>{identityUser.UserName}</h2>Please click <a href=\"{verificationUrl}\">here</a> to verify your email address.",
-                    true)
-                // .UsingTemplateFromFile("EmailTemplates/VerificationEmail.cshtml", emailModel)
-                .SendAsync();
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail(new ExceptionalError(ex));
+            return Result.Fail<bool>(isEmailSent.Errors);
         }
 
         return Result.Ok(true);
@@ -280,31 +258,21 @@ public class AuthService : IAuthService
             return Result.Fail(new BadRequestError(ErrorMessage));
         }
 
-        if (_appSettings.RequireEmailVerification && !identityUser.EmailConfirmed)
-        {
-            return Result.Fail(new BadRequestError("Email not confirmed"));
-        }
-
-
-        // var applicationUser =
-        //     await _userRepository.FindOneAsync<ApplicationUser>(x => x.IdentityUserId == identityUser.Id);
-        // if (applicationUser == null)
-        // {
-        //     return Result.Fail(new BadRequestError(ErrorMessage));
-        // }
-
         var result = await _userManager.CheckPasswordAsync(identityUser, loginDto.Password);
         if (!result)
         {
             return Result.Fail(new BadRequestError(ErrorMessage));
         }
 
-        var token = _authTokenProcessor.GenerateJwtToken(identityUser);
+        if (_appSettings.RequireEmailVerification && !identityUser.EmailConfirmed)
+        {
+            return Result.Fail(new BadRequestError("Email not confirmed"));
+        }
+
+        var (jwtToken, expiresAtUtc) = _authTokenProcessor.GenerateJwtToken(identityUser);
         var refreshToken = _authTokenProcessor.GenerateRefreshToken();
-        
+
         var refreshTokenExpiresAtUtc = DateTime.UtcNow.AddDays(7);
-        
-        // await _userRepository.UpdateAsync(applicationUser.Id);
 
         identityUser.RefreshToken = refreshToken;
         identityUser.RefreshTokenExpiresAtUtc = refreshTokenExpiresAtUtc;
@@ -314,8 +282,8 @@ public class AuthService : IAuthService
         var responseLoginDto = new ResponseLoginDto
         {
             Id = identityUser.Id,
-            AccessToken = token.jwtToken,
-            ExpiresAt = token.expiresAtUtc.AddMinutes(-1),
+            AccessToken = jwtToken,
+            ExpiresAt = expiresAtUtc.AddMinutes(-1),
             RefreshToken = refreshToken,
             RefreshExpiresAt = refreshTokenExpiresAtUtc.AddMinutes(-1),
             Name = identityUser.UserName,
@@ -324,5 +292,5 @@ public class AuthService : IAuthService
         };
 
         return Result.Ok(responseLoginDto);
-    } 
+    }
 }

@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder
     .AddSettings()
+    .AddSerilog()
     .AddApiServices()
     .AddErrorHandling()
     .AddApplicationServices()
@@ -13,17 +14,15 @@ builder
     .AddAuthenticationServices()
     .AddCorsPolicy();
 
-var logger = builder.AddSerilog();
-
-var appSettings = builder.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>();
-ArgumentNullException.ThrowIfNull(appSettings);
-
-LogHelper.LogInformation(logger, "[Program]", "App starting...");
-
 // Build the application
 var app = builder.Build();
 
-// app.UseCors("SupChat");
+var appSettings = app.Services.GetRequiredService<IOptions<AppSettings>>().Value;
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+LogHelper.LogInformation(logger, $"[{nameof(Program)}]", "{0} {1} {2} starting...", 
+     appSettings.Name, appSettings.Environment, appSettings.Version);
+
+app.UseCors("SupChat");
 app.UseCors(CorsOptions.PolicyName);
 
 // Apply pending migrations if in development mode
@@ -42,7 +41,7 @@ try
 }
 catch (Exception ex)
 {
-    LogHelper.LogError(logger, "[Program]", "An error occurred while applying migrations.", ex);
+    LogHelper.LogError(logger, "[Program]", ex, "An error occurred while applying migrations.");
 }
 // }
 
@@ -52,18 +51,16 @@ app.UseRouting();
 app.UseStaticFiles();
 
 // Adds the swagger endpoint if not in production
-if (builder.Configuration.GetValue<bool>("AppSettings:AllowSwagger"))
+if (appSettings.AllowSwagger)
 {
-    // this is the way to add a swagger in .Net9 but i couldn't make it work with the custom localization parameters
-    // app.MapOpenApi();
-
     app.UseSwagger();
     app.UseSwaggerUI(options =>
         {
-            // options.SwaggerEndpoint("/openapi/v1.json", builder.Configuration["AppSettings:Name"] ?? "Api");
-            options.SwaggerEndpoint($"/swagger/{appSettings.Version}/swagger.json",
-                builder.Configuration["AppSettings:Name"] ?? "Api");
-            options.DocExpansion(DocExpansion.None); // Ensures all controllers are collapsed by default
+            options.SwaggerEndpoint(
+                $"/swagger/{appSettings.Version}/swagger.json",
+                appSettings.Name ?? "Api"
+            );
+            options.DocExpansion(DocExpansion.None);
         }
     );
 }

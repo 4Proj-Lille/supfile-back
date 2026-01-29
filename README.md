@@ -53,3 +53,20 @@ docker compose --profile dev --env-file .env.dev up -d
 # For production
 
 docker compose --profile prod --env-file .env.prod up -d
+
+
+## Development
+
+### PostgreSQL
+
+The project uses PostgreSQL as the database.
+To run a PostgreSQL instance using Docker, you can use the following command:
+```bash
+docker run -d \
+  --name supfile-postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=SupFile-Dev \
+  -p 5432:5432 \
+  postgres:latest
+```
