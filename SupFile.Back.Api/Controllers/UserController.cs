@@ -6,7 +6,7 @@ public class UserController : BaseAuthController
     private readonly IUserService _userService;
 
     public UserController(ILogger<UserController> logger,
-        UserManager<AuthIdentityUser> userManager,
+        UserManager<ApplicationUser> userManager,
         IUserService workspaceService,
         IUserRepository userRepository,
         IWebHostEnvironment env) : base(logger, userManager, userRepository, env)
@@ -56,11 +56,11 @@ public class UserController : BaseAuthController
     //     return ToActionResult(Result.Ok(userModel));
     // }
 
-    [HttpDelete("{userId:int}")]
-    public async Task<ActionResult> DeleteUser(int userId)
-    {
-        var currentUser = await GetAuthenticatedAppUserAsync();
-        var result = await _userService.DeleteUserAsync(currentUser, userId);
-        return ToActionResult(result);
-    }
+    // [HttpDelete("{userId:int}")]
+    // public async Task<ActionResult> DeleteUser(int userId)
+    // {
+    //     var currentUser = await GetAuthenticatedAppUserAsync();
+    //     var result = await _userService.DeleteUserAsync(currentUser, userId);
+    //     return ToActionResult(result);
+    // }
 }

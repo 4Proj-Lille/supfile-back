@@ -82,7 +82,7 @@ namespace SupFile.Back.Data.Mapping
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
             
             builder.HasOne(t => t.OwnerApplicationUser)
-                .WithMany(t => t.OwnerFiles)
+                .WithMany(t => t.OwnedFiles)
                 .HasForeignKey(d => d.OwnerId)
                 .HasConstraintName("Files_User_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);

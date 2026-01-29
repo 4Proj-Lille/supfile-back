@@ -6,12 +6,12 @@ public sealed class AccountController : BaseController
     private readonly AppSettings _appSettings;
     private readonly IAuthService _authService;
     private readonly IAuthTokenProcessor _authTokenProcessor;
-    private readonly UserManager<AuthIdentityUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserService _userService;
 
     public AccountController(
         IAuthTokenProcessor authTokenProcessor,
-        UserManager<AuthIdentityUser> userManager,
+        UserManager<ApplicationUser> userManager,
         IUserService userService,
         IAuthService authService,
         ILogger<AccountController> logger,
@@ -78,16 +78,16 @@ public sealed class AccountController : BaseController
             return BadRequest(result.Errors);
         }
 
-        var applicationUserResult =
-            await _userService.GetOneAsync<ApplicationUser>(x => x.IdentityUserId == identityUser.Id);
-        if (applicationUserResult.IsFailed || applicationUserResult.Value == null)
-        {
-            return ToActionResult(Result.Fail(applicationUserResult.Errors));
-        }
+        // var applicationUserResult =
+        //     await _userService.GetOneAsync<ApplicationUser>(x => x.IdentityUserId == identityUser.Id);
+        // if (applicationUserResult.IsFailed || applicationUserResult.Value == null)
+        // {
+        //     return ToActionResult(Result.Fail(applicationUserResult.Errors));
+        // }
 
-        var applicationUser = applicationUserResult.Value;
+        // var applicationUser = applicationUserResult.Value;
 
-        var token = _authTokenProcessor.GenerateJwtToken(identityUser, applicationUser);
+        var token = _authTokenProcessor.GenerateJwtToken(identityUser);
         var refreshToken = _authTokenProcessor.GenerateRefreshToken();
 
         var refreshTokenExpiresAtUtc = DateTime.UtcNow.AddDays(7);
@@ -104,9 +104,9 @@ public sealed class AccountController : BaseController
             ExpiresAt = token.expiresAtUtc.AddMinutes(-1),
             RefreshToken = refreshToken,
             RefreshExpiresAt = refreshTokenExpiresAtUtc.AddMinutes(-1),
-            Name = applicationUser.Username,
+            Name = identityUser.UserName,
             Email = identityUser.Email,
-            Language = applicationUser.Language
+            Language = identityUser.Language
         };
 
         return Ok(responseLoginDto);
@@ -123,7 +123,7 @@ public sealed class AccountController : BaseController
         }
 
         var user = await _userManager.Users
-            .Include(u => u.ApplicationUser)
+            // .Include(u => u.ApplicationUser)
             .FirstOrDefaultAsync(u => u.Email == userEmail);
 
         if (user is null)
@@ -131,7 +131,7 @@ public sealed class AccountController : BaseController
             return Unauthorized();
         }
 
-        var userModel = user.Adapt<AuthIdentityUserModel>();
+        var userModel = user.Adapt<ApplicationUserModel>();
         return Ok(userModel);
     }
 }

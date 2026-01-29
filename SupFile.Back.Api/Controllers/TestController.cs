@@ -5,7 +5,7 @@ public class TestController : BaseAuthController
 {
 
     public TestController(ILogger<TestController> logger,
-        UserManager<AuthIdentityUser> userManager,
+        UserManager<ApplicationUser> userManager,
         IUserRepository userRepository,
         IWebHostEnvironment env) : base(logger, userManager, userRepository, env)
     {

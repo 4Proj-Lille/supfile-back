@@ -138,14 +138,14 @@ internal static class DependencyInjection
 
     public static WebApplicationBuilder AddAuthenticationServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddIdentity<AuthIdentityUser, IdentityRole<Guid>>(options =>
+        builder.Services.AddIdentityCore<ApplicationUser>(options =>
             {
-                // Configure Identity options if needed
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequiredLength = 6;
+                options.SignIn.RequireConfirmedAccount = true;
                 options.User.RequireUniqueEmail = true;
+                options.User.AllowedUserNameCharacters =
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
             })
+            .AddRoles<ApplicationRole>()
             .AddEntityFrameworkStores<SupFileContext>()
             .AddDefaultTokenProviders();
 

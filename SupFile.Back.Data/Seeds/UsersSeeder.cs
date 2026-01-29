@@ -9,9 +9,9 @@ namespace SupFile.Back.Data.Seeds;
 public class UsersSeeder
 {
     private readonly AppSettings _appSettings;
-    private readonly UserManager<AuthIdentityUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public UsersSeeder(UserManager<AuthIdentityUser> userManager, IOptions<AppSettings> appSettings)
+    public UsersSeeder(UserManager<ApplicationUser> userManager, IOptions<AppSettings> appSettings)
     {
         ArgumentNullException.ThrowIfNull(appSettings);
 
@@ -26,17 +26,12 @@ public class UsersSeeder
             return;
         }
 
-        var user = new AuthIdentityUser
+        var user = new ApplicationUser
         {
             UserName = _appSettings.DefaultUserEmail,
             Email = _appSettings.DefaultUserEmail,
             EmailConfirmed = true,
-            ApplicationUser = new ApplicationUser
-            {
-                Username = _appSettings.DefaultUserEmail,
-                FirstName = _appSettings.DefaultUserEmail,
-                Language = UserLanguageExtensions.FromCultureCode(_appSettings.SupportedCultures.First())
-            }
+            Language = UserLanguageExtensions.FromCultureCode(_appSettings.SupportedCultures.First())
         };
 
         await _userManager.CreateAsync(user, _appSettings.DefaultUserPassword);
