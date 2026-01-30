@@ -8,9 +8,7 @@ public class SmtpSettings
     public int Port { get; set; }
     [Required]
     public bool UseSsl { get; set; }
-    [Required]
     public string Username { get; set; }
-    [Required]
     public string Password { get; set; }
     [Required]
     public string MailFrom { get; set; }

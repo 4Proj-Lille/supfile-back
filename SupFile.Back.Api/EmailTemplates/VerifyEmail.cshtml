@@ -15,17 +15,37 @@
 
 <p style="margin-bottom: 25px;">Hello @Model.UserName,</p>
 
-<p style="margin-bottom: 25px;">Thank you for registering. Please verify your email by clicking the button below:</p>
+<p style="margin-bottom: 25px;">Thank you for registering with @Model.AppSettings.Name. Please click the button below to
+    verify your email address:</p>
 
-<p style="text-align:center; margin-bottom: 25px;">
-    <a href="@Model.VerificationUrl"
-       style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-        Verify Email
-    </a>
-</p>
+<a href="@Model.VerificationLink"
+   style="padding:12px 20px;background:#000;color:#fff;text-decoration:none;">
+    Reset your password
+</a>
 
-<p style="margin-bottom: 25px;">If the button doesn’t work, copy and paste this URL into your browser:</p>
-<p style="margin-bottom: 30px;"><a href="@Model.VerificationUrl">@Model.VerificationUrl</a></p>
+
+<p style="margin-top: 30px; margin-bottom: 10px;">Alternatively, you can use the verification code below:</p>
+
+@if (!string.IsNullOrEmpty(Model.Token))
+{
+    <table align="center" cellpadding="0" cellspacing="0" style="margin: 25px auto;">
+        <tr>
+            @foreach (var c in Model.Token)
+            {
+                <td style="
+                    border: 1px solid #ccc;
+                    padding: 10px 12px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-align: center;
+                    font-family: monospace;
+                ">
+                    @c
+                </td>
+            }
+        </tr>
+    </table>
+}
 
 <hr style="margin-bottom: 20px;"/>
 <footer style="font-size: 12px; color: gray; text-align:center;">

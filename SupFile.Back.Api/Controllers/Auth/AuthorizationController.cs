@@ -4,17 +4,21 @@
 public sealed class AuthorizationController : BaseController
 {
     private readonly IAuthService _authService;
-    private readonly LinkGenerator _linkGenerator;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IAuthTokenProcessor _authTokenProcessor;
+
 
     public AuthorizationController(
         IAuthService authService,
+        UserManager<ApplicationUser> userManager,
+        IAuthTokenProcessor authTokenProcessor,
         ILogger<AuthorizationController> logger,
-        LinkGenerator linkGenerator,
         IWebHostEnvironment env
     ) : base(logger, env)
     {
         _authService = authService;
-        _linkGenerator = linkGenerator;
+        _userManager = userManager;
+        _authTokenProcessor = authTokenProcessor;
     }
 
     [HttpPost("login")]
@@ -101,5 +105,66 @@ public sealed class AuthorizationController : BaseController
         var responseLoginDto = await _authService.RefreshTokenAsync(refreshToken);
 
         return ToActionResult(responseLoginDto);
+    }
+
+    [HttpPost("verify-email")]
+    public async Task<ActionResult<ResponseLoginDto>> ConfirmEmail(
+        [FromBody] ConfirmEmailDto model,
+        [FromServices] IValidator<ConfirmEmailDto> validator)
+    {
+        var validationCheck = await ValidateAndToActionResult(validator, model);
+        if (validationCheck is not null)
+        {
+            return validationCheck;
+        }
+
+        var responseLoginDto = await _authService.VerifyEmailAsync(model);
+
+        return Ok(responseLoginDto);
+    }
+
+    [HttpPost("resend-verification")]
+    public async Task<IActionResult> ResendVerificationEmail(
+        [FromForm] ResendVerificationEmailDto resendVerificationEmailDto,
+        [FromServices] IValidator<ResendVerificationEmailDto> validator)
+    {
+        var validationCheck = await ValidateAndToActionResult(validator, resendVerificationEmailDto);
+        if (validationCheck is not null)
+        {
+            return validationCheck;
+        }
+
+        var responseDto = await _authService.ResendVerificationEmailAsync(resendVerificationEmailDto);
+        return ToActionResult(responseDto.ToResult());
+    }
+
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordDto forgotPasswordDto,
+        [FromServices] IValidator<ForgotPasswordDto> validator)
+    {
+        var validationCheck = await ValidateAndToActionResult(validator, forgotPasswordDto);
+        if (validationCheck is not null)
+        {
+            return validationCheck;
+        }
+
+        var responseForgotPasswordDto = await _authService.ForgotPasswordAsync(forgotPasswordDto);
+        return ToActionResult(responseForgotPasswordDto.ToResult());
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromForm] ResetPasswordDto resetPasswordDto,
+        [FromServices] IValidator<ResetPasswordDto> validator)
+    {
+        var validationCheck = await ValidateAndToActionResult(validator, resetPasswordDto);
+        if (validationCheck is not null)
+        {
+            return validationCheck;
+        }
+
+        var responseResetPasswordDto = await _authService.ResetPasswordAsync(resetPasswordDto);
+
+        return ToActionResult(responseResetPasswordDto.ToResult());
     }
 }

@@ -6,10 +6,9 @@ internal static class DependencyInjection
 {
     public static WebApplicationBuilder AddSettings(this WebApplicationBuilder builder)
     {
-        builder.Services.AddOptions<AppSettings>().BindConfiguration(nameof(AppSettings)).ValidateDataAnnotations()
-            .ValidateOnStart();
-        builder.Services.AddOptions<SmtpSettings>().BindConfiguration(nameof(SmtpSettings));
-        builder.Services.AddOptions<BlobStorageSettings>().BindConfiguration(nameof(BlobStorageSettings));
+        builder.AddOptions<AppSettings>();
+        builder.AddOptions<SmtpSettings>();
+        builder.AddOptions<FrontEndSettings>();
 
         return builder;
     }
@@ -52,7 +51,7 @@ internal static class DependencyInjection
         builder.Services.AddBusinessServices(builder.Configuration);
         builder.Services.AddDataRepositories();
         builder.Services.AddSeeders();
-        
+
         var smptSettings = builder.Configuration.GetSection(nameof(SmtpSettings)).Get<SmtpSettings>();
 
         // builder.Services
@@ -178,6 +177,18 @@ internal static class DependencyInjection
             });
         });
 
+        return builder;
+    }
+    
+    private static WebApplicationBuilder AddOptions<TSettings>(this WebApplicationBuilder builder)
+        where TSettings : class
+    {
+        builder.Services
+            .AddOptions<TSettings>()
+            .BindConfiguration(typeof(TSettings).Name)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
         return builder;
     }
 }

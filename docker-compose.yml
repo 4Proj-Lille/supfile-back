@@ -31,7 +31,7 @@
     volumes:
       - pgdata:/var/lib/postgresql
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - supfileback_default
     healthcheck:
@@ -71,7 +71,7 @@
     tty: true
     restart: always
     ports:
-      - '127.0.0.1:5000:80'    # Web interface
+      - '127.0.0.1:5001:80'    # Web interface
     volumes:
       - smtp4dev-data:/smtp4dev
     networks:
