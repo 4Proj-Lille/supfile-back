@@ -74,7 +74,7 @@ public class Media : BaseEntity<Media, int>, IEntity<Media, int>
     /// <value>
     ///     The property value representing column 'FolderId'.
     /// </value>
-    public int FolderId { get; set; }
+    public int? FolderId { get; set; }
     
     /// <summary>
     ///     Gets or sets the property value representing column 'OwnerId'.
@@ -104,7 +104,7 @@ public class Media : BaseEntity<Media, int>, IEntity<Media, int>
     ///     The navigation property for entity <see cref="Folder" />.
     /// </value>
     /// <seealso cref="FolderId" />
-    public virtual Folder FileFolder { get; set; } = null!;
+    public virtual Folder? FileFolder { get; set; }
     
     /// <summary>
     ///     Gets or sets the navigation collection for entity <see cref="Link" />.

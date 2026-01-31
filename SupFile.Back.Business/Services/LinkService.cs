@@ -11,4 +11,11 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
     {
         _userService = userService;
     }
+    
+    public async Task<Result<Link>> GenerateLinkAsync(Link entity){
+        
+        var addLink = await AddAsync(entity);
+
+        return addLink;
+    }
 }

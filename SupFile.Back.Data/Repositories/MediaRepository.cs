@@ -7,4 +7,12 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     {
     }
 
+    public async Task<Result<List<TMapped>>> GetFromRoot<TMapped>(ApplicationUser user)
+    {
+        var q = Query().Where(x =>
+            x.OwnerId == user.Id && x.FolderId == null
+        ).OrderBy(x => x.Name);
+
+        return Result.Ok(await q.FindListAsync<TMapped>(""));
+    }
 }

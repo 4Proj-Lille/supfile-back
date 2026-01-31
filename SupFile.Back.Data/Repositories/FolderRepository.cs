@@ -6,5 +6,14 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         logger, context)
     {
     }
+    
+    public async Task<Result<List<TMapped>>> GetFromRoot<TMapped>(ApplicationUser user)
+    {
+        var q = Query().Where(x =>
+            x.OwnerId == user.Id && x.ParentId == null
+            ).OrderBy(x => x.Name);
+
+        return Result.Ok(await q.FindListAsync<TMapped>(""));
+    }
 
 }
