@@ -85,12 +85,13 @@ public class AuthTokenProcessor : IAuthTokenProcessor
     }
 
 
-    public string GenerateRefreshToken()
+    public (string refreshToken, DateTime expiresAtUtc) GenerateRefreshToken()
     {
         var randomNumber = new byte[64];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
+        var expiresAtUtc = DateTime.UtcNow.AddDays(7);
+        return (Convert.ToBase64String(randomNumber), expiresAtUtc);
     }
 
     public void WriteAuthTokenAsHttpOnlyCookie(string cookieName, string token,
