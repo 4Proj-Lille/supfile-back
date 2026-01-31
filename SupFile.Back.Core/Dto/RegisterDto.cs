@@ -3,8 +3,8 @@ namespace SupFile.Back.Core.Dto;
 public class RegisterDto
 {
     [Required]
-    [Display(Name = "UserName")]
-    public required string UserName { get; set; }
+    [Display(Name = "Username")]
+    public required string Username { get; set; }
 
     [Required]
     [EmailAddress]

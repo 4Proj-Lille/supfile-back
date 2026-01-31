@@ -22,8 +22,16 @@ internal static class AuthenticationExtensions
             })
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
             {
-                options.Cookie.SameSite = SameSiteMode.None;
-                // options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // HTTPS only
+                if (builder.Environment.IsDevelopment())
+                {
+                    options.Cookie.SameSite = SameSiteMode.None;      // nécessaire pour OAuth cross-site
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // HTTPS obligatoire
+                }
+                else
+                {
+                    options.Cookie.SameSite = SameSiteMode.None;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                }
             })
             .AddJwtBearer(options =>
             {
@@ -43,6 +51,7 @@ internal static class AuthenticationExtensions
                 options.CallbackPath = "/auth/google/callback";
                 options.SaveTokens = true;
             });
+        
 
         builder.Services.AddAuthorization();
 

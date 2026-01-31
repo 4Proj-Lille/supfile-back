@@ -3,7 +3,7 @@ namespace SupFile.Back.Core.Configuration;
 
 public class AuthProviderSettings
 {
-    [Required] public required ProviderSettings Google { get; set; }
+    public required ProviderSettings Google { get; set; }
 }
 
 public class ProviderSettings

@@ -4,7 +4,8 @@ public class ApplicationUserModel
 {
     public int Id { get; set; }
     
-    public string UserName { get; set; }
+    public string Username { get; set; }
+    public string DisplayName { get; set; }
     
     public UserLanguage Language { get; set; }
     

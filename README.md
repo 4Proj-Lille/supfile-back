@@ -70,3 +70,40 @@ docker run -d \
   -p 5432:5432 \
   postgres:latest
 ```
+
+
+## Docker HTTPS (required for OAuth2)
+
+HTTPS is required for OAuth2 to work correctly in local development.
+
+Each developer must generate and trust a local ASP.NET HTTPS development certificate.
+Certificates are **machine-specific** and must **not** be shared or committed.
+
+---
+
+### Generate macOS / Linux HTTPS certificate
+
+```bash
+dotnet dev-certs https --clean
+mkdir -p ~/.aspnet/https
+dotnet dev-certs https -ep ~/.aspnet/https/aspnetapp.pfx -p MyStrongPassword123 # Replace with your password
+dotnet dev-certs https --trust
+```
+
+### Generate Windows HTTPS certificate
+
+```bash
+dotnet dev-certs https --clean
+mkdir $env:USERPROFILE\.aspnet\https
+dotnet dev-certs https -ep $env:USERPROFILE\.aspnet\https\aspnetapp.pfx -p MyStrongPassword123 # Replace with your password
+dotnet dev-certs https --trust
+```
+
+### Update .env file
+
+Then update the following environment variables in the `.env` file:
+
+```dotenv
+ASPNETCORE_KESTREL__CERTIFICATES__DEFAULT__PATH: /https/aspnetapp.pfx # This line should not be changed
+ASPNETCORE_KESTREL__CERTIFICATES__DEFAULT__PASSWORD: MyStrongPassword123 # Replace with your password
+```

@@ -82,7 +82,7 @@ public class AuthService : IAuthService
     public async Task<Result<bool>> Register(RegisterDto registerDto)
     {
         var user = await _userManager.FindByEmailAsync(registerDto.Email)
-                   ?? await _userManager.FindByNameAsync(registerDto.UserName);
+                   ?? await _userManager.FindByNameAsync(registerDto.Username);
 
         //if user already exists but email is not confirmed, override it
         if (user is { EmailConfirmed: false })
@@ -106,7 +106,7 @@ public class AuthService : IAuthService
         //     return Result.Fail(new ConflictError("A user with the same username already exists."));
         // }
 
-        user = new ApplicationUser { UserName = registerDto.UserName, Email = registerDto.Email };
+        user = new ApplicationUser { UserName = registerDto.Username, Email = registerDto.Email, DisplayName =  registerDto.Username };
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
 
@@ -290,7 +290,7 @@ public class AuthService : IAuthService
             template,
             new VerificationEmailModel
             {
-                UserName = user.UserName!,
+                Username = user.UserName!,
                 UserId = user.Id,
                 Token = token,
                 AppSettings = _appSettings,
@@ -309,7 +309,7 @@ public class AuthService : IAuthService
     {
         var claims = result.Principal!.Claims.ToList();
         var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-        // var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value; TODO, add a display name to the user
+        var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
         var providerId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
         if (email == null || providerId == null)
@@ -324,7 +324,7 @@ public class AuthService : IAuthService
             user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                user = new ApplicationUser { UserName = email, Email = email };
+                user = new ApplicationUser { UserName = email, Email = email, DisplayName = name};
                 var userCreatedresult = await _userManager.CreateAsync(user);
                 if (!userCreatedresult.Succeeded)
                 {

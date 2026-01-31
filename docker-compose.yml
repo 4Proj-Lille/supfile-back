@@ -2,7 +2,7 @@
   supfile.api:
     image: supfile.back.api
     pull_policy: build
-    stdin_open: true 
+    stdin_open: true
     tty: true
     build:
       context: .
@@ -19,9 +19,9 @@
       - "7268:7268"
     env_file:
       - .env
-    profiles:
-      - Dev
-      - Prod
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
   
   postgres:
     image: postgres
@@ -29,7 +29,7 @@
     tty: true
     restart: always
     volumes:
-      - pgdata:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql
     ports:
       - "5433:5432"
     networks:
@@ -42,9 +42,6 @@
       start_period: 15s
     env_file:
       - .env
-    profiles:
-      - Dev
-      - Prod
 
   azureblobstorage:
     image: mcr.microsoft.com/azure-storage/azurite:latest
@@ -52,9 +49,6 @@
     tty: true
     volumes:
       - blobstorage_data:/data
-    profiles:
-      - Dev
-      - Prod
     networks:
       - supfileback_default
     ports:

@@ -119,20 +119,34 @@ public sealed class AuthorizationController : BaseController
     }
 
     [HttpGet("google")]
-    public IActionResult GoogleLogin()
+    public IActionResult GoogleLogin([FromQuery] string returnUrl)
     {
-        var properties = new AuthenticationProperties { RedirectUri = Url.Action(nameof(GoogleResponse)) };
+        if(string.IsNullOrEmpty(returnUrl))
+        {
+            return ToActionResult(Result.Fail(new BadRequestError("ReturnUrl is missing."))); 
+        }
+        
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = Url.Action(nameof(GoogleResponse), null, new { returnUrl }, Request.Scheme)
+        };
         return Challenge(properties, GoogleDefaults.AuthenticationScheme);
     }
 
     [HttpGet("google/callback")]
-    public async Task<ActionResult<ResponseLoginDto>> GoogleResponse()
+    public async Task<ActionResult<ResponseLoginDto>> GoogleResponse([FromQuery] string returnUrl)
     {
         var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
         if (!result.Succeeded)
             return BadRequest("External authentication failed");
-        
+
         var loginResponseResult = await _authService.LoginWithProviderAsync(result, Providers.Google);
-        return ToActionResult(loginResponseResult);
+        
+        // append token or session id if needed
+        var urlWithToken = $"{returnUrl}?token={loginResponseResult.Value.AccessToken}&refreshToken={loginResponseResult.Value.RefreshToken}";
+
+        return Redirect(urlWithToken);
+        
+        // return ToActionResult(loginResponseResult);
     }
 }
