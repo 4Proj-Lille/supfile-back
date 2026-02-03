@@ -59,7 +59,7 @@ namespace SupFile.Back.Data.Mapping
             // relationships
             
             builder.HasOne(t => t.ShareUser)
-                .WithMany(t => t.UserShares)
+                .WithMany(t => t.OwnerShares)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("Shares_User_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);

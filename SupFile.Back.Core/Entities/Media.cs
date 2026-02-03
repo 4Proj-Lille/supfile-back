@@ -104,7 +104,7 @@ public class Media : BaseEntity<Media, int>, IEntity<Media, int>
     ///     The navigation property for entity <see cref="Folder" />.
     /// </value>
     /// <seealso cref="FolderId" />
-    public virtual Folder? FileFolder { get; set; }
+    public virtual Folder? Folder { get; set; }
     
     /// <summary>
     ///     Gets or sets the navigation collection for entity <see cref="Link" />.

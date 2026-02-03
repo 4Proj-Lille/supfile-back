@@ -7,7 +7,7 @@ public sealed class FolderController : BaseAuthController
 
     public FolderController(
         ILogger<FolderController> logger,
-        UserManager<AuthIdentityUser> userManager,
+        UserManager<ApplicationUser> userManager,
         IFolderService folderService,
         IUserRepository userRepository,
         IWebHostEnvironment env

@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".env" />
+    <File Path=".gitignore" />
+    <File Path="directory.build.props" />
+    <File Path="readme.md" />
+  </Folder>
+  <Project Path="docker-compose.dcproj" />
+  <Project Path="SupFile.Back.Api/SupFile.Back.Api.csproj" />
+  <Project Path="SupFile.Back.Business/SupFile.Back.Business.csproj" />
+  <Project Path="SupFile.Back.Core/SupFile.Back.Core.csproj" />
+  <Project Path="SupFile.Back.Data/SupFile.Back.Data.csproj" />
+  <Project Path="SupFile.Back.Resources/SupFile.Back.Resources.csproj" />
+</Solution>

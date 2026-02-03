@@ -7,7 +7,7 @@ public sealed class LinkController : BaseAuthController
 
     public LinkController(
         ILogger<LinkController> logger,
-        UserManager<AuthIdentityUser> userManager,
+        UserManager<ApplicationUser> userManager,
         ILinkService linkService,
         IUserRepository userRepository,
         IWebHostEnvironment env

@@ -7,7 +7,7 @@ public sealed class ShareController : BaseAuthController
 
     public ShareController(
         ILogger<ShareController> logger,
-        UserManager<AuthIdentityUser> userManager,
+        UserManager<ApplicationUser> userManager,
         IShareService shareService,
         IUserRepository userRepository,
         IWebHostEnvironment env

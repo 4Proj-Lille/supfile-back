@@ -75,16 +75,16 @@ namespace SupFile.Back.Data.Mapping
             
 
             // relationships
-            builder.HasOne(t => t.FileFolder)
+            builder.HasOne(t => t.Folder)
                 .WithMany(t => t.Medias)
                 .HasForeignKey(d => d.FolderId)
-                .HasConstraintName("Files_Folder_Id_fk")
+                .HasConstraintName("Medias_Folder_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
             
             builder.HasOne(t => t.OwnerApplicationUser)
                 .WithMany(t => t.OwnerMedias)
                 .HasForeignKey(d => d.OwnerId)
-                .HasConstraintName("Files_User_Id_fk")
+                .HasConstraintName("Medias_User_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
 
             #endregion

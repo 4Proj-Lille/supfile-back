@@ -30,7 +30,7 @@ public static class LogHelper
     }
 
 
-    public static void LogError(ILogger logger, string category, string message, Exception? ex, params object?[] args)
+    public static void LogError(ILogger logger, string category, Exception? ex, string message, params object?[] args)
     {
         var formattedMessage = string.Format(CultureInfo.InvariantCulture, message, args);
 

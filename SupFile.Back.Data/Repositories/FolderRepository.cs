@@ -1,3 +1,5 @@
+using SupFile.Back.Core.Entities.Auth;
+
 namespace SupFile.Back.Data.Repositories;
 
 public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFolderRepository

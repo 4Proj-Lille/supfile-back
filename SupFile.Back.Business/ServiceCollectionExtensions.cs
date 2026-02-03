@@ -18,5 +18,8 @@ public static class ServiceCollectionExtensions
             Configuration.GetConnectionString("BlobStorage") ??
             throw new InvalidOperationException("Default connection string missing inside appsettings.json")
         ));
+        
+        services.AddTransient<IEmailService, EmailService>();
+
     }
 }

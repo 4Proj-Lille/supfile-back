@@ -10,7 +10,15 @@ namespace SupFile.Back.Data.Context;
 ///     A <see cref="DbContext" /> instance represents a session with the database and can be used to query and save
 ///     instances of entities.
 /// </summary>
-public class SupFileContext : IdentityDbContext<AuthIdentityUser, IdentityRole<Guid>, Guid>
+public class SupFileContext : IdentityDbContext<
+    ApplicationUser,
+    ApplicationRole,
+    int,
+    IdentityUserClaim<int>,
+    ApplicationUserRole,
+    IdentityUserLogin<int>,
+    IdentityRoleClaim<int>,
+    IdentityUserToken<int>>
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="SupFileContext" /> class.
@@ -32,26 +40,28 @@ public class SupFileContext : IdentityDbContext<AuthIdentityUser, IdentityRole<G
         
         #region Generated Configuration
 
-        modelBuilder.ApplyConfiguration(new ApplicationUserMap());
         modelBuilder.ApplyConfiguration(new FolderMap());
         modelBuilder.ApplyConfiguration(new MediaMap());
         modelBuilder.ApplyConfiguration(new ShareMap());
         modelBuilder.ApplyConfiguration(new LinkMap());
 
         #endregion
+        
+        modelBuilder.Entity<ApplicationUser>(entity => entity.ToTable("User"));
+        modelBuilder.Entity<ApplicationRole>(entity => entity.ToTable("Role"));
+        modelBuilder.Entity<ApplicationUserRole>(entity => entity.ToTable("UserRole"));
+        modelBuilder.Entity<IdentityUserClaim<int>>(entity => entity.ToTable("Claim"));
+        modelBuilder.Entity<IdentityRoleClaim<int>>(entity => entity.ToTable("RoleClaim"));
+        modelBuilder.Entity<IdentityUserLogin<int>>(entity => entity.ToTable("UserLogin"));
+        modelBuilder.Entity<IdentityUserToken<int>>(entity => entity.ToTable("UserToken"));
     }
 
     #region Generated Properties
 
-    /// <summary>
-    ///     Gets or sets the <see cref="T:Microsoft.EntityFrameworkCore.DbSet`1" /> that can be used to query and save
-    ///     instances of <see cref="ApplicationUser" />.
-    /// </summary>
-    /// <value>
-    ///     The <see cref="T:Microsoft.EntityFrameworkCore.DbSet`1" /> that can be used to query and save instances of
-    ///     <see cref="ApplicationUser" />.
-    /// </value>
-    public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; } = null!;
-
+    public virtual DbSet<Folder> Folders { get; set; }
+    public virtual DbSet<Media> Medias { get; set; }
+    public virtual DbSet<Link> Links { get; set; }
+    public virtual DbSet<Share> Shares { get; set; }
+    
     #endregion
 }

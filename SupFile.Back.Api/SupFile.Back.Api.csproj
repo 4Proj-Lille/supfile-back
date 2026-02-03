@@ -42,7 +42,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="wwwroot\" />
+        <Content Include="EmailTemplates\**\*.cshtml" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="wwwroot\**\*" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

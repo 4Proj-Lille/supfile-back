@@ -1,13 +1,13 @@
 namespace SupFile.Back.Business.Models.Templates.Emails;
 
-public class VerificationEmailModel
+public class ForgotPasswordEmailModel
 {
     public string UserName { get; set; }
+    public string EncodedToken { get; set; }
     public int UserId { get; set; }
-    public string Token { get; set; }
     public AppSettings AppSettings { get; set; }
     public FrontEndSettings FrontEndSettings { get; set; }
-    
-    public string VerificationLink =>
-        $"{FrontEndSettings.BaseUrl}{FrontEndSettings.EmailVerificationLink}?userId={UserId}code={Token}";
+
+    public string ResetLink =>
+        $"{FrontEndSettings.BaseUrl}{FrontEndSettings.ResetPasswordLink}?userId={UserId}code={EncodedToken}";
 }

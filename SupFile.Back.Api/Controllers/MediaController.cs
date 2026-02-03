@@ -7,7 +7,7 @@ public sealed class MediaController : BaseAuthController
 
     public MediaController(
         ILogger<MediaController> logger,
-        UserManager<AuthIdentityUser> userManager,
+        UserManager<ApplicationUser> userManager,
         IMediaService mediaService,
         IUserRepository userRepository,
         IWebHostEnvironment env

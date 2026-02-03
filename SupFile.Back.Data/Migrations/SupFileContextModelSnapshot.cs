@@ -22,11 +22,101 @@ namespace SupFile.Back.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RoleClaim", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Claim", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLogin", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("UserToken", (string)null);
+                });
+
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.ApplicationRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -46,165 +136,21 @@ namespace SupFile.Back.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("Role", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("text");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("SupFile.Back.Core.Entities.ApplicationUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id")
-                        .HasColumnOrder(0);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("FirstName");
-
-                    b.Property<Guid?>("IdentityUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("IdentityUserId");
-
-                    b.Property<int>("Language")
-                        .HasColumnType("int")
-                        .HasColumnName("Language");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("LastName");
-
-                    b.Property<Guid?>("ProfilePictureId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("Username");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdentityUserId")
-                        .IsUnique();
-
-                    b.ToTable("User", "public");
-                });
-
-            modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.AuthIdentityUser", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
 
                     b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ApplicationRoleId")
                         .HasColumnType("integer");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -217,6 +163,9 @@ namespace SupFile.Back.Data.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -259,6 +208,8 @@ namespace SupFile.Back.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApplicationRoleId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -266,7 +217,32 @@ namespace SupFile.Back.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("User", (string)null);
+                });
+
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.ApplicationUserRole", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoleId1")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId1")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("RoleId1");
+
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("UserRole", (string)null);
                 });
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Folder", b =>
@@ -446,71 +422,83 @@ namespace SupFile.Back.Data.Migrations
                     b.ToTable("Share", "public");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("SupFile.Back.Core.Entities.Auth.AuthIdentityUser", null)
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("SupFile.Back.Core.Entities.Auth.AuthIdentityUser", null)
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.ApplicationUser", b =>
+                {
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationRole", null)
+                        .WithMany("Users")
+                        .HasForeignKey("ApplicationRoleId");
+                });
+
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.ApplicationUserRole", b =>
+                {
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SupFile.Back.Core.Entities.Auth.AuthIdentityUser", null)
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationRole", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
-                {
-                    b.HasOne("SupFile.Back.Core.Entities.Auth.AuthIdentityUser", null)
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UserId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("SupFile.Back.Core.Entities.ApplicationUser", b =>
-                {
-                    b.HasOne("SupFile.Back.Core.Entities.Auth.AuthIdentityUser", "IdentityUser")
-                        .WithOne("ApplicationUser")
-                        .HasForeignKey("SupFile.Back.Core.Entities.ApplicationUser", "IdentityUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_User_ApplicationUser");
+                    b.Navigation("Role");
 
-                    b.Navigation("IdentityUser");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Folder", b =>
                 {
-                    b.HasOne("SupFile.Back.Core.Entities.ApplicationUser", "OwnerApplicationUserFolder")
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", "OwnerApplicationUserFolder")
                         .WithMany("OwnerFolders")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -551,20 +539,20 @@ namespace SupFile.Back.Data.Migrations
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Media", b =>
                 {
-                    b.HasOne("SupFile.Back.Core.Entities.Folder", "FileFolder")
+                    b.HasOne("SupFile.Back.Core.Entities.Folder", "Folder")
                         .WithMany("Medias")
                         .HasForeignKey("FolderId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("Files_Folder_Id_fk");
+                        .HasConstraintName("Medias_Folder_Id_fk");
 
-                    b.HasOne("SupFile.Back.Core.Entities.ApplicationUser", "OwnerApplicationUser")
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", "OwnerApplicationUser")
                         .WithMany("OwnerMedias")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("Files_User_Id_fk");
+                        .HasConstraintName("Medias_User_Id_fk");
 
-                    b.Navigation("FileFolder");
+                    b.Navigation("Folder");
 
                     b.Navigation("OwnerApplicationUser");
                 });
@@ -583,8 +571,8 @@ namespace SupFile.Back.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("Share_Media_Id_fk");
 
-                    b.HasOne("SupFile.Back.Core.Entities.ApplicationUser", "ShareUser")
-                        .WithMany("UserShares")
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", "ShareUser")
+                        .WithMany("OwnerShares")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -597,18 +585,20 @@ namespace SupFile.Back.Data.Migrations
                     b.Navigation("ShareUser");
                 });
 
-            modelBuilder.Entity("SupFile.Back.Core.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.ApplicationRole", b =>
+                {
+                    b.Navigation("UserRoles");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.ApplicationUser", b =>
                 {
                     b.Navigation("OwnerFolders");
 
                     b.Navigation("OwnerMedias");
 
-                    b.Navigation("UserShares");
-                });
-
-            modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.AuthIdentityUser", b =>
-                {
-                    b.Navigation("ApplicationUser");
+                    b.Navigation("OwnerShares");
                 });
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Folder", b =>

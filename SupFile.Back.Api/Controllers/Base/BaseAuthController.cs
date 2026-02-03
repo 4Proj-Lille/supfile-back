@@ -4,12 +4,12 @@
 [Authorize]
 public abstract class BaseAuthController : BaseController
 {
-    private readonly UserManager<AuthIdentityUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserRepository _userRepository;
 
     protected BaseAuthController(
         ILogger<BaseAuthController> logger,
-        UserManager<AuthIdentityUser> userManager,
+        UserManager<ApplicationUser> userManager,
         IUserRepository userRepository,
         IHostEnvironment environment
     ) :
@@ -19,7 +19,7 @@ public abstract class BaseAuthController : BaseController
         _userRepository = userRepository;
     }
 
-    protected async Task<AuthIdentityUser> GetAuthenticatedUserIdentityAsync()
+    protected async Task<ApplicationUser> GetAuthenticatedUserIdentityAsync()
     {
         var userId = User.FindFirst(CustomClaimTypes.IdentityId)?.Value;
         if (string.IsNullOrEmpty(userId))

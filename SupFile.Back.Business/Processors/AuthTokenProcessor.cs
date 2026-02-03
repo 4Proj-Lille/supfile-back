@@ -18,8 +18,7 @@ public class AuthTokenProcessor : IAuthTokenProcessor
         _jwtSettings = jwtSettings.Value;
     }
 
-    public (string jwtToken, DateTime expiresAtUtc) GenerateJwtToken(AuthIdentityUser identityUser,
-        ApplicationUser applicationUser)
+    public (string jwtToken, DateTime expiresAtUtc) GenerateJwtToken(ApplicationUser identityUser)
     {
         var signingKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_jwtSettings.Secret));
@@ -39,8 +38,7 @@ public class AuthTokenProcessor : IAuthTokenProcessor
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(ClaimTypes.NameIdentifier, identityUser.ToString()),
             new Claim(ClaimTypes.Email, identityUser.Email),
-            new Claim(ClaimTypes.Locality, applicationUser.Language.ToCultureCode()), // e.g., "fr-FR"
-            new Claim(CustomClaimTypes.ApplicationUserId, applicationUser.Id.ToString(CultureInfo.InvariantCulture))
+            new Claim(ClaimTypes.Locality, identityUser.Language.ToCultureCode()), // e.g., "fr-FR"
         };
 
         var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationTimeInMinutes);

@@ -2,6 +2,8 @@
   supfile.api:
     image: supfile.back.api
     pull_policy: build
+    stdin_open: true
+    tty: true
     build:
       context: .
       dockerfile: SupFile.Back.Api/Dockerfile
@@ -10,22 +12,26 @@
     depends_on:
       postgres:
         condition: service_healthy
+      smtp4dev:
+        condition: service_started
     ports:
       - "5263:5263"
       - "7268:7268"
     env_file:
       - .env
-    profiles:
-      - Dev
-      - Prod
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
   
   postgres:
     image: postgres
+    stdin_open: true
+    tty: true
     restart: always
     volumes:
-      - pgdata:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - supfileback_default
     healthcheck:
@@ -36,41 +42,42 @@
       start_period: 15s
     env_file:
       - .env
-    profiles:
-      - Dev
-      - Prod
 
-  azureblobstorage:
-    image: mcr.microsoft.com/azure-storage/azurite:latest
-    volumes:
-      - blobstorage_data:/data
-    profiles:
-      - Dev
-      - Prod
-    networks:
-      - supfileback_default
-    ports:
-      - "10000:10000"
-    command: "azurite-blob --blobHost 0.0.0.0 -l /data"
-    healthcheck:
-      test: nc 127.0.0.1 10000 -z
-      interval: 1s
-      retries: 30
+#  azureblobstorage:
+#    image: mcr.microsoft.com/azure-storage/azurite:latest
+#    stdin_open: true
+#    tty: true
+#    volumes:
+#      - blobstorage_data:/data
+#    networks:
+#      - supfileback_default
+#    ports:
+#      - "10000:10000"
+#    command: "azurite-blob --blobHost 0.0.0.0 -l /data"
+#    healthcheck:
+#      test: nc 127.0.0.1 10000 -z
+#      interval: 1s
+#      retries: 30
   
-  papercut:
-    image: changemakerstudiosus/papercut-smtp:latest
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    stdin_open: true
+    tty: true
+    restart: always
     ports:
-      - "25:25"
-      - "8080:80"
-    profiles:
-      - Dev
+      - '127.0.0.1:5001:80'    # Web interface
+    volumes:
+      - smtp4dev-data:/smtp4dev
     networks:
       - supfileback_default
-
+    environment:
+      - ServerOptions__Urls=http://*:80
+      - ServerOptions__HostName=smtp4dev
 
 volumes:
   postgres_data:
   blobstorage_data:
+  smtp4dev-data:
 
 networks:
   supfileback_default:
