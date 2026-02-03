@@ -7,11 +7,10 @@ public sealed class LinkController : BaseAuthController
 
     public LinkController(
         ILogger<LinkController> logger,
-        UserManager<ApplicationUser> userManager,
         ILinkService linkService,
         IUserRepository userRepository,
         IWebHostEnvironment env
-    ) : base(logger, userManager, userRepository, env)
+    ) : base(logger, userRepository, env)
     {
         _linkService = linkService;
     }

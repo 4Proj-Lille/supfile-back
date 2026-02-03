@@ -7,11 +7,10 @@ public sealed class FolderController : BaseAuthController
 
     public FolderController(
         ILogger<FolderController> logger,
-        UserManager<ApplicationUser> userManager,
         IFolderService folderService,
         IUserRepository userRepository,
         IWebHostEnvironment env
-    ) : base(logger, userManager, userRepository, env)
+    ) : base(logger, userRepository, env)
     {
         _folderService = folderService;
     }

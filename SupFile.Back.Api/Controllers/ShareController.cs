@@ -7,11 +7,10 @@ public sealed class ShareController : BaseAuthController
 
     public ShareController(
         ILogger<ShareController> logger,
-        UserManager<ApplicationUser> userManager,
         IShareService shareService,
         IUserRepository userRepository,
         IWebHostEnvironment env
-    ) : base(logger, userManager, userRepository, env)
+    ) : base(logger, userRepository, env)
     {
         _shareService = shareService;
     }

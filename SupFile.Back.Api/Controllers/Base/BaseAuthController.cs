@@ -4,41 +4,21 @@
 [Authorize]
 public abstract class BaseAuthController : BaseController
 {
-    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserRepository _userRepository;
 
     protected BaseAuthController(
         ILogger<BaseAuthController> logger,
-        UserManager<ApplicationUser> userManager,
         IUserRepository userRepository,
         IHostEnvironment environment
     ) :
         base(logger, environment)
     {
-        _userManager = userManager;
         _userRepository = userRepository;
     }
-
-    protected async Task<ApplicationUser> GetAuthenticatedUserIdentityAsync()
-    {
-        var userId = User.FindFirst(CustomClaimTypes.IdentityId)?.Value;
-        if (string.IsNullOrEmpty(userId))
-        {
-            throw new Exception("User not found");
-        }
-
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
-        {
-            throw new Exception("User not found");
-        }
-
-        return user;
-    }
-
+    
     protected async Task<ApplicationUser> GetAuthenticatedAppUserAsync()
     {
-        var stringUserId = User.FindFirst(CustomClaimTypes.ApplicationUserId)?.Value;
+        var stringUserId = User.FindFirst(CustomClaimTypes.UserId)?.Value;
         if (string.IsNullOrEmpty(stringUserId))
         {
             throw new Exception("User not found");

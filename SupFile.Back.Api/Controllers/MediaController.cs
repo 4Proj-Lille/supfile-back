@@ -7,11 +7,10 @@ public sealed class MediaController : BaseAuthController
 
     public MediaController(
         ILogger<MediaController> logger,
-        UserManager<ApplicationUser> userManager,
         IMediaService mediaService,
         IUserRepository userRepository,
         IWebHostEnvironment env
-    ) : base(logger, userManager, userRepository, env)
+    ) : base(logger, userRepository, env)
     {
         _mediaService = mediaService;
     }
