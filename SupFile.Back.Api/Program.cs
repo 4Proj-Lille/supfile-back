@@ -34,6 +34,8 @@ var dbContext = scope.ServiceProvider.GetRequiredService<SupFileContext>();
 var databaseSeeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
 try
 {
+    LogHelper.LogInformation(logger, "[Program]", "Trying to apply migrations...");
+
     // Apply pending migrations
     await dbContext.Database.MigrateAsync();
     LogHelper.LogInformation(logger, "[Program]", "Migrations applied successfully in development mode.");
