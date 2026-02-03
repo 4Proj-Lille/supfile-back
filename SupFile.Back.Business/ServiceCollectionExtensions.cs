@@ -10,7 +10,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient<IAuthService, AuthService>();
         services.AddTransient<IUserService, UserService>();
-
+        services.AddTransient<IFolderService, FolderService>();
+        services.AddTransient<IMediaService, MediaService>();
+        services.AddTransient<IShareService, ShareService>();
+        services.AddTransient<ILinkService, LinkService>();
+        
         services.AddTransient<IAuthTokenProcessor, AuthTokenProcessor>();
 
         services.AddSingleton<IBlobService, BlobService>();
