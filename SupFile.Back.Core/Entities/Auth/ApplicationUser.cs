@@ -42,7 +42,7 @@ public class ApplicationUser : IdentityUser<int>, IEntity<ApplicationUser, int>
     /// <value>
     ///     The navigation collection for entity <see cref="Directory" />.
     /// </value>
-    public virtual ICollection<Directory> OwnedDirectories { get; }    
+    public virtual ICollection<Folder> OwnerFolders { get; }    
     
     /// <summary>
     ///     Gets or sets the navigation collection for entity <see cref="File" />.
@@ -50,7 +50,7 @@ public class ApplicationUser : IdentityUser<int>, IEntity<ApplicationUser, int>
     /// <value>
     ///     The navigation collection for entity <see cref="File" />.
     /// </value>
-    public virtual ICollection<File> OwnedFiles { get; } 
+    public virtual ICollection<Media> OwnerMedias { get; } 
     
     /// <summary>
     ///     Gets or sets the navigation collection for entity <see cref="Directory" />.
@@ -58,7 +58,7 @@ public class ApplicationUser : IdentityUser<int>, IEntity<ApplicationUser, int>
     /// <value>
     ///     The navigation collection for entity <see cref="Directory" />.
     /// </value>
-    public virtual ICollection<Share> OwnedShares { get; }
+    public virtual ICollection<Share> OwnerShares { get; }
 
     #endregion
 

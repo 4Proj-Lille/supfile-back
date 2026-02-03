@@ -3,8 +3,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using SupFile.Back.Core.Entities.Auth;
-using Directory = SupFile.Back.Core.Entities.Directory;
-using File = SupFile.Back.Core.Entities.File;
 
 namespace SupFile.Back.Data.Context;
 
@@ -42,8 +40,8 @@ public class SupFileContext : IdentityDbContext<
         
         #region Generated Configuration
 
-        modelBuilder.ApplyConfiguration(new DirectoryMap());
-        modelBuilder.ApplyConfiguration(new FileMap());
+        modelBuilder.ApplyConfiguration(new FolderMap());
+        modelBuilder.ApplyConfiguration(new MediaMap());
         modelBuilder.ApplyConfiguration(new ShareMap());
         modelBuilder.ApplyConfiguration(new LinkMap());
 
@@ -60,8 +58,8 @@ public class SupFileContext : IdentityDbContext<
 
     #region Generated Properties
 
-    public virtual DbSet<Directory> Directories { get; set; }
-    public virtual DbSet<File> Files { get; set; }
+    public virtual DbSet<Folder> Folders { get; set; }
+    public virtual DbSet<Media> Medias { get; set; }
     public virtual DbSet<Link> Links { get; set; }
     public virtual DbSet<Share> Shares { get; set; }
     

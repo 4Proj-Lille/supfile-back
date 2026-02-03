@@ -48,32 +48,32 @@ namespace SupFile.Back.Data.Mapping
                 .HasColumnType("varchar(255)")
                 .HasMaxLength(255);
             
-            builder.Property(t => t.ShareFileId)
-                .HasColumnName("ShareFileId")
+            builder.Property(t => t.ShareMediaId)
+                .HasColumnName("ShareMediaId")
                 .HasColumnType("int");
             
-            builder.Property(t => t.ShareDirectoryId)
-                .HasColumnName("ShareDirectoryId")
+            builder.Property(t => t.ShareFolderId)
+                .HasColumnName("ShareFolderId")
                 .HasColumnType("int");
             
             // relationships
             
             builder.HasOne(t => t.ShareUser)
-                .WithMany(t => t.OwnedShares)
+                .WithMany(t => t.OwnerShares)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("Shares_User_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
             
-            builder.HasOne(t => t.ShareDirectory)
+            builder.HasOne(t => t.ShareFolder)
                 .WithMany(t => t.Shares)
-                .HasForeignKey(d => d.ShareDirectoryId)
-                .HasConstraintName("Share_Directory_Id_fk")
+                .HasForeignKey(d => d.ShareFolderId)
+                .HasConstraintName("Share_Folder_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
             
-            builder.HasOne(t => t.ShareFile)
+            builder.HasOne(t => t.ShareMedia)
                 .WithMany(t => t.Shares)
-                .HasForeignKey(d => d.ShareFileId)
-                .HasConstraintName("Share_File_Id_fk")
+                .HasForeignKey(d => d.ShareMediaId)
+                .HasConstraintName("Share_Media_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
             
             #endregion
@@ -104,11 +104,11 @@ namespace SupFile.Back.Data.Mapping
             /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Share.Type" /></summary>
             public const string Type = "Type";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Share.ShareFileId" /></summary>
-            public const string ShareFileId = "ShareFileId";
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Share.ShareMediaId" /></summary>
+            public const string ShareMediaId = "ShareMediaId";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Share.ShareDirectoryId" /></summary>
-            public const string ShareDirectoryId = "ShareDirectoryId";
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Share.ShareFolderId" /></summary>
+            public const string ShareFolderId = "ShareFolderId";
         }
 
         #endregion

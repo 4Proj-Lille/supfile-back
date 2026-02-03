@@ -3,20 +3,20 @@ using SupFile.Back.Core.Entities;
 namespace SupFile.Back.Core.Entities;
 
 /// <summary>
-///     Entity class representing data for table 'Directory'.
+///     Entity class representing data for table 'Folder'.
 /// </summary>
-public class Directory : BaseEntity<Directory, int>, IEntity<Directory, int>
+public class Folder : BaseEntity<Folder, int>, IEntity<Folder, int>
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="Directory" /> class.
+    ///     Initializes a new instance of the <see cref="Folder" /> class.
     /// </summary>
-    public Directory()
+    public Folder()
     {
         #region Generated Constructor
         
-        Files = new HashSet<File>();
+        Medias = new HashSet<Media>();
         Links = new HashSet<Link>();
-        ParentDirectories = new HashSet<Directory>();
+        ParentFolders = new HashSet<Folder>();
         Shares = new HashSet<Share>();
 
         #endregion
@@ -59,32 +59,32 @@ public class Directory : BaseEntity<Directory, int>, IEntity<Directory, int>
     ///     The navigation property for entity <see cref="ApplicationUser" />.
     /// </value>
     /// <seealso cref="OwnerId" />
-    public virtual ApplicationUser OwnerApplicationUserDirectory { get; set; } = null!;
+    public virtual ApplicationUser OwnerApplicationUserFolder { get; set; } = null!;
     
     /// <summary>
-    ///     Gets or sets the navigation property for entity <see cref="Directory" />.
+    ///     Gets or sets the navigation property for entity <see cref="Folder" />.
     /// </summary>
     /// <value>
-    ///     The navigation property for entity <see cref="Directory" />.
+    ///     The navigation property for entity <see cref="Folder" />.
     /// </value>
     /// <seealso cref="ParentId" />
-    public virtual Directory? ParentDirectory { get; set; }
+    public virtual Folder? ParentFolder { get; set; }
     
     /// <summary>
-    ///     Gets or sets the navigation collection for entity <see cref="Directory" />.
+    ///     Gets or sets the navigation collection for entity <see cref="Folder" />.
     /// </summary>
     /// <value>
-    ///     The navigation collection for entity <see cref="Directory" />.
+    ///     The navigation collection for entity <see cref="Folder" />.
     /// </value>
-    public virtual ICollection<Directory> ParentDirectories { get; }
+    public virtual ICollection<Folder> ParentFolders { get; }
     
     /// <summary>
-    ///     Gets or sets the navigation collection for entity <see cref="File" />.
+    ///     Gets or sets the navigation collection for entity <see cref="Media" />.
     /// </summary>
     /// <value>
-    ///     The navigation collection for entity <see cref="File" />.
+    ///     The navigation collection for entity <see cref="Media" />.
     /// </value>
-    public virtual ICollection<File> Files { get; }
+    public virtual ICollection<Media> Medias { get; }
     
     /// <summary>
     ///     Gets or sets the navigation collection for entity <see cref="Link" />.

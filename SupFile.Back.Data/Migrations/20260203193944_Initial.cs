@@ -108,7 +108,7 @@ namespace SupFile.Back.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Directory",
+                name: "Folder",
                 schema: "public",
                 columns: table => new
                 {
@@ -120,20 +120,20 @@ namespace SupFile.Back.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Directory", x => x.Id);
+                    table.PrimaryKey("PK_Folder", x => x.Id);
                     table.ForeignKey(
-                        name: "Directories_User_Id_fk",
+                        name: "FolderParent___fk",
+                        column: x => x.ParentId,
+                        principalSchema: "public",
+                        principalTable: "Folder",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "Folders_User_Id_fk",
                         column: x => x.OwnerId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "DirectoryParent___fk",
-                        column: x => x.ParentId,
-                        principalSchema: "public",
-                        principalTable: "Directory",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -215,7 +215,7 @@ namespace SupFile.Back.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "File",
+                name: "Media",
                 schema: "public",
                 columns: table => new
                 {
@@ -227,21 +227,21 @@ namespace SupFile.Back.Data.Migrations
                     Path = table.Column<string>(type: "varchar(1024)", maxLength: 1024, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    DirectoryId = table.Column<int>(type: "int", nullable: false),
+                    FolderId = table.Column<int>(type: "int", nullable: true),
                     OwnerId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_File", x => x.Id);
+                    table.PrimaryKey("PK_Media", x => x.Id);
                     table.ForeignKey(
-                        name: "Files_Directory_Id_fk",
-                        column: x => x.DirectoryId,
+                        name: "Medias_Folder_Id_fk",
+                        column: x => x.FolderId,
                         principalSchema: "public",
-                        principalTable: "Directory",
+                        principalTable: "Folder",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "Files_User_Id_fk",
+                        name: "Medias_User_Id_fk",
                         column: x => x.OwnerId,
                         principalTable: "User",
                         principalColumn: "Id",
@@ -258,24 +258,24 @@ namespace SupFile.Back.Data.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     Type = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     ExpirationDate = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    ShareFileId = table.Column<int>(type: "int", nullable: false),
-                    ShareDirectoryId = table.Column<int>(type: "int", nullable: false)
+                    ShareMediaId = table.Column<int>(type: "int", nullable: false),
+                    ShareFolderId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Link", x => x.Id);
                     table.ForeignKey(
-                        name: "Link_Directory_Id_fk",
-                        column: x => x.ShareDirectoryId,
+                        name: "Link_File_Id_fk",
+                        column: x => x.ShareMediaId,
                         principalSchema: "public",
-                        principalTable: "Directory",
+                        principalTable: "Media",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "Link_File_Id_fk",
-                        column: x => x.ShareFileId,
+                        name: "Link_Folder_Id_fk",
+                        column: x => x.ShareFolderId,
                         principalSchema: "public",
-                        principalTable: "File",
+                        principalTable: "Folder",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -290,24 +290,24 @@ namespace SupFile.Back.Data.Migrations
                     Permission = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    ShareFileId = table.Column<int>(type: "int", nullable: true),
-                    ShareDirectoryId = table.Column<int>(type: "int", nullable: true)
+                    ShareMediaId = table.Column<int>(type: "int", nullable: true),
+                    ShareFolderId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Share", x => x.Id);
                     table.ForeignKey(
-                        name: "Share_Directory_Id_fk",
-                        column: x => x.ShareDirectoryId,
+                        name: "Share_Folder_Id_fk",
+                        column: x => x.ShareFolderId,
                         principalSchema: "public",
-                        principalTable: "Directory",
+                        principalTable: "Folder",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "Share_File_Id_fk",
-                        column: x => x.ShareFileId,
+                        name: "Share_Media_Id_fk",
+                        column: x => x.ShareMediaId,
                         principalSchema: "public",
-                        principalTable: "File",
+                        principalTable: "Media",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -324,40 +324,40 @@ namespace SupFile.Back.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Directory_OwnerId",
+                name: "IX_Folder_OwnerId",
                 schema: "public",
-                table: "Directory",
+                table: "Folder",
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Directory_ParentId",
+                name: "IX_Folder_ParentId",
                 schema: "public",
-                table: "Directory",
+                table: "Folder",
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_File_DirectoryId",
+                name: "IX_Link_ShareFolderId",
                 schema: "public",
-                table: "File",
-                column: "DirectoryId");
+                table: "Link",
+                column: "ShareFolderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_File_OwnerId",
+                name: "IX_Link_ShareMediaId",
                 schema: "public",
-                table: "File",
+                table: "Link",
+                column: "ShareMediaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Media_FolderId",
+                schema: "public",
+                table: "Media",
+                column: "FolderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Media_OwnerId",
+                schema: "public",
+                table: "Media",
                 column: "OwnerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Link_ShareDirectoryId",
-                schema: "public",
-                table: "Link",
-                column: "ShareDirectoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Link_ShareFileId",
-                schema: "public",
-                table: "Link",
-                column: "ShareFileId");
 
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
@@ -371,16 +371,16 @@ namespace SupFile.Back.Data.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Share_ShareDirectoryId",
+                name: "IX_Share_ShareFolderId",
                 schema: "public",
                 table: "Share",
-                column: "ShareDirectoryId");
+                column: "ShareFolderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Share_ShareFileId",
+                name: "IX_Share_ShareMediaId",
                 schema: "public",
                 table: "Share",
-                column: "ShareFileId");
+                column: "ShareMediaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Share_UserId",
@@ -452,11 +452,11 @@ namespace SupFile.Back.Data.Migrations
                 name: "UserToken");
 
             migrationBuilder.DropTable(
-                name: "File",
+                name: "Media",
                 schema: "public");
 
             migrationBuilder.DropTable(
-                name: "Directory",
+                name: "Folder",
                 schema: "public");
 
             migrationBuilder.DropTable(

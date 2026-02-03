@@ -3,23 +3,23 @@
 namespace SupFile.Back.Data.Mapping
 {
     /// <summary>
-    /// Allows configuration for an entity type <see cref="SupFile.Back.Core.Entities.File" />
+    /// Allows configuration for an entity type <see cref="SupFile.Back.Core.Entities.Media" />
     /// </summary>
-    public partial class FileMap
-        : IEntityTypeConfiguration<SupFile.Back.Core.Entities.File>
+    public partial class MediaMap
+        : IEntityTypeConfiguration<SupFile.Back.Core.Entities.Media>
     {
         /// <summary>
-        /// Configures the entity of type <see cref="SupFile.Back.Core.Entities.File" />
+        /// Configures the entity of type <see cref="SupFile.Back.Core.Entities.Media" />
         /// </summary>
         /// <param name="builder">The builder to be used to configure the entity type.</param>
         public void Configure(
-            Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<SupFile.Back.Core.Entities.File>
+            Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<SupFile.Back.Core.Entities.Media>
                 builder)
         {
             #region Generated Configure
 
             // table
-            builder.ToTable("File", "public");
+            builder.ToTable("Media", "public");
 
             // key
             builder.HasKey(t => t.Id);
@@ -64,8 +64,8 @@ namespace SupFile.Back.Data.Mapping
                 .HasColumnName("CreatedDate")
                 .HasColumnType("timestamp");
             
-            builder.Property( t => t.DirectoryId)
-                .HasColumnName("DirectoryId")
+            builder.Property( t => t.FolderId)
+                .HasColumnName("FolderId")
                 .HasColumnType("int");
             
             builder.Property(t => t.OwnerId)
@@ -75,16 +75,16 @@ namespace SupFile.Back.Data.Mapping
             
 
             // relationships
-            builder.HasOne(t => t.FileDirectory)
-                .WithMany(t => t.Files)
-                .HasForeignKey(d => d.DirectoryId)
-                .HasConstraintName("Files_Directory_Id_fk")
+            builder.HasOne(t => t.Folder)
+                .WithMany(t => t.Medias)
+                .HasForeignKey(d => d.FolderId)
+                .HasConstraintName("Medias_Folder_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
             
             builder.HasOne(t => t.OwnerApplicationUser)
-                .WithMany(t => t.OwnedFiles)
+                .WithMany(t => t.OwnerMedias)
                 .HasForeignKey(d => d.OwnerId)
-                .HasConstraintName("Files_User_Id_fk")
+                .HasConstraintName("Medias_User_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
 
             #endregion
@@ -94,40 +94,40 @@ namespace SupFile.Back.Data.Mapping
 
         public readonly struct Table
         {
-            /// <summary>Table Schema name constant for entity <see cref="SupFile.Back.Core.Entities.File" /></summary>
+            /// <summary>Table Schema name constant for entity <see cref="SupFile.Back.Core.Entities.Media" /></summary>
             public const string Schema = "public";
 
-            /// <summary>Table Name constant for entity <see cref="SupFile.Back.Core.Entities.File" /></summary>
-            public const string Name = "File";
+            /// <summary>Table Name constant for entity <see cref="SupFile.Back.Core.Entities.Media" /></summary>
+            public const string Name = "Media";
         }
 
         public readonly struct Columns
         {
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.File.Id" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.Id" /></summary>
             public const string Id = "Id";
 
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.File.Name" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.Name" /></summary>
             public const string Name = "Name";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.File.Extension" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.Extension" /></summary>
             public const string Extension = "Extension";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.File.Size" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.Size" /></summary>
             public const string Size = "Size";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.File.Path" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.Path" /></summary>
             public const string Path = "Path";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.File.IsActive" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.IsActive" /></summary>
             public const string IsActive = "IsActive";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.File.CreatedDate" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.CreatedDate" /></summary>
             public const string CreatedDate = "CreatedDate";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.File.DirectoryId" /></summary>
-            public const string DirectoryId = "DirectoryId";
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.FolderId" /></summary>
+            public const string FolderId = "FolderId";
             
-            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.File.OwnerId" /></summary>
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.OwnerId" /></summary>
             public const string OwnerId = "OwnerId";
         }
 

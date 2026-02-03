@@ -2,7 +2,7 @@
   supfile.api:
     image: supfile.back.api
     pull_policy: build
-    stdin_open: true 
+    stdin_open: true
     tty: true
     build:
       context: .
@@ -19,9 +19,9 @@
       - "7268:7268"
     env_file:
       - .env
-    profiles:
-      - Dev
-      - Prod
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
   
   postgres:
     image: postgres
@@ -29,7 +29,7 @@
     tty: true
     restart: always
     volumes:
-      - pgdata:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql
     ports:
       - "5433:5432"
     networks:
@@ -42,28 +42,22 @@
       start_period: 15s
     env_file:
       - .env
-    profiles:
-      - Dev
-      - Prod
 
-  azureblobstorage:
-    image: mcr.microsoft.com/azure-storage/azurite:latest
-    stdin_open: true
-    tty: true
-    volumes:
-      - blobstorage_data:/data
-    profiles:
-      - Dev
-      - Prod
-    networks:
-      - supfileback_default
-    ports:
-      - "10000:10000"
-    command: "azurite-blob --blobHost 0.0.0.0 -l /data"
-    healthcheck:
-      test: nc 127.0.0.1 10000 -z
-      interval: 1s
-      retries: 30
+#  azureblobstorage:
+#    image: mcr.microsoft.com/azure-storage/azurite:latest
+#    stdin_open: true
+#    tty: true
+#    volumes:
+#      - blobstorage_data:/data
+#    networks:
+#      - supfileback_default
+#    ports:
+#      - "10000:10000"
+#    command: "azurite-blob --blobHost 0.0.0.0 -l /data"
+#    healthcheck:
+#      test: nc 127.0.0.1 10000 -z
+#      interval: 1s
+#      retries: 30
   
   smtp4dev:
     image: rnwood/smtp4dev:v3
