@@ -12,7 +12,7 @@ using SupFile.Back.Data.Context;
 namespace SupFile.Back.Data.Migrations
 {
     [DbContext(typeof(SupFileContext))]
-    [Migration("20260203193944_Initial")]
+    [Migration("20260204190522_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -158,6 +158,10 @@ namespace SupFile.Back.Data.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Email")

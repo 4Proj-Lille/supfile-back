@@ -32,6 +32,8 @@ public class ApplicationUser : IdentityUser<int>, IEntity<ApplicationUser, int>
     
     public UserLanguage Language {get; set;}
     
+    public string DisplayName { get; set; }
+    
     
     #region Generated Relationships
 

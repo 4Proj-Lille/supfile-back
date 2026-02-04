@@ -9,6 +9,8 @@ internal static class DependencyInjection
         builder.AddOptions<AppSettings>();
         builder.AddOptions<SmtpSettings>();
         builder.AddOptions<FrontEndSettings>();
+        builder.AddOptions<JwtSettings>();
+        builder.AddOptions<AuthProviderSettings>();
 
         return builder;
     }

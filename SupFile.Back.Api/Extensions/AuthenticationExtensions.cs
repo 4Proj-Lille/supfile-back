@@ -9,109 +9,49 @@ internal static class AuthenticationExtensions
 {
     public static WebApplicationBuilder AddAuthentication(this WebApplicationBuilder builder)
     {
-        var jwtSection = builder.Configuration.GetSection(nameof(JwtSettings));
-        builder.Services.Configure<JwtSettings>(jwtSection);
-        var jwtSettings = jwtSection.Get<JwtSettings>();
+        var jwtSettings = builder.Configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>();
+        var authProviderSettings =
+            builder.Configuration.GetSection(nameof(AuthProviderSettings)).Get<AuthProviderSettings>();
 
-        if (jwtSettings == null)
-        {
-            throw new InvalidOperationException($"{nameof(JwtSettings)} is null");
-        }
-
-        // builder.Services 
         builder.Services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // API requests
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // Google login
+                options.DefaultSignInScheme =
+                    CookieAuthenticationDefaults.AuthenticationScheme; // Temporary storage for OAuth
             })
-            .AddCookie(options =>
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
             {
-                options.Cookie.SameSite = SameSiteMode.Lax;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-            })
-            .AddGoogle(options =>
-            {
-                var clientId = builder.Configuration["Authentication:Google:ClientId"];
-                var clientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-
-                if (string.IsNullOrWhiteSpace(clientId))
+                if (builder.Environment.IsDevelopment())
                 {
-                    throw new InvalidOperationException($"Missing configuration value for '{nameof(clientId)}'.");
+                    options.Cookie.SameSite = SameSiteMode.None;      // nécessaire pour OAuth cross-site
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // HTTPS obligatoire
                 }
-
-                if (string.IsNullOrWhiteSpace(clientSecret))
+                else
                 {
-                    throw new InvalidOperationException($"Missing configuration value for '{nameof(clientSecret)}'.");
+                    options.Cookie.SameSite = SameSiteMode.None;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 }
-
-                options.ClientId = clientId;
-                options.ClientSecret = clientSecret;
-                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            })
-            .AddMicrosoftAccount(options =>
-            {
-                var clientId = builder.Configuration["Authentication:Microsoft:ClientId"];
-                var clientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
-
-                if (string.IsNullOrWhiteSpace(clientId))
-                {
-                    throw new InvalidOperationException($"Missing configuration value for '{nameof(clientId)}'.");
-                }
-
-                if (string.IsNullOrWhiteSpace(clientSecret))
-                {
-                    throw new InvalidOperationException($"Missing configuration value for '{nameof(clientSecret)}'.");
-                }
-
-                options.ClientId = clientId;
-                options.ClientSecret = clientSecret;
-                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            })
-            .AddGitHub(options =>
-            {
-                var clientId = builder.Configuration["Authentication:GitHub:ClientId"];
-                var clientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"];
-
-                if (string.IsNullOrWhiteSpace(clientId))
-                {
-                    throw new InvalidOperationException($"Missing configuration value for '{nameof(clientId)}'.");
-                }
-
-                if (string.IsNullOrWhiteSpace(clientSecret))
-                {
-                    throw new InvalidOperationException($"Missing configuration value for '{nameof(clientSecret)}'.");
-                }
-
-                options.ClientId = clientId;
-                options.ClientSecret = clientSecret;
-                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.Scope.Add("user:email");
-                
-                options.UsePkce = true;
-                options.SaveTokens = true;
-                
-                options.CorrelationCookie.Name = "__RequestVerificationToken";
-                options.CorrelationCookie.HttpOnly = true;
-                options.CorrelationCookie.SameSite = SameSiteMode.Lax;
-                options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                
-                options.RemoteAuthenticationTimeout = TimeSpan.FromMinutes(15);
             })
             .AddJwtBearer(options =>
             {
-                options.RequireHttpsMetadata = false;
-                options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
                 };
+            })
+            .AddGoogle(nameof(Providers.Google), options =>
+            {
+                options.ClientId = authProviderSettings.Google.ClientId;
+                options.ClientSecret = authProviderSettings.Google.ClientSecret;
+                options.CallbackPath = "/auth/google/callback";
+                options.SaveTokens = true;
             });
+        
 
         builder.Services.AddAuthorization();
 

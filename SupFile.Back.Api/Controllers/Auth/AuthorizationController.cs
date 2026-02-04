@@ -1,17 +1,23 @@
-﻿namespace SupFile.Back.Api.Controllers.Auth;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+
+namespace SupFile.Back.Api.Controllers.Auth;
 
 [Route("api/[controller]")]
 public sealed class AuthorizationController : BaseController
 {
     private readonly IAuthService _authService;
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly JwtSettings _jwtSettings;
     private readonly IAuthTokenProcessor _authTokenProcessor;
+    private readonly UserManager<ApplicationUser> _userManager;
 
 
     public AuthorizationController(
         IAuthService authService,
-        UserManager<ApplicationUser> userManager,
         IAuthTokenProcessor authTokenProcessor,
+        UserManager<ApplicationUser> userManager,
+        IOptions<JwtSettings> jwtSettings,
         ILogger<AuthorizationController> logger,
         IWebHostEnvironment env
     ) : base(logger, env)
@@ -19,6 +25,7 @@ public sealed class AuthorizationController : BaseController
         _authService = authService;
         _userManager = userManager;
         _authTokenProcessor = authTokenProcessor;
+        _jwtSettings = jwtSettings.Value;
     }
 
     [HttpPost("login")]
@@ -36,63 +43,6 @@ public sealed class AuthorizationController : BaseController
 
         return ToActionResult(responseLoginDto);
     }
-
-    // [HttpGet("login/{provider}")]
-    // public IResult LoginUsingProvider([FromRoute] string provider, [FromQuery] Uri? returnUrl)
-    // {
-    //     var providerMap = new Dictionary<string, string>
-    //     {
-    //         ["GOOGLE"] = "Google", ["MICROSOFT"] = "Microsoft", ["GITHUB"] = "GitHub"
-    //     };
-    //
-    //     if (!providerMap.TryGetValue(provider.ToUpperInvariant(), out var scheme))
-    //     {
-    //         return Results.BadRequest($"Unsupported provider: {provider}");
-    //     }
-    //
-    //     var redirectUrl = _linkGenerator.GetPathByRouteValues(
-    //         HttpContext,
-    //         null,
-    //         new { controller = "Authorization", action = nameof(LoginUsingProviderCallback), provider, returnUrl }
-    //     );
-    //
-    //     var properties = _signInManager.ConfigureExternalAuthenticationProperties(scheme, redirectUrl);
-    //
-    //     return Results.Challenge(properties, [scheme]);
-    // }
-
-    // [HttpGet("login/{provider}/callback")]
-    // public async Task<IActionResult> LoginUsingProviderCallback([FromRoute] string provider,
-    //     [FromQuery] Uri? returnUrl)
-    // {
-    //     var providerMap = new Dictionary<string, (string Scheme, Providers InternalName)>
-    //     {
-    //         ["GOOGLE"] = (GoogleDefaults.AuthenticationScheme, Providers.Google),
-    //         ["MICROSOFT"] = (MicrosoftAccountDefaults.AuthenticationScheme, Providers.Microsoft),
-    //         ["GITHUB"] = (GitHubAuthenticationDefaults.AuthenticationScheme, Providers.GitHub)
-    //     };
-    //
-    //     if (!providerMap.TryGetValue(provider.ToUpperInvariant(), out var info))
-    //     {
-    //         return BadRequest($"Unsupported provider: {provider}");
-    //     }
-    //
-    //     var claimResult = await HttpContext.AuthenticateAsync(info.Scheme);
-    //     if (!claimResult.Succeeded)
-    //     {
-    //         return Unauthorized();
-    //     }
-    //
-    //     var tokenResult = await _authService.LoginWithProviderAsync(claimResult.Principal, info.InternalName);
-    //
-    //     var uriBuilder = new UriBuilder(returnUrl ?? new Uri("/"));
-    //     var query = System.Web.HttpUtility.ParseQueryString(uriBuilder.Query);
-    //     query["ACCESS_TOKEN"] = tokenResult.Value.AccessToken;
-    //     query["REFRESH_TOKEN"] = tokenResult.Value.RefreshToken;
-    //     uriBuilder.Query = query.ToString();
-    //
-    //     return Redirect((uriBuilder).ToString());
-    // }
 
     [HttpPost("login/refreshtoken")]
     public async Task<ActionResult<ResponseLoginDto>> RefreshToken([FromQuery] string? refreshToken)
@@ -120,7 +70,7 @@ public sealed class AuthorizationController : BaseController
 
         var responseLoginDto = await _authService.VerifyEmailAsync(model);
 
-        return Ok(responseLoginDto);
+        return ToActionResult(responseLoginDto);
     }
 
     [HttpPost("resend-verification")]
@@ -166,5 +116,37 @@ public sealed class AuthorizationController : BaseController
         var responseResetPasswordDto = await _authService.ResetPasswordAsync(resetPasswordDto);
 
         return ToActionResult(responseResetPasswordDto.ToResult());
+    }
+
+    [HttpGet("google")]
+    public IActionResult GoogleLogin([FromQuery] string returnUrl)
+    {
+        if(string.IsNullOrEmpty(returnUrl))
+        {
+            return ToActionResult(Result.Fail(new BadRequestError("ReturnUrl is missing."))); 
+        }
+        
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = Url.Action(nameof(GoogleResponse), null, new { returnUrl }, Request.Scheme)
+        };
+        return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+    }
+
+    [HttpGet("google/callback")]
+    public async Task<ActionResult<ResponseLoginDto>> GoogleResponse([FromQuery] string returnUrl)
+    {
+        var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+        if (!result.Succeeded)
+            return BadRequest("External authentication failed");
+
+        var loginResponseResult = await _authService.LoginWithProviderAsync(result, Providers.Google);
+        
+        // append token or session id if needed
+        var urlWithToken = $"{returnUrl}?token={loginResponseResult.Value.AccessToken}&refreshToken={loginResponseResult.Value.RefreshToken}";
+
+        return Redirect(urlWithToken);
+        
+        // return ToActionResult(loginResponseResult);
     }
 }

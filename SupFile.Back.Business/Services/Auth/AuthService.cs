@@ -1,8 +1,13 @@
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Tokens;
+
 namespace SupFile.Back.Business.Services.Auth;
 
 public class AuthService : IAuthService
 {
     private readonly AppSettings _appSettings;
+    private readonly JwtSettings _jwtSettings;
     private readonly FrontEndSettings _frontEndSettings;
     private readonly IAuthTokenProcessor _authTokenProcessor;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -15,6 +20,7 @@ public class AuthService : IAuthService
         IEmailService emailService,
         IOptions<AppSettings> appSettings,
         IOptions<FrontEndSettings> frontEndSettings,
+        IOptions<JwtSettings> jwtSettings,
         ILogger<AuthService> logger)
     {
         _authTokenProcessor = authTokenProcessor;
@@ -23,6 +29,7 @@ public class AuthService : IAuthService
 
         _appSettings = appSettings.Value;
         _frontEndSettings = frontEndSettings.Value;
+        _jwtSettings = jwtSettings.Value;
 
         _logger = logger;
     }
@@ -46,34 +53,25 @@ public class AuthService : IAuthService
             return Result.Fail(new BadRequestError("Refresh token is expired."));
         }
 
-        // var applicationUser =
-        //     await _userRepository.FindOneAsync<AuthIdentityUser>(x => x.IdentityUserId == identityUser.Id);
-        // if (applicationUser == null)
-        // {
-        //     return Result.Fail(new BadRequestError("Application user not found"));
-        // }
+        var (jwtToken, jwtExpiresAt) = _authTokenProcessor.GenerateJwtToken(identityUser);
+        var (newRefreshToken, newRefreshTokenExpiresAt) = _authTokenProcessor.GenerateRefreshToken();
 
-        var (jwtToken, expirationDateInUtc) = _authTokenProcessor.GenerateJwtToken(identityUser);
-        var refreshTokenValue = _authTokenProcessor.GenerateRefreshToken();
-
-        var refreshTokenExpirationDateInUtc = DateTime.UtcNow.AddDays(7);
-
-        identityUser.RefreshToken = refreshTokenValue;
-        identityUser.RefreshTokenExpiresAtUtc = refreshTokenExpirationDateInUtc;
+        identityUser.RefreshToken = newRefreshToken;
+        identityUser.RefreshTokenExpiresAtUtc = newRefreshTokenExpiresAt;
 
         await _userManager.UpdateAsync(identityUser);
 
-        _authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACCESS_TOKEN", jwtToken, expirationDateInUtc);
-        _authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("REFRESH_TOKEN", identityUser.RefreshToken,
-            refreshTokenExpirationDateInUtc);
+        _authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACCESS_TOKEN", jwtToken, jwtExpiresAt);
+        _authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("REFRESH_TOKEN", newRefreshToken,
+            newRefreshTokenExpiresAt);
 
         var responseLoginDto = new ResponseLoginDto
         {
             Id = identityUser.Id,
             AccessToken = jwtToken,
-            ExpiresAt = expirationDateInUtc.AddMinutes(-1),
-            RefreshToken = refreshTokenValue,
-            RefreshExpiresAt = refreshTokenExpirationDateInUtc.AddMinutes(-1),
+            ExpiresAt = jwtExpiresAt.AddMinutes(-1),
+            RefreshToken = newRefreshToken,
+            RefreshExpiresAt = newRefreshTokenExpiresAt.AddMinutes(-1),
             Name = identityUser.UserName,
             Email = identityUser.Email
         };
@@ -84,7 +82,7 @@ public class AuthService : IAuthService
     public async Task<Result<bool>> Register(RegisterDto registerDto)
     {
         var user = await _userManager.FindByEmailAsync(registerDto.Email)
-                   ?? await _userManager.FindByNameAsync(registerDto.UserName);
+                   ?? await _userManager.FindByNameAsync(registerDto.Username);
 
         //if user already exists but email is not confirmed, override it
         if (user is { EmailConfirmed: false })
@@ -108,7 +106,7 @@ public class AuthService : IAuthService
         //     return Result.Fail(new ConflictError("A user with the same username already exists."));
         // }
 
-        user = new ApplicationUser { UserName = registerDto.UserName, Email = registerDto.Email };
+        user = new ApplicationUser { UserName = registerDto.Username, Email = registerDto.Email, DisplayName =  registerDto.Username };
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
 
@@ -122,110 +120,6 @@ public class AuthService : IAuthService
 
         return Result.Ok(true);
     }
-
-    // public async Task<Result<ResponseLoginDto>> LoginWithProviderAsync(ClaimsPrincipal claimsPrincipal,
-    //     Providers provider)
-    // {
-    //     var providerString = provider.ToString();
-    //     var email = claimsPrincipal.FindFirstValue(ClaimTypes.Email);
-    //     if (string.IsNullOrEmpty(email))
-    //     {
-    //         return Result.Fail(new BadRequestError("Email is null or empty"));
-    //     }
-    //
-    //     var identityUser = await _userManager.FindByEmailAsync(email);
-    //
-    //     // if the user is not found, register the user
-    //     if (identityUser == null)
-    //     {
-    //         var username = email.Split("@")[0] ?? email;
-    //         var newIdentityUser = new AuthIdentityUser
-    //         {
-    //             UserName = username,
-    //             Email = email,
-    //             EmailConfirmed = true,
-    //             ApplicationUser = new ApplicationUser
-    //             {
-    //                 Username = username,
-    //                 FirstName = claimsPrincipal.FindFirstValue(ClaimTypes.GivenName) ?? username,
-    //                 LastName = claimsPrincipal.FindFirstValue(ClaimTypes.Surname)
-    //             }
-    //         };
-    //
-    //         var result = await _userManager.CreateAsync(newIdentityUser);
-    //         if (!result.Succeeded)
-    //         {
-    //             return Result.Fail(new BadRequestError(
-    //                 $"Unable to create user {string.Join(", ", result.Errors.Select(e => e.Description))}"));
-    //         }
-    //
-    //         var createdUser = await _userManager.FindByEmailAsync(email);
-    //         if (createdUser == null || createdUser.ApplicationUser == null)
-    //         {
-    //             return Result.Fail(new BadRequestError("Unable to find created user"));
-    //         }
-    //
-    //         // var addUserRoleResult = await _generalRoleService.AddUserRole(createdUser.ApplicationUser.Id);
-    //         // if (addUserRoleResult.IsFailed)
-    //         // {
-    //         //     return Result.Fail<ResponseLoginDto>(addUserRoleResult.Errors);
-    //         // }
-    //
-    //         identityUser = createdUser;
-    //     }
-    //
-    //     var logins = await _userManager.GetLoginsAsync(identityUser);
-    //     var alreadyLinked = logins.Any(login => login.LoginProvider == providerString);
-    //
-    //     if (!alreadyLinked)
-    //     {
-    //         var info = new UserLoginInfo(
-    //             providerString,
-    //             claimsPrincipal.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
-    //             providerString);
-    //
-    //
-    //         var loginResult = await _userManager.AddLoginAsync(identityUser, info);
-    //         if (!loginResult.Succeeded)
-    //         {
-    //             return Result.Fail(new BadRequestError(
-    //                 $"Unable to link external login {string.Join(", ", loginResult.Errors.Select(e => e.Description))}"));
-    //         }
-    //     }
-    //
-    //     var applicationUser =
-    //         await _userRepository.FindOneAsync<ApplicationUser>(x => x.IdentityUserId == identityUser.Id);
-    //     if (applicationUser == null)
-    //     {
-    //         return Result.Fail(new BadRequestError("Application user not found"));
-    //     }
-    //
-    //     var (jwtToken, expiresAtUtc) = _authTokenProcessor.GenerateJwtToken(identityUser, applicationUser);
-    //     var refreshToken = _authTokenProcessor.GenerateRefreshToken();
-    //
-    //     var refreshTokenExpiresAtUtc = DateTime.UtcNow.AddDays(7);
-    //
-    //     identityUser.RefreshToken = refreshToken;
-    //     identityUser.RefreshTokenExpiresAtUtc = refreshTokenExpiresAtUtc;
-    //
-    //     await _userManager.UpdateAsync(identityUser);
-    //
-    //     _authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACCESS_TOKEN", jwtToken, expiresAtUtc);
-    //     _authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("REFRESH_TOKEN", refreshToken, refreshTokenExpiresAtUtc);
-    //
-    //     var responseLoginDto = new ResponseLoginDto
-    //     {
-    //         Id = identityUser.Id,
-    //         AccessToken = jwtToken,
-    //         ExpiresAt = expiresAtUtc.AddMinutes(-1),
-    //         RefreshToken = refreshToken,
-    //         RefreshExpiresAt = refreshTokenExpiresAtUtc.AddMinutes(-1),
-    //         Name = identityUser.UserName,
-    //         Email = identityUser.Email
-    //     };
-    //
-    //     return Result.Ok(responseLoginDto);
-    // }
 
     public async Task<Result<ResponseLoginDto>> Login(LoginDto loginDto)
     {
@@ -248,12 +142,10 @@ public class AuthService : IAuthService
         }
 
         var (jwtToken, expiresAtUtc) = _authTokenProcessor.GenerateJwtToken(user);
-        var refreshToken = _authTokenProcessor.GenerateRefreshToken();
-
-        var refreshTokenExpiresAtUtc = DateTime.UtcNow.AddDays(7);
+        var (refreshToken, refreshExpiresAt) = _authTokenProcessor.GenerateRefreshToken();
 
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiresAtUtc = refreshTokenExpiresAtUtc;
+        user.RefreshTokenExpiresAtUtc = refreshExpiresAt;
 
         await _userManager.UpdateAsync(user);
 
@@ -263,7 +155,7 @@ public class AuthService : IAuthService
             AccessToken = jwtToken,
             ExpiresAt = expiresAtUtc.AddMinutes(-1),
             RefreshToken = refreshToken,
-            RefreshExpiresAt = refreshTokenExpiresAtUtc.AddMinutes(-1),
+            RefreshExpiresAt = refreshExpiresAt.AddMinutes(-1),
             Name = user.UserName,
             Email = user.Email,
             Language = user.Language
@@ -350,9 +242,7 @@ public class AuthService : IAuthService
         }
 
         var (jwtToken, expiresAtUtc) = _authTokenProcessor.GenerateJwtToken(user);
-        var refreshToken = _authTokenProcessor.GenerateRefreshToken();
-
-        var refreshTokenExpiresAtUtc = DateTime.UtcNow.AddDays(7);
+        var (refreshToken, refreshTokenExpiresAtUtc) = _authTokenProcessor.GenerateRefreshToken();
 
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiresAtUtc = refreshTokenExpiresAtUtc;
@@ -400,7 +290,7 @@ public class AuthService : IAuthService
             template,
             new VerificationEmailModel
             {
-                UserName = user.UserName!,
+                Username = user.UserName!,
                 UserId = user.Id,
                 Token = token,
                 AppSettings = _appSettings,
@@ -413,5 +303,75 @@ public class AuthService : IAuthService
         }
 
         return Result.Ok();
+    }
+
+    public async Task<Result<ResponseLoginDto>> LoginWithProviderAsync(AuthenticateResult result, Providers providerKey)
+    {
+        var claims = result.Principal!.Claims.ToList();
+        var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+        var providerId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (email == null || providerId == null)
+        {
+            return Result.Fail<ResponseLoginDto>("Invalid external data");
+        }
+
+        // Check if user exists
+        var user = await _userManager.FindByLoginAsync(providerKey.ToString(), providerId);
+        if (user == null)
+        {
+            user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new ApplicationUser { UserName = email, Email = email, DisplayName = name};
+                var userCreatedresult = await _userManager.CreateAsync(user);
+                if (!userCreatedresult.Succeeded)
+                {
+                    // log errors
+                    var errors = string.Join(", ", userCreatedresult.Errors.Select(e => e.Description));
+                    LogHelper.LogInformation(_logger, nameof(LoginWithProviderAsync), "Failed to create user: {0}",
+                        errors);
+                    return Result.Fail<ResponseLoginDto>(errors);
+                }
+            }
+
+            await _userManager.AddLoginAsync(user, new UserLoginInfo(providerKey.ToString(), providerId, "Google"));
+        }
+
+        // Generate JWT
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), new Claim(ClaimTypes.Email, user.Email!)
+            }),
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials =
+                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var jwt = tokenHandler.WriteToken(token);
+        var jwtSecurityToken = token as JwtSecurityToken;
+        var expiresAtUtc = jwtSecurityToken?.ValidTo ?? DateTime.UtcNow.AddHours(1);
+
+        var (refreshToken, refreshTokenExpiresAtUtc) = _authTokenProcessor.GenerateRefreshToken();
+
+        var responseLoginDto = new ResponseLoginDto
+        {
+            Id = user.Id,
+            AccessToken = jwt,
+            ExpiresAt = expiresAtUtc.AddMinutes(-1),
+            RefreshToken = refreshToken,
+            RefreshExpiresAt = refreshTokenExpiresAtUtc.AddMinutes(-1),
+            Name = user.UserName,
+            Email = user.Email,
+            Language = user.Language
+        };
+
+        return Result.Ok(responseLoginDto);
     }
 }

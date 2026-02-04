@@ -5,7 +5,7 @@ public class RegisterDtoValidator : AbstractValidator<RegisterDto>
     public RegisterDtoValidator(IStringLocalizer<AuthenticationsRes> l, IStringLocalizer<SharedRes> sl)
     {
         const int MaxNameLength = 25;
-        RuleFor(x => x.UserName)
+        RuleFor(x => x.Username)
             .NotEmpty()
             .WithMessage("Username is required.")
             .MaximumLength(MaxNameLength)
