@@ -249,7 +249,7 @@ namespace SupFile.Back.Data.Migrations
                     b.ToTable("UserRole", (string)null);
                 });
 
-            modelBuilder.Entity("SupFile.Back.Core.Entities.Directory", b =>
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Folder", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -279,10 +279,52 @@ namespace SupFile.Back.Data.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Directory", "public");
+                    b.ToTable("Folder", "public");
                 });
 
-            modelBuilder.Entity("SupFile.Back.Core.Entities.File", b =>
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Link", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("ExpirationDate");
+
+                    b.Property<int>("ShareFolderId")
+                        .HasColumnType("int")
+                        .HasColumnName("ShareFolderId");
+
+                    b.Property<int>("ShareMediaId")
+                        .HasColumnType("int")
+                        .HasColumnName("ShareMediaId");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("Name");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShareFolderId");
+
+                    b.HasIndex("ShareMediaId");
+
+                    b.ToTable("Link", "public");
+                });
+
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Media", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -296,15 +338,15 @@ namespace SupFile.Back.Data.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("CreatedDate");
 
-                    b.Property<int>("DirectoryId")
-                        .HasColumnType("int")
-                        .HasColumnName("DirectoryId");
-
                     b.Property<string>("Extension")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)")
                         .HasColumnName("Extension");
+
+                    b.Property<int?>("FolderId")
+                        .HasColumnType("int")
+                        .HasColumnName("FolderId");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
@@ -332,53 +374,11 @@ namespace SupFile.Back.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DirectoryId");
+                    b.HasIndex("FolderId");
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("File", "public");
-                });
-
-            modelBuilder.Entity("SupFile.Back.Core.Entities.Link", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id")
-                        .HasColumnOrder(0);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("ExpirationDate");
-
-                    b.Property<int>("ShareDirectoryId")
-                        .HasColumnType("int")
-                        .HasColumnName("ShareDirectoryId");
-
-                    b.Property<int>("ShareFileId")
-                        .HasColumnType("int")
-                        .HasColumnName("ShareFileId");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("Name");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("Type");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ShareDirectoryId");
-
-                    b.HasIndex("ShareFileId");
-
-                    b.ToTable("Link", "public");
+                    b.ToTable("Media", "public");
                 });
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Share", b =>
@@ -397,13 +397,13 @@ namespace SupFile.Back.Data.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("Permission");
 
-                    b.Property<int?>("ShareDirectoryId")
+                    b.Property<int?>("ShareFolderId")
                         .HasColumnType("int")
-                        .HasColumnName("ShareDirectoryId");
+                        .HasColumnName("ShareFolderId");
 
-                    b.Property<int?>("ShareFileId")
+                    b.Property<int?>("ShareMediaId")
                         .HasColumnType("int")
-                        .HasColumnName("ShareFileId");
+                        .HasColumnName("ShareMediaId");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -417,9 +417,9 @@ namespace SupFile.Back.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ShareDirectoryId");
+                    b.HasIndex("ShareFolderId");
 
-                    b.HasIndex("ShareFileId");
+                    b.HasIndex("ShareMediaId");
 
                     b.HasIndex("UserId");
 
@@ -500,92 +500,91 @@ namespace SupFile.Back.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SupFile.Back.Core.Entities.Directory", b =>
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Folder", b =>
                 {
-                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", "OwnerApplicationUserDirectory")
-                        .WithMany("OwnedDirectories")
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", "OwnerApplicationUserFolder")
+                        .WithMany("OwnerFolders")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("Directories_User_Id_fk");
+                        .HasConstraintName("Folders_User_Id_fk");
 
-                    b.HasOne("SupFile.Back.Core.Entities.Directory", "ParentDirectory")
-                        .WithMany("ParentDirectories")
+                    b.HasOne("SupFile.Back.Core.Entities.Folder", "ParentFolder")
+                        .WithMany("ParentFolders")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("DirectoryParent___fk");
+                        .HasConstraintName("FolderParent___fk");
 
-                    b.Navigation("OwnerApplicationUserDirectory");
+                    b.Navigation("OwnerApplicationUserFolder");
 
-                    b.Navigation("ParentDirectory");
-                });
-
-            modelBuilder.Entity("SupFile.Back.Core.Entities.File", b =>
-                {
-                    b.HasOne("SupFile.Back.Core.Entities.Directory", "FileDirectory")
-                        .WithMany("Files")
-                        .HasForeignKey("DirectoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("Files_Directory_Id_fk");
-
-                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", "OwnerApplicationUser")
-                        .WithMany("OwnedFiles")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("Files_User_Id_fk");
-
-                    b.Navigation("FileDirectory");
-
-                    b.Navigation("OwnerApplicationUser");
+                    b.Navigation("ParentFolder");
                 });
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Link", b =>
                 {
-                    b.HasOne("SupFile.Back.Core.Entities.Directory", "ShareLinkDirectory")
+                    b.HasOne("SupFile.Back.Core.Entities.Folder", "ShareLinkFolder")
                         .WithMany("Links")
-                        .HasForeignKey("ShareDirectoryId")
+                        .HasForeignKey("ShareFolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("Link_Directory_Id_fk");
+                        .HasConstraintName("Link_Folder_Id_fk");
 
-                    b.HasOne("SupFile.Back.Core.Entities.File", "ShareLinkFile")
+                    b.HasOne("SupFile.Back.Core.Entities.Media", "ShareLinkFile")
                         .WithMany("Links")
-                        .HasForeignKey("ShareFileId")
+                        .HasForeignKey("ShareMediaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("Link_File_Id_fk");
 
-                    b.Navigation("ShareLinkDirectory");
-
                     b.Navigation("ShareLinkFile");
+
+                    b.Navigation("ShareLinkFolder");
+                });
+
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Media", b =>
+                {
+                    b.HasOne("SupFile.Back.Core.Entities.Folder", "Folder")
+                        .WithMany("Medias")
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("Medias_Folder_Id_fk");
+
+                    b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", "OwnerApplicationUser")
+                        .WithMany("OwnerMedias")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("Medias_User_Id_fk");
+
+                    b.Navigation("Folder");
+
+                    b.Navigation("OwnerApplicationUser");
                 });
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Share", b =>
                 {
-                    b.HasOne("SupFile.Back.Core.Entities.Directory", "ShareDirectory")
+                    b.HasOne("SupFile.Back.Core.Entities.Folder", "ShareFolder")
                         .WithMany("Shares")
-                        .HasForeignKey("ShareDirectoryId")
+                        .HasForeignKey("ShareFolderId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("Share_Directory_Id_fk");
+                        .HasConstraintName("Share_Folder_Id_fk");
 
-                    b.HasOne("SupFile.Back.Core.Entities.File", "ShareFile")
+                    b.HasOne("SupFile.Back.Core.Entities.Media", "ShareMedia")
                         .WithMany("Shares")
-                        .HasForeignKey("ShareFileId")
+                        .HasForeignKey("ShareMediaId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("Share_File_Id_fk");
+                        .HasConstraintName("Share_Media_Id_fk");
 
                     b.HasOne("SupFile.Back.Core.Entities.Auth.ApplicationUser", "ShareUser")
-                        .WithMany("OwnedShares")
+                        .WithMany("OwnerShares")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("Shares_User_Id_fk");
 
-                    b.Navigation("ShareDirectory");
+                    b.Navigation("ShareFolder");
 
-                    b.Navigation("ShareFile");
+                    b.Navigation("ShareMedia");
 
                     b.Navigation("ShareUser");
                 });
@@ -599,25 +598,25 @@ namespace SupFile.Back.Data.Migrations
 
             modelBuilder.Entity("SupFile.Back.Core.Entities.Auth.ApplicationUser", b =>
                 {
-                    b.Navigation("OwnedDirectories");
+                    b.Navigation("OwnerFolders");
 
-                    b.Navigation("OwnedFiles");
+                    b.Navigation("OwnerMedias");
 
-                    b.Navigation("OwnedShares");
+                    b.Navigation("OwnerShares");
                 });
 
-            modelBuilder.Entity("SupFile.Back.Core.Entities.Directory", b =>
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Folder", b =>
                 {
-                    b.Navigation("Files");
-
                     b.Navigation("Links");
 
-                    b.Navigation("ParentDirectories");
+                    b.Navigation("Medias");
+
+                    b.Navigation("ParentFolders");
 
                     b.Navigation("Shares");
                 });
 
-            modelBuilder.Entity("SupFile.Back.Core.Entities.File", b =>
+            modelBuilder.Entity("SupFile.Back.Core.Entities.Media", b =>
                 {
                     b.Navigation("Links");
 

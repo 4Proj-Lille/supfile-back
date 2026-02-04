@@ -44,15 +44,15 @@ public class Share : BaseEntity<Share, int>, IEntity<Share, int>
     /// <value>
     ///     The property value representing column 'ShareFileId'.
     /// </value>
-    public int? ShareFileId { get; set; }
+    public int? ShareMediaId { get; set; }
     
     /// <summary>
-    ///     Gets or sets the property value representing column 'ShareDirectoryId'.
+    ///     Gets or sets the property value representing column 'ShareFolderId'.
     /// </summary>
     /// <value>
-    ///     The property value representing column 'ShareDirectoryId'.
+    ///     The property value representing column 'ShareFolderId'.
     /// </value>
-    public int? ShareDirectoryId { get; set; }
+    public int? ShareFolderId { get; set; }
     
     #endregion
     
@@ -68,22 +68,22 @@ public class Share : BaseEntity<Share, int>, IEntity<Share, int>
     public virtual ApplicationUser ShareUser { get; set; } = null!;
     
     /// <summary>
-    ///     Gets or sets the navigation property for entity <see cref="File" />.
+    ///     Gets or sets the navigation property for entity <see cref="Media" />.
     /// </summary>
     /// <value>
-    ///     The navigation property for entity <see cref="File" />.
+    ///     The navigation property for entity <see cref="Media" />.
     /// </value>
-    /// <seealso cref="ShareFileId" />
-    public virtual File? ShareFile { get; set; }
+    /// <seealso cref="ShareMediaId" />
+    public virtual Media? ShareMedia { get; set; }
     
     /// <summary>
-    ///     Gets or sets the navigation property for entity <see cref="Directory" />.
+    ///     Gets or sets the navigation property for entity <see cref="Folder" />.
     /// </summary>
     /// <value>
-    ///     The navigation property for entity <see cref="Directory" />.
+    ///     The navigation property for entity <see cref="Folder" />.
     /// </value>
-    /// <seealso cref="ShareDirectoryId" />
-    public virtual Directory? ShareDirectory { get; set; }
+    /// <seealso cref="ShareFolderId" />
+    public virtual Folder? ShareFolder { get; set; }
     
     #endregion
 }

@@ -1,14 +1,14 @@
 namespace SupFile.Back.Core.Entities;
 
 /// <summary>
-///     Entity class representing data for table 'File'.
+///     Entity class representing data for table 'Media'.
 /// </summary>
-public class File : BaseEntity<File, int>, IEntity<File, int>
+public class Media : BaseEntity<Media, int>, IEntity<Media, int>
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="File" /> class.
+    ///     Initializes a new instance of the <see cref="Media" /> class.
     /// </summary>
-    public File()
+    public Media()
     {
         #region Generated Constructor
         
@@ -69,12 +69,12 @@ public class File : BaseEntity<File, int>, IEntity<File, int>
     public DateTime CreatedDate { get; set; }
     
     /// <summary>
-    ///     Gets or sets the property value representing column 'DirectoryId'.
+    ///     Gets or sets the property value representing column 'FolderId'.
     /// </summary>
     /// <value>
-    ///     The property value representing column 'DirectoryId'.
+    ///     The property value representing column 'FolderId'.
     /// </value>
-    public int DirectoryId { get; set; }
+    public int? FolderId { get; set; }
     
     /// <summary>
     ///     Gets or sets the property value representing column 'OwnerId'.
@@ -98,13 +98,13 @@ public class File : BaseEntity<File, int>, IEntity<File, int>
     public virtual ApplicationUser OwnerApplicationUser { get; set; } = null!;
 
     /// <summary>
-    ///     Gets or sets the navigation property for entity <see cref="Directory" />.
+    ///     Gets or sets the navigation property for entity <see cref="Folder" />.
     /// </summary>
     /// <value>
-    ///     The navigation property for entity <see cref="Directory" />.
+    ///     The navigation property for entity <see cref="Folder" />.
     /// </value>
-    /// <seealso cref="DirectoryId" />
-    public virtual Directory FileDirectory { get; set; } = null!;
+    /// <seealso cref="FolderId" />
+    public virtual Folder? Folder { get; set; }
     
     /// <summary>
     ///     Gets or sets the navigation collection for entity <see cref="Link" />.

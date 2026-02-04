@@ -18,7 +18,7 @@ public class AuthTokenProcessor : IAuthTokenProcessor
         _jwtSettings = jwtSettings.Value;
     }
 
-    public (string jwtToken, DateTime expiresAtUtc) GenerateJwtToken(ApplicationUser identityUser)
+    public (string jwtToken, DateTime expiresAtUtc) GenerateJwtToken(ApplicationUser user)
     {
         var signingKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_jwtSettings.Secret));
@@ -27,18 +27,18 @@ public class AuthTokenProcessor : IAuthTokenProcessor
             signingKey,
             SecurityAlgorithms.HmacSha256);
 
-        if (string.IsNullOrEmpty(identityUser.Email))
+        if (string.IsNullOrEmpty(user.Email))
         {
             throw new Exception("Email is empty");
         }
 
         var claims = new[]
         {
-            new Claim(CustomClaimTypes.IdentityId, identityUser.Id.ToString()),
+            new Claim(CustomClaimTypes.UserId, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, identityUser.ToString()),
-            new Claim(ClaimTypes.Email, identityUser.Email),
-            new Claim(ClaimTypes.Locality, identityUser.Language.ToCultureCode()), // e.g., "fr-FR"
+            new Claim(ClaimTypes.NameIdentifier, user.ToString()),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Locality, user.Language.ToCultureCode()), // e.g., "fr-FR"
         };
 
         var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationTimeInMinutes);
@@ -67,7 +67,7 @@ public class AuthTokenProcessor : IAuthTokenProcessor
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(CustomClaimTypes.ApplicationUserId, applicationUser.Id.ToString(CultureInfo.InvariantCulture))
+            new Claim(CustomClaimTypes.UserId, applicationUser.Id.ToString(CultureInfo.InvariantCulture))
         };
 
         var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationTimeInMinutes);

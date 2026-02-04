@@ -43,21 +43,21 @@
     env_file:
       - .env
 
-  azureblobstorage:
-    image: mcr.microsoft.com/azure-storage/azurite:latest
-    stdin_open: true
-    tty: true
-    volumes:
-      - blobstorage_data:/data
-    networks:
-      - supfileback_default
-    ports:
-      - "10000:10000"
-    command: "azurite-blob --blobHost 0.0.0.0 -l /data"
-    healthcheck:
-      test: nc 127.0.0.1 10000 -z
-      interval: 1s
-      retries: 30
+#  azureblobstorage:
+#    image: mcr.microsoft.com/azure-storage/azurite:latest
+#    stdin_open: true
+#    tty: true
+#    volumes:
+#      - blobstorage_data:/data
+#    networks:
+#      - supfileback_default
+#    ports:
+#      - "10000:10000"
+#    command: "azurite-blob --blobHost 0.0.0.0 -l /data"
+#    healthcheck:
+#      test: nc 127.0.0.1 10000 -z
+#      interval: 1s
+#      retries: 30
   
   smtp4dev:
     image: rnwood/smtp4dev:v3

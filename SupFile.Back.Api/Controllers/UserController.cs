@@ -6,10 +6,9 @@ public class UserController : BaseAuthController
     private readonly IUserService _userService;
 
     public UserController(ILogger<UserController> logger,
-        UserManager<ApplicationUser> userManager,
         IUserService workspaceService,
         IUserRepository userRepository,
-        IWebHostEnvironment env) : base(logger, userManager, userRepository, env)
+        IWebHostEnvironment env) : base(logger, userRepository, env)
     {
         _userService = workspaceService;
     }

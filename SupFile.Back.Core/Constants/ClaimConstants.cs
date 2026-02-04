@@ -6,7 +6,5 @@ namespace SupFile.Back.Core.Constants;
 
 public static class CustomClaimTypes
 {
-    public const string ApplicationUserId = "ApplicationUserId";
-
-    public const string IdentityId = "IdentityId";
+    public const string UserId = "uid";
 }

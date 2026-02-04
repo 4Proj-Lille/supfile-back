@@ -44,37 +44,37 @@ public class Link : BaseEntity<Link, int>, IEntity<Link, int>
     /// <value>
     ///     The property value representing column 'ShareFileId'.
     /// </value>
-    public int? ShareFileId { get; set; }
+    public int? ShareMediaId { get; set; }
     
     /// <summary>
-    ///     Gets or sets the property value representing column 'ShareDirectoryId'.
+    ///     Gets or sets the property value representing column 'ShareFolderId'.
     /// </summary>
     /// <value>
-    ///     The property value representing column 'ShareDirectoryId'.
+    ///     The property value representing column 'ShareFolderId'.
     /// </value>
-    public int? ShareDirectoryId { get; set; }
+    public int? ShareFolderId { get; set; }
     
     #endregion
     
     #region Generated Relationships
     
     /// <summary>
-    ///     Gets or sets the navigation property for entity <see cref="File" />.
+    ///     Gets or sets the navigation property for entity <see cref="Media" />.
     /// </summary>
     /// <value>
-    ///     The navigation property for entity <see cref="File" />.
+    ///     The navigation property for entity <see cref="Media" />.
     /// </value>
-    /// <seealso cref="ShareFileId" />
-    public virtual File? ShareLinkFile { get; set; }
+    /// <seealso cref="ShareMediaId" />
+    public virtual Media? ShareLinkFile { get; set; }
     
     /// <summary>
-    ///     Gets or sets the navigation property for entity <see cref="Directory" />.
+    ///     Gets or sets the navigation property for entity <see cref="Folder" />.
     /// </summary>
     /// <value>
-    ///     The navigation property for entity <see cref="Directory" />.
+    ///     The navigation property for entity <see cref="Folder" />.
     /// </value>
-    /// <seealso cref="ShareDirectoryId" />
-    public virtual Directory? ShareLinkDirectory { get; set; }
+    /// <seealso cref="ShareFolderId" />
+    public virtual Folder? ShareLinkFolder { get; set; }
     
     #endregion
 }
