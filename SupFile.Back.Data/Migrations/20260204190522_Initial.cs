@@ -60,6 +60,7 @@ namespace SupFile.Back.Data.Migrations
                     RefreshToken = table.Column<string>(type: "text", nullable: true),
                     RefreshTokenExpiresAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Language = table.Column<int>(type: "integer", nullable: false),
+                    DisplayName = table.Column<string>(type: "text", nullable: false),
                     ApplicationRoleId = table.Column<int>(type: "integer", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
