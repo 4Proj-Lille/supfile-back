@@ -42,9 +42,9 @@ public sealed class FolderController : BaseAuthController
     [HttpGet("{id:int}")]
     public async Task<ActionResult<FolderModel>> Get(int id)
     {
-        var workspaces = await _folderService.GetByIdAsync<FolderModel>(id);
+        var folders = await _folderService.GetByIdAsync<FolderModel>(id);
 
-        return ToActionResult(workspaces);
+        return ToActionResult(folders);
     }
     
     [HttpGet("FromParent")]
@@ -72,13 +72,23 @@ public sealed class FolderController : BaseAuthController
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var entity = model.Adapt<Folder>();
-        var workspaceResult = await _folderService.UpdateAsync(id, entity, currentUser);
-        if (workspaceResult.IsFailed)
+        var folderResult = await _folderService.UpdateAsync(id, entity, currentUser);
+        if (folderResult.IsFailed)
         {
-            return ToActionResult(Result.Fail(workspaceResult.Errors));
+            return ToActionResult(Result.Fail(folderResult.Errors));
         }
 
-        var workspaceModel = workspaceResult.Value.Adapt<FolderModel>();
-        return ToActionResult(Result.Ok(workspaceModel));
+        var folderModel = folderResult.Value.Adapt<FolderModel>();
+        return ToActionResult(Result.Ok(folderModel));
+    }
+    
+    
+    [HttpDelete("{id:int}")]
+    public async Task<ActionResult<bool>> Delete(int id)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var deletedResult = await _folderService.DeleteOneAsync<FolderModel>(currentUser, id);
+
+        return ToActionResult(deletedResult);
     }
 }

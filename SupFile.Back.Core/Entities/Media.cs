@@ -50,7 +50,7 @@ public class Media : BaseEntity<Media, int>, IEntity<Media, int>
     /// <value>
     ///     The property value representing column 'Path'.
     /// </value>
-    public int Path { get; set; }
+    public string Path { get; set; }
     
     /// <summary>
     ///     Gets or sets the property value representing column 'IsActive'.

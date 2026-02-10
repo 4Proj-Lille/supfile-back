@@ -15,6 +15,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
     public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, Media entity)
     {
         entity.OwnerId = currentUser.Id;
+        entity.CreatedDate = DateTime.Now;
         var addFolder = await AddAsync(entity);
 
         return addFolder;
@@ -44,4 +45,38 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         return mediaResult;
     }
+    
+    public async Task<Result<Media>> UpdateAsync(int id, Media entity, ApplicationUser currentUser)
+    {
+        var MediaResult = await Repository.GetByIdAsync<Media>(id);
+        if (MediaResult.IsFailed || MediaResult.Value == null)
+        {
+            return MediaResult;
+        }
+
+        var media = MediaResult.Value;
+
+        if ( media.OwnerId != currentUser.Id)
+        {
+            return Result.Fail(new ForbiddenError("You are not authorized to update this media."));
+        }
+
+        foreach (var prop in typeof(Media).GetProperties())
+        {
+            var value = prop.GetValue(entity);
+
+            if (!ScalarTypeHelper.IsScalarProperty(prop))
+            {
+                continue;
+            }
+
+            if (value != null)
+            {
+                prop.SetValue(media, value);
+            }
+        }
+
+        return await UpdateAsync(id, media);
+    }
+    
 }

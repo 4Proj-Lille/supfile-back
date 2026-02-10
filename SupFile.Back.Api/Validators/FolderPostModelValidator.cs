@@ -1,4 +1,4 @@
-﻿namespace Supchat.Back.Api.Validators;
+﻿namespace SupFile.Back.Api.Validators;
 
 public class FolderPostModelValidator : AbstractValidator<FolderPostModel>
 {
