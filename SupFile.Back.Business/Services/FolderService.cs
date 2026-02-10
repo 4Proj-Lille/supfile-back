@@ -43,10 +43,10 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return Result.Fail(new ForbiddenError("You are not authorized to delete this folder."));
     }
     
-    public async Task<Result<Tuple<List<Folder>,List<Media>>>> GetFromRoot(ApplicationUser user)
+    public async Task<Result<Tuple<List<Folder>,List<Media>>>> GetFromParent(ApplicationUser user, int? id)
     {
-        var folderResult = await Repository.GetFromRoot<Folder>(user);
-        var mediaResult = await _mediaService.GetFromRoot(user);
+        var folderResult = await Repository.GetFrom<Folder>(user, id);
+        var mediaResult = await _mediaService.GetFrom(user, id);
     
         if (!folderResult.IsSuccess)
             return Result.Fail("Error when getting folders from root");
@@ -58,4 +58,37 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return Result.Ok(tuple);
     }
 
+    public async Task<Result<Folder>> UpdateAsync(int id, Folder entity, ApplicationUser currentUser)
+    {
+        var folderResult = await Repository.GetByIdAsync<Folder>(id);
+        if (folderResult.IsFailed || folderResult.Value == null)
+        {
+            return folderResult;
+        }
+
+        var folder = folderResult.Value;
+
+        if ( folder.OwnerId != currentUser.Id)
+        {
+            return Result.Fail(new ForbiddenError("You are not authorized to update this folder."));
+        }
+
+        foreach (var prop in typeof(Folder).GetProperties())
+        {
+            var value = prop.GetValue(entity);
+
+            if (!ScalarTypeHelper.IsScalarProperty(prop))
+            {
+                continue;
+            }
+
+            if (value != null)
+            {
+                prop.SetValue(folder, value);
+            }
+        }
+
+        return await UpdateAsync(id, folder);
+    }
+    
 }

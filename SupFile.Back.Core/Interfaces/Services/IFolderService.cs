@@ -7,6 +7,8 @@ public interface IFolderService : IBaseService<Folder, int>
 
     Task<Result<bool>> DeleteOneAsync<TMapped>(ApplicationUser currentUser, int id);
     
-    Task<Result<Tuple<List<Folder>,List<Media>>>> GetFromRoot(ApplicationUser user);
+    Task<Result<Tuple<List<Folder>,List<Media>>>> GetFromParent(ApplicationUser user, int? id);
+
+    Task<Result<Folder>> UpdateAsync(int id, Folder entity, ApplicationUser currentUser);
 
 }

@@ -9,10 +9,10 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     {
     }
 
-    public async Task<Result<List<TMapped>>> GetFromRoot<TMapped>(ApplicationUser user)
+    public async Task<Result<List<TMapped>>> GetFrom<TMapped>(ApplicationUser user, int? id)
     {
         var q = Query().Where(x =>
-            x.OwnerId == user.Id && x.FolderId == null
+            x.OwnerId == user.Id && x.FolderId == id
         ).OrderBy(x => x.Name);
 
         return Result.Ok(await q.FindListAsync<TMapped>(""));

@@ -2,7 +2,7 @@
 
 public class LoginDtoValidator : AbstractValidator<LoginDto>
 {
-    public LoginDtoValidator(IStringLocalizer<WorkspacesRes> localizer)
+    public LoginDtoValidator(IStringLocalizer<FoldersRes> localizer)
     {
         const int maxNameLength = 100;
         RuleFor(x => x.Email)

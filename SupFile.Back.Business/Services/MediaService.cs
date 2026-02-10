@@ -39,8 +39,8 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return Result.Fail(new ForbiddenError("You are not authorized to delete this media."));
     }
     
-    public async Task<Result<List<Media>>> GetFromRoot(ApplicationUser currentUser){
-        var mediaResult = await Repository.GetFromRoot<Media>(currentUser);
+    public async Task<Result<List<Media>>> GetFrom(ApplicationUser currentUser, int? id){
+        var mediaResult = await Repository.GetFrom<Media>(currentUser, id);
 
         return mediaResult;
     }

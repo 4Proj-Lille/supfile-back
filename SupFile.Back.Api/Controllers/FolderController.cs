@@ -38,11 +38,20 @@ public sealed class FolderController : BaseAuthController
         return ToActionResult(Result.Ok(createdFolderModel));
     }
     
-    [HttpGet("Root")]
-    public async Task<ActionResult<StorageModel>> GetFromRoot()
+    
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<FolderModel>> Get(int id)
+    {
+        var workspaces = await _folderService.GetByIdAsync<FolderModel>(id);
+
+        return ToActionResult(workspaces);
+    }
+    
+    [HttpGet("FromParent")]
+    public async Task<ActionResult<StorageModel>> GetFromParent([FromQuery] int? id = null)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var result = await _folderService.GetFromRoot(currentUser);
+        var result = await _folderService.GetFromParent(currentUser, id);
     
         if (!result.IsSuccess)
             return ToActionResult(Result.Fail<StorageModel>(result.Errors));
@@ -56,5 +65,20 @@ public sealed class FolderController : BaseAuthController
         };
     
         return Ok(storageModel);
+    }
+    
+    [HttpPatch("{id:int}")]
+    public async Task<ActionResult<FolderModel>> Patch(int id, [FromBody] FolderPatchModel model)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var entity = model.Adapt<Folder>();
+        var workspaceResult = await _folderService.UpdateAsync(id, entity, currentUser);
+        if (workspaceResult.IsFailed)
+        {
+            return ToActionResult(Result.Fail(workspaceResult.Errors));
+        }
+
+        var workspaceModel = workspaceResult.Value.Adapt<FolderModel>();
+        return ToActionResult(Result.Ok(workspaceModel));
     }
 }
