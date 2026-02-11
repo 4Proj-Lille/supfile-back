@@ -79,4 +79,15 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return await UpdateAsync(id, media);
     }
     
+    public async Task<Result<int>> GetGlobalStorage(ApplicationUser currentUser){
+        var storageResult = await Repository.GetGlobalStorage(currentUser);
+
+        return storageResult;
+    }
+    
+    public async Task<Result<Dictionary<string, int>>> GetStorageByExtension(ApplicationUser currentUser){
+        var storageResult = await Repository.GetStorageByExtension(currentUser);
+
+        return storageResult;
+    }
 }

@@ -10,5 +10,8 @@ public interface IMediaService : IBaseService<Media, int>
     Task<Result<List<Media>>> GetFrom(ApplicationUser currentUser, int? id);
     
     Task<Result<Media>> UpdateAsync(int id, Media entity, ApplicationUser currentUser);
+    
+    Task<Result<int>> GetGlobalStorage(ApplicationUser currentUser);
 
+    Task<Result<Dictionary<string, int>>> GetStorageByExtension(ApplicationUser currentUser);
 }

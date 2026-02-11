@@ -69,4 +69,22 @@ public sealed class MediaController : BaseAuthController
 
         return ToActionResult(deletedResult);
     }
+    
+    [HttpGet("GlobalStorage")]
+    public async Task<ActionResult<int>> GetGlobalStorage()
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var storage = await _mediaService.GetGlobalStorage(currentUser);
+
+        return ToActionResult(storage);
+    }
+    
+    [HttpGet("StorageByExtension")]
+    public async Task<ActionResult<Dictionary<string, int>>> GetStorageByExtension()
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var storage = await _mediaService.GetStorageByExtension(currentUser);
+
+        return ToActionResult(storage);
+    }
 }
