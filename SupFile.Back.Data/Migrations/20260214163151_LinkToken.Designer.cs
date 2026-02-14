@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SupFile.Back.Data.Context;
@@ -11,9 +12,11 @@ using SupFile.Back.Data.Context;
 namespace SupFile.Back.Data.Migrations
 {
     [DbContext(typeof(SupFileContext))]
-    partial class SupFileContextModelSnapshot : ModelSnapshot
+    [Migration("20260214163151_LinkToken")]
+    partial class LinkToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -296,11 +299,11 @@ namespace SupFile.Back.Data.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("ExpirationDate");
 
-                    b.Property<int?>("ShareFolderId")
+                    b.Property<int>("ShareFolderId")
                         .HasColumnType("int")
                         .HasColumnName("ShareFolderId");
 
-                    b.Property<int?>("ShareMediaId")
+                    b.Property<int>("ShareMediaId")
                         .HasColumnType("int")
                         .HasColumnName("ShareMediaId");
 
@@ -526,12 +529,14 @@ namespace SupFile.Back.Data.Migrations
                         .WithMany("Links")
                         .HasForeignKey("ShareFolderId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("Link_Folder_Id_fk");
 
                     b.HasOne("SupFile.Back.Core.Entities.Media", "ShareLinkFile")
                         .WithMany("Links")
                         .HasForeignKey("ShareMediaId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("Link_File_Id_fk");
 
                     b.Navigation("ShareLinkFile");

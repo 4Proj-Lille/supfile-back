@@ -33,7 +33,7 @@ namespace SupFile.Back.Data.Mapping
 
             builder.Property(t => t.Token)
                 .IsRequired()
-                .HasColumnName("Name")
+                .HasColumnName("Token")
                 .HasColumnType("text");
             
             builder.Property(t => t.Type)
@@ -47,12 +47,10 @@ namespace SupFile.Back.Data.Mapping
                 .HasColumnType("timestamp");
             
             builder.Property(t => t.ShareMediaId)
-                .IsRequired()
                 .HasColumnName("ShareMediaId")
                 .HasColumnType("int");
             
             builder.Property(t => t.ShareFolderId)
-                .IsRequired()
                 .HasColumnName("ShareFolderId")
                 .HasColumnType("int");
             
