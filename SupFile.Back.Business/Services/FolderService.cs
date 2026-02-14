@@ -43,16 +43,16 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return Result.Fail(new ForbiddenError("You are not authorized to delete this folder."));
     }
     
-    public async Task<Result<Tuple<List<Folder>,List<Media>>>> GetFromParent(ApplicationUser user, int? id)
+    public async Task<Result<Tuple<List<Folder>,List<Media>>>> GetFromParent(ApplicationUser user, int? id, string? sort)
     {
         var folderResult = await Repository.GetFrom<Folder>(user, id);
-        var mediaResult = await _mediaService.GetFrom(user, id);
+        var mediaResult = await _mediaService.GetFrom(user, id, sort);
     
         if (!folderResult.IsSuccess)
-            return Result.Fail("Error when getting folders from root");
+            return Result.Fail(folderResult.Errors);
         
         if (!mediaResult.IsSuccess)
-            return Result.Fail("Error when getting medias from root");
+            return Result.Fail(mediaResult.Errors);
     
         var tuple = Tuple.Create(folderResult.Value, mediaResult.Value);
         return Result.Ok(tuple);

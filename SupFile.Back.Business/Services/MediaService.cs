@@ -40,8 +40,20 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return Result.Fail(new ForbiddenError("You are not authorized to delete this media."));
     }
     
-    public async Task<Result<List<Media>>> GetFrom(ApplicationUser currentUser, int? id){
-        var mediaResult = await Repository.GetFrom<Media>(currentUser, id);
+    public async Task<Result<List<Media>>> GetFrom(ApplicationUser currentUser, int? id, string? sort){
+        var allowedSortFields = new[] { "id", "name", "sendDate", "size", "extension" };
+        
+        if (string.IsNullOrEmpty(sort))
+        {
+            sort = "id";
+        }
+        
+        if (!allowedSortFields.Contains(sort))
+        {
+            return Result.Fail(new ForbiddenError("This sort field is not allowed."));
+        }
+            
+        var mediaResult = await Repository.GetFrom<Media>(currentUser, id, sort);
 
         return mediaResult;
     }

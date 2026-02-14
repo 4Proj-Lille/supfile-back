@@ -1,4 +1,5 @@
 using SupFile.Back.Core.Entities.Auth;
+using System.Linq.Dynamic.Core;
 
 namespace SupFile.Back.Data.Repositories;
 
@@ -9,11 +10,11 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     {
     }
 
-    public async Task<Result<List<TMapped>>> GetFrom<TMapped>(ApplicationUser user, int? id)
+    public async Task<Result<List<TMapped>>> GetFrom<TMapped>(ApplicationUser user, int? id, string sort)
     {
         var q = Query().Where(x =>
             x.OwnerId == user.Id && x.FolderId == id
-        ).OrderBy(x => x.Name);
+        ).OrderBy(sort);
 
         return Result.Ok(await q.FindListAsync<TMapped>(""));
     }

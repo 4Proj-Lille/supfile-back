@@ -48,10 +48,11 @@ public sealed class FolderController : BaseAuthController
     }
     
     [HttpGet("FromParent")]
-    public async Task<ActionResult<StorageModel>> GetFromParent([FromQuery] int? id = null)
+    public async Task<ActionResult<StorageModel>> GetFromParent([FromQuery] int? id = null, [FromQuery] string? sort = "id")
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var result = await _folderService.GetFromParent(currentUser, id);
+        
+        var result = await _folderService.GetFromParent(currentUser, id, sort);
     
         if (!result.IsSuccess)
             return ToActionResult(Result.Fail<StorageModel>(result.Errors));
