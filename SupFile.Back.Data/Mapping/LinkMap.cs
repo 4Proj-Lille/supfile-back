@@ -47,12 +47,10 @@ namespace SupFile.Back.Data.Mapping
                 .HasColumnType("timestamp");
             
             builder.Property(t => t.ShareMediaId)
-                .IsRequired()
                 .HasColumnName("ShareMediaId")
                 .HasColumnType("int");
             
             builder.Property(t => t.ShareFolderId)
-                .IsRequired()
                 .HasColumnName("ShareFolderId")
                 .HasColumnType("int");
             

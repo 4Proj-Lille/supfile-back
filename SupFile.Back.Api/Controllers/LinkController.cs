@@ -48,7 +48,11 @@ public sealed class LinkController : BaseAuthController
         var currentUser = await GetAuthenticatedAppUserAsync();
         
         var inviteLinkResult = await _linkService.GenerateEmailShareLinkAsync(currentUser, itemId, itemType.ToString(), userId);
-
+        if (inviteLinkResult.IsFailed)
+        {
+            return ToActionResult(Result.Fail(inviteLinkResult.Errors));
+        }
+ 
         return Ok(inviteLinkResult.Value);
     }
     
@@ -58,6 +62,10 @@ public sealed class LinkController : BaseAuthController
         var currentUser = await GetAuthenticatedAppUserAsync();
         
         var inviteLinkResult = await _linkService.AcceptShareLinkAsync(currentUser, token);
+        if (inviteLinkResult.IsFailed)
+        {
+            return ToActionResult(Result.Fail(inviteLinkResult.Errors));
+        }
 
         return Ok(inviteLinkResult.Value);
     }
