@@ -33,7 +33,7 @@ namespace SupFile.Back.Data.Mapping
 
             builder.Property(t => t.Token)
                 .IsRequired()
-                .HasColumnName("Name")
+                .HasColumnName("Token")
                 .HasColumnType("text");
             
             builder.Property(t => t.Type)

@@ -58,6 +58,8 @@ public class AppSettings
 
     [Required] public required string EmailVerificationFrontendLink { get; set; }
     
+    [Required] public required string EmailGenerationFrontendLink { get; set; }
+    
     public string LogoUrl { get; set; }
     
     public bool AllowSwagger { get; set; }
