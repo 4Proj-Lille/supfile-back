@@ -2,6 +2,7 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using SupFile.Back.Core.Records;
+using SupFile.Back.Storage.Configuration;
 
 namespace SupFile.Back.Business.Services;
 

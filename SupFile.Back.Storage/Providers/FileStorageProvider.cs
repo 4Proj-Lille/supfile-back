@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using SupFile.Back.Storage.Configuration;
 using SupFile.Back.Storage.Interfaces;
 
@@ -5,11 +6,11 @@ namespace SupFile.Back.Storage.Providers;
 
 public class FileStorageProvider : IStorageProvider
 {
-    private readonly StorageSettings _settings;
+    private readonly FileStorageSettings _settings;
 
-    public FileStorageProvider(StorageSettings settings)
+    public FileStorageProvider(IOptions<FileStorageSettings> settings)
     {
-        _settings = settings;
+        _settings = settings.Value;
     }
 
     public string? GetUrl(string name, string extension, string subPath)

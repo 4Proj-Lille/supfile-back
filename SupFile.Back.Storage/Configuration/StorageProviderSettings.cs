@@ -1,6 +1,6 @@
 namespace SupFile.Back.Storage.Configuration;
 
-public class StorageSettings
+public class FileStorageSettings
 {
     /// <summary>
     /// Gets or sets the folder path.

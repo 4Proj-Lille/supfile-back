@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SupFile.Back.Storage.Configuration;
@@ -13,15 +14,24 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddStorageProviders(this IServiceCollection services, IConfiguration configuration)
     {
-        var settings = configuration.GetSection(nameof(StorageSettings)).Get<StorageSettings>();
-        if (settings == null)
-            throw new InvalidOperationException("StorageProviders settings are not configured properly.");
+        services.AddOptions<FileStorageSettings>()
+            .BindConfiguration(nameof(FileStorageSettings))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
-        services.AddSingleton(settings);
+        services.AddOptions<BlobStorageSettings>()
+            .BindConfiguration(nameof(BlobStorageSettings))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
-        services.AddSingleton<IStorageProvider>(sp => new FileStorageProvider(settings));
-        // services.AddSingleton<IStorageProvider>(sp => new BlobStorageProvider(settings));
+        var blobStorageSettings = configuration.GetSection(nameof(BlobStorageSettings)).Get<BlobStorageSettings>();
+        if (blobStorageSettings == null)
+        {
+            throw new InvalidOperationException($"Failed to bind {nameof(BlobStorageSettings)} from configuration.");
+        }
+
+        services.AddSingleton(_ => new BlobServiceClient(blobStorageSettings.ConnectionString));
+        services.AddSingleton<IStorageProvider, BlobStorageProvider>();
 
         return services;
-    }
-}
+    }}

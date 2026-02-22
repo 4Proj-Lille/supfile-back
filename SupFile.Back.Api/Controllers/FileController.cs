@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.StaticFiles;
 using SupFile.Back.Storage.Interfaces;
 
 namespace SupFile.Back.Api.Controllers;
@@ -36,5 +37,31 @@ public class FileController : ControllerBase
         }
 
         return Ok();
+    }
+
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> DownloadPicture([FromQuery] string name, [FromQuery] string extension)
+    {
+        var provider = new FileExtensionContentTypeProvider();
+
+        try
+        {
+            var file = await _storageProvider.ReadAsync(name, extension);
+
+            if (!provider.TryGetContentType($"{name}.{extension}", out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            return File(file, contentType, name);
+        }
+        catch
+        {
+            return BadRequest();
+        }
+
+        return BadRequest();
     }
 }

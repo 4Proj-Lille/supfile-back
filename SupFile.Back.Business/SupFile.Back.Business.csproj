@@ -12,7 +12,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Storage.Blobs" Version="12.24.0"/>
         <PackageReference Include="FluentEmail.Razor" Version="3.0.2"/>
         <PackageReference Include="FluentEmail.Smtp" Version="3.0.2"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.1"/>

@@ -1,4 +1,6 @@
-namespace SupFile.Back.Core.Configuration;
+using System.ComponentModel.DataAnnotations;
+
+namespace SupFile.Back.Storage.Configuration;
 
 /// <summary>
 ///     The settings class for the application.
@@ -17,4 +19,10 @@ public class BlobStorageSettings
     /// </summary>
     [Required]
     public required string ContainerName { get; set; }
+    
+    /// <summary>
+    ///     The connection string for the blob storage account.
+    /// </summary>
+    [Required]
+    public required string ConnectionString { get; set; }
 }

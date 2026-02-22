@@ -6,7 +6,7 @@ public interface IStorageProvider
     /// Gets the public URL of the file, optionally resized.
     /// </summary>
     /// <returns>The public URL of the image.</returns>
-    string? GetUrl(string name, string extension, string basePath);
+    string? GetUrl(string name, string extension, string? basePath = null);
 
     /// <summary>
     /// Saves the original file and generates resized versions.
