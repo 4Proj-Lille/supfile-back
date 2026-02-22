@@ -1,5 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+﻿using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
 namespace SupFile.Back.Api.Controllers.Auth;
