@@ -14,10 +14,10 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddStorageProviders(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOptions<FileStorageSettings>()
-            .BindConfiguration(nameof(FileStorageSettings))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
+        // services.AddOptions<FileStorageSettings>()
+        //     .BindConfiguration(nameof(FileStorageSettings))
+        //     .ValidateDataAnnotations()
+        //     .ValidateOnStart();
 
         services.AddOptions<BlobStorageSettings>()
             .BindConfiguration(nameof(BlobStorageSettings))
@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddSingleton(_ => new BlobServiceClient(blobStorageSettings.ConnectionString));
+        // services.AddSingleton<IStorageProvider, FileStorageProvider>();
         services.AddSingleton<IStorageProvider, BlobStorageProvider>();
 
         return services;
