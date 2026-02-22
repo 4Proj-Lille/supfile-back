@@ -18,10 +18,6 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IAuthTokenProcessor, AuthTokenProcessor>();
 
         services.AddSingleton<IBlobService, BlobService>();
-        services.AddSingleton(_ => new BlobServiceClient(
-            Configuration.GetConnectionString("BlobStorage") ??
-            throw new InvalidOperationException("Default connection string missing inside appsettings.json")
-        ));
         
         services.AddTransient<IEmailService, EmailService>();
 
