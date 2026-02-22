@@ -11,4 +11,5 @@
   <Project Path="SupFile.Back.Core/SupFile.Back.Core.csproj" />
   <Project Path="SupFile.Back.Data/SupFile.Back.Data.csproj" />
   <Project Path="SupFile.Back.Resources/SupFile.Back.Resources.csproj" />
+  <Project Path="SupFile.Back.Storage/SupFile.Back.Storage.csproj" />
 </Solution>

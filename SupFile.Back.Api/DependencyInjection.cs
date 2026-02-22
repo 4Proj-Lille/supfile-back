@@ -1,4 +1,5 @@
 using SupFile.Back.Api.Settings;
+using SupFile.Back.Storage;
 
 namespace SupFile.Back.Api;
 
@@ -53,6 +54,8 @@ internal static class DependencyInjection
         builder.Services.AddBusinessServices(builder.Configuration);
         builder.Services.AddDataRepositories();
         builder.Services.AddSeeders();
+
+        builder.Services.AddStorageProviders(builder.Configuration);
 
         var smptSettings = builder.Configuration.GetSection(nameof(SmtpSettings)).Get<SmtpSettings>();
 

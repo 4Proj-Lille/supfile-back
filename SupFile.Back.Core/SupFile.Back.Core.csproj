@@ -17,6 +17,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\SupFile.Back.Resources\SupFile.Back.Resources.csproj"/>
+        <ProjectReference Include="..\SupFile.Back.Storage\SupFile.Back.Storage.csproj"/>
     </ItemGroup>
 
 </Project>
