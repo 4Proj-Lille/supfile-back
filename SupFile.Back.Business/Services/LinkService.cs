@@ -34,7 +34,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         }
         if (media.Value.OwnerId != currentUser.Id)
         {
-            return Result.Fail(new Error("You are not the owner of this media"));
+            return Result.Fail(new ForbiddenError("You are not the owner of this media"));
         }
 
         var token = Guid.NewGuid().ToString();
@@ -64,7 +64,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         }
         if (folder.Value.OwnerId != currentUser.Id)
         {
-            return Result.Fail(new Error("You are not the owner of this folder"));
+            return Result.Fail(new ForbiddenError("You are not the owner of this folder"));
         }
 
         var token = Guid.NewGuid().ToString();
@@ -97,7 +97,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         {
             "Media" => await GenerateMediaShareLinkAsync(currentUser, itemId),
             "Folder" => await GenerateFolderShareLinkAsync(currentUser, itemId),
-            _ => Result.Fail(new Error("Invalid type"))
+            _ => Result.Fail(new BadRequestError("Invalid type"))
         };
         
         if (link.IsFailed)
@@ -137,11 +137,31 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         {
             return Result.Fail(linkResult.Errors);
         }
-
-        var userResult = await _userService.GetByIdAsync<ApplicationUser>(currentUser.Id);
-        if (userResult.Value.Id == currentUser.Id)
+        
+        if (linkResult.Value.ShareFolderId != null)
         {
-            return Result.Fail(new Error("You cannot accept your own share link"));
+            var folderResult = await _folderService.GetByIdAsync<Folder>(linkResult.Value.ShareFolderId.Value);
+            if (folderResult.IsFailed)
+            {
+                return Result.Fail(folderResult.Errors);
+            }
+            if (folderResult.Value.OwnerId == currentUser.Id)
+            {
+                return Result.Fail(new ForbiddenError("You cannot accept your own share link"));
+            }
+        }
+        
+        if (linkResult.Value.ShareMediaId != null)
+        {
+            var mediaResult = await _mediaService.GetByIdAsync<Media>(linkResult.Value.ShareMediaId.Value);
+            if (mediaResult.IsFailed)
+            {
+                return Result.Fail(mediaResult.Errors);
+            }
+            if (mediaResult.Value.OwnerId == currentUser.Id)
+            {
+                return Result.Fail(new ForbiddenError("You cannot accept your own share link"));
+            }
         }
 
         var share = new Share
