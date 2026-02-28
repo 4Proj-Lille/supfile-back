@@ -48,7 +48,7 @@ internal static class AuthenticationExtensions
             {
                 options.ClientId = authProviderSettings.Google.ClientId;
                 options.ClientSecret = authProviderSettings.Google.ClientSecret;
-                options.CallbackPath = "/api/authorization/google/callback";
+                options.CallbackPath = "/auth/google/callback";
                 options.SaveTokens = true;
             });
         
