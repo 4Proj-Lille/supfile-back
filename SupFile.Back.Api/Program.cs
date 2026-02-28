@@ -68,7 +68,7 @@ if (appSettings.AllowSwagger)
 }
 
 // Add the network security policies
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 // Add the authentication
 app.UseAuthentication();
