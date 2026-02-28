@@ -47,6 +47,12 @@ catch (Exception ex)
 }
 // }
 
+var forwardedHeadersOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+};
+app.UseForwardedHeaders(forwardedHeadersOptions);
+
 app.UseRouting();
 
 // Configure the static files (wwwroot)
@@ -87,10 +93,6 @@ app.MapHealthChecks("/health");
 
 app.MapDefaultControllerRoute();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
 
 
 // Log the URLs that are being listened to
