@@ -22,7 +22,15 @@ var logger = app.Services.GetRequiredService<ILogger<Program>>();
 LogHelper.LogInformation(logger, $"[{nameof(Program)}]", "{0} {1} {2} starting...", 
      appSettings.Name, appSettings.Environment, appSettings.Version);
 
-app.UseCors("SupChat");
+var forwardedHeadersOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+};
+forwardedHeadersOptions.KnownNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeadersOptions);
+
+app.UseCors("SupFile");
 app.UseCors(CorsOptions.PolicyName);
 
 // Apply pending migrations if in development mode
@@ -46,12 +54,6 @@ catch (Exception ex)
     LogHelper.LogError(logger, "[Program]", ex, "An error occurred while applying migrations.");
 }
 // }
-
-var forwardedHeadersOptions = new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-};
-app.UseForwardedHeaders(forwardedHeadersOptions);
 
 app.UseRouting();
 
