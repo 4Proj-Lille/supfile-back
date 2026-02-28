@@ -148,4 +148,14 @@ public sealed class AuthorizationController : BaseController
         
         // return ToActionResult(loginResponseResult);
     }
+    
+    [HttpGet("debug")]
+    public IActionResult Debug()
+    {
+        return Ok(new 
+        {
+            scheme = Request.Scheme,
+            headers = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString())
+        });
+    }
 }
