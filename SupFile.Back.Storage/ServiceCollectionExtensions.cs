@@ -30,7 +30,8 @@ public static class ServiceCollectionExtensions
             throw new InvalidOperationException($"Failed to bind {nameof(BlobStorageSettings)} from configuration.");
         }
 
-        services.AddSingleton(_ => new BlobServiceClient(blobStorageSettings.ConnectionString));
+        var blobServiceClient = new BlobServiceClient(blobStorageSettings.ConnectionString);
+        services.AddSingleton(blobServiceClient);
         // services.AddSingleton<IStorageProvider, FileStorageProvider>();
         services.AddSingleton<IStorageProvider, BlobStorageProvider>();
 

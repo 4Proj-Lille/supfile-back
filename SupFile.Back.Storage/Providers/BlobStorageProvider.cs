@@ -20,7 +20,10 @@ public class BlobStorageProvider : IStorageProvider
 
     public string? GetUrl(string name, string extension, string basePath)
     {
-        throw new NotImplementedException();
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_blobSettings.ContainerName);
+        var blobClient = containerClient.GetBlobClient($"{name}{extension}");
+        return blobClient.Uri.ToString();
+
     }
 
     public async Task WriteAsync(string name, string extension, byte[] content, bool forceRewrite = false, string baseUrl = "")
@@ -37,7 +40,9 @@ public class BlobStorageProvider : IStorageProvider
 
     public bool Exists(string name, string extension, string? baseUrl = null)
     {
-        throw new NotImplementedException();
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_blobSettings.ContainerName);
+        var blobClient = containerClient.GetBlobClient($"{name}{extension}");
+        return blobClient.Exists();
     }
 
     public async Task<byte[]> ReadAsync(string name, string extension, string baseUrl = "")

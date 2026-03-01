@@ -31,9 +31,11 @@ public class FileController : ControllerBase
         {
             await _storageProvider.WriteAsync(name, extension, bytes);
         }
-        catch
+        catch (Exception ex)
         {
-            return BadRequest();
+            Console.WriteLine($"[ERROR] {ex.Message}");
+            Console.WriteLine($"[ERROR] {ex.StackTrace}");
+            return BadRequest(ex.Message);
         }
 
         return Ok();
