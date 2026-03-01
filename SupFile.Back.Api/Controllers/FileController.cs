@@ -33,8 +33,6 @@ public class FileController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERROR] {ex.Message}");
-            Console.WriteLine($"[ERROR] {ex.StackTrace}");
             return BadRequest(ex.Message);
         }
 
