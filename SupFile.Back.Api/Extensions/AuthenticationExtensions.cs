@@ -16,9 +16,9 @@ internal static class AuthenticationExtensions
         builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // API requests
-                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // Google login
-                options.DefaultSignInScheme =
-                    CookieAuthenticationDefaults.AuthenticationScheme; // Temporary storage for OAuth
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                // options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // Google login
+                // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Temporary storage for OAuth
             })
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
             {
@@ -50,6 +50,7 @@ internal static class AuthenticationExtensions
                 options.ClientSecret = authProviderSettings.Google.ClientSecret;
                 options.CallbackPath = "/auth/google/callback";
                 options.SaveTokens = true;
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             });
         
 

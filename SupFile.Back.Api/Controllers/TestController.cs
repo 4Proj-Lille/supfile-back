@@ -21,6 +21,17 @@ public class TestController : BaseAuthController
 
         return Ok(result);
     }
+    
+    [HttpGet("hello/authorized")]
+    public ActionResult<TestResult> GetAuthorizedHello()
+    {
+        TestResult result = new()
+        {
+            content = "Hello World from the server !"
+        };
+
+        return Ok(result);
+    }
 }
 
 public class TestResult
