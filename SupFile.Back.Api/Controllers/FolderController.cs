@@ -68,6 +68,23 @@ public sealed class FolderController : BaseAuthController
         return Ok(storageModel);
     }
     
+    [HttpGet("Path")]
+    public async Task<ActionResult<List<FolderModel>>> GetPath([FromQuery] int id)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        
+        var result = await _folderService.GetPath(currentUser, id);
+    
+        if (!result.IsSuccess)
+            return ToActionResult(Result.Fail<List<FolderModel>>(result.Errors));
+    
+        var folders = result.Value;
+    
+        var folderModels = folders.Adapt<List<FolderModel>>();
+    
+        return Ok(folderModels);
+    }
+    
     [HttpPatch("{id:int}")]
     public async Task<ActionResult<FolderModel>> Patch(int id, [FromBody] FolderPatchModel model)
     {

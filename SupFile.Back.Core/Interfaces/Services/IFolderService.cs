@@ -10,5 +10,7 @@ public interface IFolderService : IBaseService<Folder, int>
     Task<Result<Tuple<List<Folder>,List<Media>>>> GetFromParent(ApplicationUser user, int? id, string? sort);
 
     Task<Result<Folder>> UpdateAsync(int id, Folder entity, ApplicationUser currentUser);
+    
+    Task<Result<List<Folder>>> GetPath(ApplicationUser user, int id);
 
 }

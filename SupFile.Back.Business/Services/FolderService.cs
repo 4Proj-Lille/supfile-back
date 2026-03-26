@@ -19,6 +19,26 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
     public async Task<Result<Folder>> AddOneAsync(ApplicationUser currentUser, Folder entity)
     {
         entity.OwnerId = currentUser.Id;
+        if (entity.ParentId != null)
+        {
+            var parentFolderResult = await Repository.GetByIdAsync<Folder>(entity.ParentId.Value);
+            if (parentFolderResult.IsFailed || parentFolderResult.Value == null)
+            {
+                return Result.Fail(parentFolderResult.Errors);
+            }
+
+            var parentFolder = parentFolderResult.Value;
+            
+            if (parentFolder.Id == entity.Id)
+            {
+                return Result.Fail(new BadRequestError("A folder cannot be its own parent."));
+            }
+            
+            if (parentFolder.OwnerId != currentUser.Id)
+            {
+                return Result.Fail(new ForbiddenError("You are not authorized to add a folder to this parent."));
+            }
+        }
         var addFolder = await AddAsync(entity);
 
         return addFolder;
@@ -91,4 +111,26 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return await UpdateAsync(id, folder);
     }
     
+    public async Task<Result<List<Folder>>> GetPath(ApplicationUser user, int id)
+    {
+        var folderResult = await Repository.GetByIdAsync<Folder>(id);
+        if (folderResult.IsFailed || folderResult.Value == null)
+        {
+            return Result.Fail(folderResult.Errors);
+        }
+
+        var folder = folderResult.Value;
+
+        if (folder.OwnerId != user.Id)
+        {
+            return Result.Fail(new ForbiddenError("You are not authorized to access this folder."));
+        }
+        if (folder.ParentId == null)
+        {
+            return Result.Ok(new List<Folder>());
+        }
+        var pathResult = await Repository.GetPath(user, folder.ParentId);
+
+        return pathResult;
+    }
 }
