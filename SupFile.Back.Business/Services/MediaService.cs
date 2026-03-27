@@ -102,4 +102,18 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         return storageResult;
     }
+    
+    public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser)
+    {
+        var mediaResult = await Repository.GetSoftDeleted<TMapped>(currentUser);
+
+        return mediaResult;
+    }
+    
+    public async Task<Result<bool>> DeleteAllSoftDeleted(ApplicationUser currentUser)
+    {
+        var softDeletedResult = await Repository.DeleteAllSoftDeleted(currentUser);
+        
+        return softDeletedResult;
+    }
 }

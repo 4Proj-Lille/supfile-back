@@ -70,6 +70,64 @@ public sealed class MediaController : BaseAuthController
         return ToActionResult(deletedResult);
     }
     
+    [HttpPatch("{id:int}/SoftDelete")]
+    public async Task<ActionResult<MediaModel>> SoftDelete(int id)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var mediaResult = await _mediaService.GetByIdAsync<MediaModel>(id);
+        if (mediaResult.IsFailed || mediaResult.Value == null)
+        {
+            return ToActionResult(Result.Fail(mediaResult.Errors));
+        }
+
+        var media = mediaResult.Value;
+        
+        if (media.OwnerId != currentUser.Id)
+        {
+            return ToActionResult(Result.Fail(new ForbiddenError("You are not authorized to delete this media.")));
+        }
+        
+        media.IsActive = false;
+        
+        var updatedMediaResult = await _mediaService.UpdateAsync(id, media.Adapt<Media>(), currentUser);
+        if (updatedMediaResult.IsFailed)
+        {
+            return ToActionResult(Result.Fail(updatedMediaResult.Errors));
+        }
+
+        var updatedMediaModel = updatedMediaResult.Value.Adapt<MediaModel>();
+        return ToActionResult(Result.Ok(updatedMediaModel));
+    }
+    
+    [HttpPatch("{id:int}/Restore")]
+    public async Task<ActionResult<MediaModel>> Restore(int id)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var mediaResult = await _mediaService.GetByIdAsync<MediaModel>(id);
+        if (mediaResult.IsFailed || mediaResult.Value == null)
+        {
+            return ToActionResult(Result.Fail(mediaResult.Errors));
+        }
+
+        var media = mediaResult.Value;
+        
+        if (media.OwnerId != currentUser.Id)
+        {
+            return ToActionResult(Result.Fail(new ForbiddenError("You are not authorized to restore this media.")));
+        }
+        
+        media.IsActive = true;
+        
+        var updatedMediaResult = await _mediaService.UpdateAsync(id, media.Adapt<Media>(), currentUser);
+        if (updatedMediaResult.IsFailed)
+        {
+            return ToActionResult(Result.Fail(updatedMediaResult.Errors));
+        }
+
+        var updatedMediaModel = updatedMediaResult.Value.Adapt<MediaModel>();
+        return ToActionResult(Result.Ok(updatedMediaModel));
+    }
+    
     [HttpGet("GlobalStorage")]
     public async Task<ActionResult<int>> GetGlobalStorage()
     {
@@ -87,4 +145,23 @@ public sealed class MediaController : BaseAuthController
 
         return ToActionResult(storage);
     }
+    
+    [HttpGet("SoftDeleted")]
+    public async Task<ActionResult<List<MediaModel>>> GetSoftDeleted()
+    {        
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var medias = await _mediaService.GetSoftDeleted<MediaModel>(currentUser);
+        
+        return ToActionResult(medias);
+    }
+    
+    [HttpDelete]
+    public async Task<ActionResult<bool>> EmptyTrash()
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var deletedResult = await _mediaService.DeleteAllSoftDeleted(currentUser);
+        
+        return ToActionResult(deletedResult);
+    }
+
 }

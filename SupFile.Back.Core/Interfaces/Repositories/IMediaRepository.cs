@@ -7,6 +7,10 @@ namespace SupFile.Back.Core.Interfaces.Repositories;
      Task<Result<int>> GetGlobalStorage(ApplicationUser user);
 
      Task<Result<Dictionary<string, int>>> GetStorageByExtension(ApplicationUser user);
+     
+     Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser user);
+     
+     Task<Result<bool>> DeleteAllSoftDeleted(ApplicationUser user);
  }
  
  

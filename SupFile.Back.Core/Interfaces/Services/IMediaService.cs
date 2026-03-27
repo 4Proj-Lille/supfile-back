@@ -14,4 +14,8 @@ public interface IMediaService : IBaseService<Media, int>
     Task<Result<int>> GetGlobalStorage(ApplicationUser currentUser);
 
     Task<Result<Dictionary<string, int>>> GetStorageByExtension(ApplicationUser currentUser);
+    
+    Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser);
+    
+    Task<Result<bool>> DeleteAllSoftDeleted(ApplicationUser currentUser);
 }

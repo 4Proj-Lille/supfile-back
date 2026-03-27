@@ -42,4 +42,39 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
 
         return Result.Ok(storageByExtension);
     }
+    
+    public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser user)
+    {
+        var q = Query().Where(x =>
+            x.OwnerId == user.Id && x.IsActive
+        );
+
+        return Result.Ok(await q.FindListAsync<TMapped>(""));
+    }
+    
+    public async Task<Result<bool>> DeleteAllSoftDeleted(ApplicationUser user)
+    {
+        var softDeletedMedias = await Query()
+            .Where(x => x.OwnerId == user.Id && !x.IsActive)
+            .ToListAsync();
+
+        if (softDeletedMedias.Count == 0)
+        {
+            return Result.Ok(true);
+        }
+
+        try
+        {
+            await using var context = await ContextFactory.CreateDbContextAsync();
+
+            context.RemoveRange(softDeletedMedias);
+            await context.SaveChangesAsync();
+            
+            return Result.Ok(true);
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail($"An error occurred while deleting soft-deleted media: {ex.Message}");
+        }
+    }
 }
