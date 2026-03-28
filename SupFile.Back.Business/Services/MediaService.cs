@@ -2,16 +2,11 @@ namespace SupFile.Back.Business.Services;
 
 public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaService
 {
-    private readonly IUserService _userService;
-
-    public MediaService(ILogger<MediaService> logger, IMediaRepository repository,
-        IUserService userService
-    ) : base(logger,
+    public MediaService(ILogger<MediaService> logger, IMediaRepository repository) : base(logger,
         repository)
     {
-        _userService = userService;
     }
-    
+
     public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, Media entity)
     {
         entity.OwnerId = currentUser.Id;
@@ -20,57 +15,52 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         return addFolder;
     }
-    
-    
-    public async Task<Result<bool>> DeleteOneAsync<TMapped>(ApplicationUser currentUser, int id)
+
+
+    public async Task<Result> DeleteOneAsync(ApplicationUser currentUser, int id)
     {
-        var mediaResult = await Repository.GetByIdAsync<TMapped>(id);
-        if (mediaResult.IsFailed || mediaResult.Value == null)
-        {
-            return Result.Fail(mediaResult.Errors);
-        }
+        var mediaResult = await Repository.GetByIdAsync<Media>(id);
+        if (mediaResult.IsFailed) return mediaResult.ToResult();
 
         var media = mediaResult.Value;
 
-        if (media.Adapt<Media>().OwnerId == currentUser.Id)
+        if (media.Adapt<Media>().OwnerId != currentUser.Id)
         {
-            return await DeleteAsync<TMapped>(id);
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
         }
 
-        return Result.Fail(new ForbiddenError("You are not authorized to delete this media."));
+        return await DeleteAsync(id);
     }
-    
-    public async Task<Result<List<Media>>> GetFrom(ApplicationUser currentUser, int? id, string? sort){
+
+    public async Task<Result<List<Media>>> GetFrom(ApplicationUser currentUser, int? id, string? sort)
+    {
         var allowedSortFields = new[] { "id", "name", "sendDate", "size", "extension" };
-        
+
         if (string.IsNullOrEmpty(sort))
         {
             sort = "id";
         }
-        
+
         if (!allowedSortFields.Contains(sort))
         {
-            return Result.Fail(new ForbiddenError("This sort field is not allowed."));
+            return Result.Fail(MediaErrors.InvalidSortField(sort));
         }
-            
+
         var mediaResult = await Repository.GetFrom<Media>(currentUser, id, sort);
 
         return mediaResult;
     }
-    
+
     public async Task<Result<Media>> UpdateAsync(int id, Media entity, ApplicationUser currentUser)
     {
-        var MediaResult = await Repository.GetByIdAsync<Media>(id);
-        if (MediaResult.IsFailed || MediaResult.Value == null)
-        {
-            return MediaResult;
-        }
+        var mediaResult = await Repository.GetByIdAsync<Media>(id);
+        if (mediaResult.IsFailed) return mediaResult;
 
-        var media = MediaResult.Value;
+        var media = mediaResult.Value;
 
-        if ( media.OwnerId != currentUser.Id)
+        if (media.OwnerId != currentUser.Id)
         {
-            return Result.Fail(new ForbiddenError("You are not authorized to update this media."));
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
         }
 
         foreach (var prop in typeof(Media).GetProperties())
@@ -90,30 +80,32 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         return await UpdateAsync(id, media);
     }
-    
-    public async Task<Result<int>> GetGlobalStorage(ApplicationUser currentUser){
+
+    public async Task<Result<int>> GetGlobalStorage(ApplicationUser currentUser)
+    {
         var storageResult = await Repository.GetGlobalStorage(currentUser);
 
         return storageResult;
     }
-    
-    public async Task<Result<Dictionary<string, int>>> GetStorageByExtension(ApplicationUser currentUser){
+
+    public async Task<Result<Dictionary<string, int>>> GetStorageByExtension(ApplicationUser currentUser)
+    {
         var storageResult = await Repository.GetStorageByExtension(currentUser);
 
         return storageResult;
     }
-    
+
     public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser)
     {
         var mediaResult = await Repository.GetSoftDeleted<TMapped>(currentUser);
 
         return mediaResult;
     }
-    
+
     public async Task<Result<bool>> DeleteAllSoftDeleted(ApplicationUser currentUser)
     {
         var softDeletedResult = await Repository.DeleteAllSoftDeleted(currentUser);
-        
+
         return softDeletedResult;
     }
 }

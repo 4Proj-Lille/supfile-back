@@ -19,7 +19,7 @@ public class UserController : BaseAuthController
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var users = await _userService.GetAllUsersAsync<ApplicationUserModel>(currentUser, pageNumber, pageSize);
-        return ToActionResult(users);
+        return ToOkActionResult(users);
     }
 
     // [HttpPatch("{userId:int}")]
@@ -31,11 +31,11 @@ public class UserController : BaseAuthController
     //     var userResult = await _userService.UpdateAsync(userId, entity, currentUser);
     //     if (userResult.IsFailed)
     //     {
-    //         return ToActionResult(Result.Fail(userResult.Errors));
+    //         return ToOkActionResult(Result.Fail(userResult.Errors));
     //     }
     //
     //     var userModel = userResult.Value.Adapt<ApplicationUserModel>();
-    //     return ToActionResult(Result.Ok(userModel));
+    //     return ToOkActionResult(Result.Ok(userModel));
     // }
 
     // [HttpPatch("{userId:int}/Password")]
@@ -48,11 +48,11 @@ public class UserController : BaseAuthController
     //             model.ConfirmNewPassword, currentUser);
     //     if (userResult.IsFailed)
     //     {
-    //         return ToActionResult(Result.Fail(userResult.Errors));
+    //         return ToOkActionResult(Result.Fail(userResult.Errors));
     //     }
     //
     //     var userModel = userResult.Value.Adapt<ApplicationUserModel>();
-    //     return ToActionResult(Result.Ok(userModel));
+    //     return ToOkActionResult(Result.Ok(userModel));
     // }
 
     // [HttpDelete("{userId:int}")]
@@ -60,6 +60,6 @@ public class UserController : BaseAuthController
     // {
     //     var currentUser = await GetAuthenticatedAppUserAsync();
     //     var result = await _userService.DeleteUserAsync(currentUser, userId);
-    //     return ToActionResult(result);
+    //     return ToOkActionResult(result);
     // }
 }

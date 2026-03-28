@@ -6,17 +6,17 @@ public interface IStorageProvider
     /// Gets the public URL of the file, optionally resized.
     /// </summary>
     /// <returns>The public URL of the image.</returns>
-    string? GetUrl(string name, string extension, string? basePath = null);
+    Result<string> GetUrl(string name, string extension, string? basePath = null);
 
     /// <summary>
     /// Saves the original file and generates resized versions.
     /// </summary>
-    Task WriteAsync(string name, string extension, byte[] content, bool forceRewrite = false, string baseUrl = "");
+    Task<Result> WriteAsync(string name, string extension, byte[] content, bool forceRewrite = false, string baseUrl = "");
 
     /// <summary>
     /// Checks if an file exists for the given providerKey and id.
     /// </summary>
-    bool Exists(string name, string extension, string? baseUrl = null);
+    Result<bool> Exists(string name, string extension, string? baseUrl = null);
 
     /// <summary>
     /// Read the file content as a byte array for the given providerKey and id.
@@ -25,5 +25,5 @@ public interface IStorageProvider
     /// <param name="extension"></param>
     /// <param name="baseUrl"></param>
     /// <returns></returns>
-    Task<byte[]> ReadAsync(string name, string extension, string baseUrl = "");
+    Task<Result<byte[]>> ReadAsync(string name, string extension, string baseUrl = "");
 }

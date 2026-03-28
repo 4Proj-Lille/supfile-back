@@ -18,20 +18,13 @@ public sealed class AccountController : BaseController
 
     // POST: /Account/Register
     [HttpPost("register")]
-    public async Task<ActionResult<bool>> Register([FromBody] RegisterDto model,
+    public async Task<ActionResult> Register([FromBody] RegisterDto model,
         [FromServices] IValidator<RegisterDto> validator)
     {
-        var validationCheck = await ValidateAndToActionResult(validator, model);
-        if (validationCheck is not null)
-        {
-            return validationCheck;
-        }
+        await validator.ValidateAndThrowAsync(model);
 
         var result = await _authService.Register(model);
-        if (result.IsFailed)
-        {
-            return ToActionResult(result);
-        }
+        if (result.IsFailed) return ToErrorActionResult(result);
 
         return Created();
     }

@@ -1,10 +1,12 @@
 global using FluentResults;
 global using Microsoft.AspNetCore.Http;
 global using SupFile.Back.Core.Attributes;
+global using SupFile.Back.Core.Helpers;
 global using SupFile.Back.Core.Entities;
 global using SupFile.Back.Core.Entities.Auth;
 global using SupFile.Back.Core.Entities.Base;
 global using SupFile.Back.Core.Enums.Entities;
+global using SupFile.Back.Core.Errors.Base;
 global using SupFile.Back.Core.Interfaces.Entities;
 global using SupFile.Back.Core.Interfaces.Repositories.Base;
 global using SupFile.Back.Core.Interfaces.Services.Base;
@@ -14,3 +16,5 @@ global using System.ComponentModel.DataAnnotations.Schema;
 global using System.Linq.Expressions;
 global using System.Net;
 global using System.Resources;
+
+

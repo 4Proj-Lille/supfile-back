@@ -29,6 +29,14 @@
             <Generator>PublicResXFileCodeGenerator</Generator>
             <LastGenOutput>AuthenticationsRes.Designer.cs</LastGenOutput>
         </EmbeddedResource>
+        <EmbeddedResource Update="ErrorsRes.resx">
+          <Generator>PublicResXFileCodeGenerator</Generator>
+          <LastGenOutput>SharedRes.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="ErrorsRes.resx">
+          <Generator>ResXFileCodeGenerator</Generator>
+          <LastGenOutput>ErrorsRes.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
@@ -51,6 +59,16 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>AuthenticationsRes.resx</DependentUpon>
+        </Compile>
+        <Compile Update="ErrorsRes.Designer.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>ErrorsRes.resx</DependentUpon>
+        </Compile>
+        <Compile Update="ErrorsRes.Designer.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>ErrorsRes.resx</DependentUpon>
         </Compile>
     </ItemGroup>
 

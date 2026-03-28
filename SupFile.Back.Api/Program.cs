@@ -1,4 +1,5 @@
 using SupFile.Back.Api;
+using SupFile.Back.Api.Middlewares;
 using SupFile.Back.Api.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,15 +79,14 @@ if (appSettings.AllowSwagger)
 // Add the network security policies
 app.UseHttpsRedirection();
 
+app.UseMiddleware<RequestLoggingMiddleware>();
+
 // Add the authentication
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Add the middleware to set the culture
 app.UseExceptionHandler();
-
-app.UseMiddleware<RequestLoggingMiddleware>();
-app.UseMiddleware<CultureMiddleware>();
 
 // Add the controllers
 app.MapControllers();

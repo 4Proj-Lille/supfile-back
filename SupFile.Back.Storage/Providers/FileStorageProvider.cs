@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using SupFile.Back.Core.Errors;
 using SupFile.Back.Storage.Configuration;
 using SupFile.Back.Storage.Interfaces;
 
@@ -13,72 +14,74 @@ public class FileStorageProvider : IStorageProvider
         _settings = settings.Value;
     }
 
-    public string? GetUrl(string name, string extension, string subPath)
+    public Result<string> GetUrl(string name, string extension, string? basePath)
     {
         var folderPath = _settings.FolderPath;
         var virtualPath = _settings.VirtualPath;
 
-        if (subPath is not null)
+        if (basePath is not null)
         {
-            folderPath = Path.Combine(folderPath, subPath);
+            folderPath = Path.Combine(folderPath, basePath);
         }
 
-        // Look for any file that matches id.*
         var files = Directory.EnumerateFiles(folderPath, $"{name}{extension}").ToList();
 
         if (files.Count == 0)
         {
-            return null; // no file found
+            return Result.Fail(FileErrors.NotFound(name, extension));
         }
 
-        // Take the first match
         var file = files.First();
         var ext = Path.GetExtension(file);
 
-        if (subPath is not null)
+        if (basePath is not null)
         {
-            virtualPath = Path.Combine(virtualPath, subPath);
+            virtualPath = Path.Combine(virtualPath, basePath);
         }
 
-        return Path.Combine(virtualPath, $"{name}{ext}");
+        return Result.Ok(Path.Combine(virtualPath, $"{name}{ext}"));
     }
 
-    public async Task<byte[]> ReadAsync(string name, string extension, string subPath = "")
+    public async Task<Result<byte[]>> ReadAsync(string name, string extension, string baseUrl = "")
     {
-        var physicalPath = GetPhysicalPath(name, extension, subPath);
+        var physicalPathResult = GetPhysicalPath(name, extension, baseUrl);
+        if (physicalPathResult.IsFailed) return physicalPathResult.ToResult();
 
-        return await File.ReadAllBytesAsync(physicalPath);
+        var file = await File.ReadAllBytesAsync(physicalPathResult.Value);
+        return Result.Ok(file);
     }
 
-    public async Task WriteAsync(string name, string extension, byte[] content, bool forceRewrite = false, string baseUrl = "")
+    public async Task<Result> WriteAsync(string name, string extension, byte[] content, bool forceRewrite = false,
+        string baseUrl = "")
     {
         // Original files are stored in base folder path
         var folderPath = _settings.FolderPath;
         folderPath = Path.Combine(folderPath, baseUrl);
 
-        if (!extension.StartsWith("."))
+        if (!extension.StartsWith('.'))
         {
-            throw new InvalidDataException("Extension must start with a dot.");
+            return Result.Fail(FileErrors.ExtensionDoesNotStartWithADot());
         }
 
-        if (content == null || content.Length == 0)
+        if (content.Length == 0)
         {
-            throw new InvalidDataException("File content cannot be empty.");
+            return Result.Fail(FileErrors.EmptyContent());
         }
-        
+
         var filePath = Path.Combine(folderPath, $"{name}{extension}");
 
         Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
 
         if (!forceRewrite && File.Exists(filePath))
         {
-            return;
+            return Result.Fail(FileErrors.AlreadyExists(name, extension));
         }
 
         await File.WriteAllBytesAsync(filePath, content);
+        return Result.Ok();
     }
 
-    public bool Exists(string name, string extension, string? baseUrl = null)
+    public Result<bool> Exists(string name, string extension, string? baseUrl = null)
     {
         var basePath = _settings.FolderPath;
 
@@ -89,14 +92,14 @@ public class FileStorageProvider : IStorageProvider
 
         if (!Directory.Exists(basePath))
         {
-            return false;
+            return Result.Fail(FileErrors.FileNotFound());
         }
 
         var filePath = Path.Combine(basePath, $"{name}{extension}");
-        return File.Exists(filePath);
+        return Result.Ok(File.Exists(filePath));
     }
 
-    private string GetPhysicalPath(string name, string extension, string? subPath = null)
+    private Result<string> GetPhysicalPath(string name, string extension, string? subPath = null)
     {
         var basePath = _settings.FolderPath;
 
@@ -106,9 +109,11 @@ public class FileStorageProvider : IStorageProvider
         }
 
         var filePath = Path.Combine(basePath, $"{name}{extension}");
-        if (!File.Exists(filePath))
+        var existsResult = Exists(name, extension, subPath);
+        if (existsResult.IsFailed) return existsResult.ToResult();
+        if (!existsResult.Value)
         {
-            throw new FileNotFoundException($"File {filePath} not found.");
+            return Result.Fail(FileErrors.FileNotFound());
         }
 
         return filePath;

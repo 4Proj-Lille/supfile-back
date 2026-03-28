@@ -1,6 +1,8 @@
-﻿namespace SupFile.Back.Api.Validators;
+﻿using System.Text.RegularExpressions;
 
-public class RegisterDtoValidator : AbstractValidator<RegisterDto>
+namespace SupFile.Back.Api.Validators;
+
+public partial class RegisterDtoValidator : AbstractValidator<RegisterDto>
 {
     public RegisterDtoValidator(IStringLocalizer<AuthenticationsRes> l, IStringLocalizer<SharedRes> sl)
     {
@@ -29,12 +31,30 @@ public class RegisterDtoValidator : AbstractValidator<RegisterDto>
             .MinimumLength(MinPasswordLength)
             .WithMessage(string.Format(CultureInfo.CurrentCulture, "Password must be at least {0} characters",
                 MinPasswordLength))
-            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$")
-            .WithMessage(
-                "Password must contain at least " +
-                "one uppercase letter, " +
-                "one lowercase letter, " +
-                "one number, " +
-                "and one special character.");
+            .Matches(UpperCaseRegex())
+            .WithMessage("Password must contain at least one uppercase letter.")
+            .Matches(LowerCaseRegex())
+            .WithMessage("Password must contain at least one lowercase letter.")
+            .Matches(DigitRegex())
+            .WithMessage("Password must contain at least one number.")
+            .Matches(SpecialCharRegex())
+            .WithMessage("Password must contain at least one special character.")
+            .Matches(NoWhitespaceRegex())
+            .WithMessage("Password must not contain whitespace.");
     }
+
+    [GeneratedRegex(@"[A-Z]")]
+    private static partial Regex UpperCaseRegex();
+
+    [GeneratedRegex(@"[a-z]")]
+    private static partial Regex LowerCaseRegex();
+
+    [GeneratedRegex(@"\d")]
+    private static partial Regex DigitRegex();
+
+    [GeneratedRegex(@"[^\da-zA-Z]")]
+    private static partial Regex SpecialCharRegex();
+
+    [GeneratedRegex(@"^\S+$")]
+    private static partial Regex NoWhitespaceRegex();
 }

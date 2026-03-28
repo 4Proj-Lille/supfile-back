@@ -1,30 +1,17 @@
-﻿using System.Text;
-using Microsoft.IdentityModel.Tokens;
-
-namespace SupFile.Back.Api.Controllers.Auth;
+﻿namespace SupFile.Back.Api.Controllers.Auth;
 
 [Route("api/[controller]")]
 public sealed class AuthorizationController : BaseController
 {
     private readonly IAuthService _authService;
-    private readonly JwtSettings _jwtSettings;
-    private readonly IAuthTokenProcessor _authTokenProcessor;
-    private readonly UserManager<ApplicationUser> _userManager;
-
 
     public AuthorizationController(
         IAuthService authService,
-        IAuthTokenProcessor authTokenProcessor,
-        UserManager<ApplicationUser> userManager,
-        IOptions<JwtSettings> jwtSettings,
         ILogger<AuthorizationController> logger,
         IWebHostEnvironment env
     ) : base(logger, env)
     {
         _authService = authService;
-        _userManager = userManager;
-        _authTokenProcessor = authTokenProcessor;
-        _jwtSettings = jwtSettings.Value;
     }
 
     [HttpPost("login")]
@@ -32,15 +19,10 @@ public sealed class AuthorizationController : BaseController
     public async Task<ActionResult<ResponseLoginDto>> Login([FromForm] LoginDto loginDto,
         [FromServices] IValidator<LoginDto> validator)
     {
-        var validationCheck = await ValidateAndToActionResult(validator, loginDto);
-        if (validationCheck is not null)
-        {
-            return validationCheck;
-        }
+        await validator.ValidateAndThrowAsync(loginDto);
 
         var responseLoginDto = await _authService.Login(loginDto);
-
-        return ToActionResult(responseLoginDto);
+        return ToOkActionResult(responseLoginDto);
     }
 
     [HttpPost("login/refreshtoken")]
@@ -48,12 +30,11 @@ public sealed class AuthorizationController : BaseController
     {
         if (string.IsNullOrEmpty(refreshToken))
         {
-            return ToActionResult(Result.Fail(new BadRequestError("Refresh token is missing.")));
+            return ToErrorActionResult(Result.Fail(CommonErrorHelper.NullValue(nameof(refreshToken))));
         }
 
         var responseLoginDto = await _authService.RefreshTokenAsync(refreshToken);
-
-        return ToActionResult(responseLoginDto);
+        return ToOkActionResult(responseLoginDto);
     }
 
     [HttpPost("verify-email")]
@@ -61,15 +42,11 @@ public sealed class AuthorizationController : BaseController
         [FromBody] ConfirmEmailDto model,
         [FromServices] IValidator<ConfirmEmailDto> validator)
     {
-        var validationCheck = await ValidateAndToActionResult(validator, model);
-        if (validationCheck is not null)
-        {
-            return validationCheck;
-        }
+        await validator.ValidateAndThrowAsync(model);
 
         var responseLoginDto = await _authService.VerifyEmailAsync(model);
 
-        return ToActionResult(responseLoginDto);
+        return ToOkActionResult(responseLoginDto);
     }
 
     [HttpPost("resend-verification")]
@@ -77,14 +54,10 @@ public sealed class AuthorizationController : BaseController
         [FromForm] ResendVerificationEmailDto resendVerificationEmailDto,
         [FromServices] IValidator<ResendVerificationEmailDto> validator)
     {
-        var validationCheck = await ValidateAndToActionResult(validator, resendVerificationEmailDto);
-        if (validationCheck is not null)
-        {
-            return validationCheck;
-        }
+        await validator.ValidateAndThrowAsync(resendVerificationEmailDto);
 
         var responseDto = await _authService.ResendVerificationEmailAsync(resendVerificationEmailDto);
-        return ToActionResult(responseDto.ToResult());
+        return ToNoContentActionResult(responseDto);
     }
 
 
@@ -92,39 +65,30 @@ public sealed class AuthorizationController : BaseController
     public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordDto forgotPasswordDto,
         [FromServices] IValidator<ForgotPasswordDto> validator)
     {
-        var validationCheck = await ValidateAndToActionResult(validator, forgotPasswordDto);
-        if (validationCheck is not null)
-        {
-            return validationCheck;
-        }
+        await validator.ValidateAndThrowAsync(forgotPasswordDto);
 
         var responseForgotPasswordDto = await _authService.ForgotPasswordAsync(forgotPasswordDto);
-        return ToActionResult(responseForgotPasswordDto.ToResult());
+        return ToNoContentActionResult(responseForgotPasswordDto);
     }
 
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromForm] ResetPasswordDto resetPasswordDto,
         [FromServices] IValidator<ResetPasswordDto> validator)
     {
-        var validationCheck = await ValidateAndToActionResult(validator, resetPasswordDto);
-        if (validationCheck is not null)
-        {
-            return validationCheck;
-        }
+        await validator.ValidateAndThrowAsync(resetPasswordDto);
 
         var responseResetPasswordDto = await _authService.ResetPasswordAsync(resetPasswordDto);
-
-        return ToActionResult(responseResetPasswordDto.ToResult());
+        return ToNoContentActionResult(responseResetPasswordDto);
     }
 
     [HttpGet("google")]
     public IActionResult GoogleLogin([FromQuery] string returnUrl)
     {
-        if(string.IsNullOrEmpty(returnUrl))
+        if (string.IsNullOrEmpty(returnUrl))
         {
-            return ToActionResult(Result.Fail(new BadRequestError("ReturnUrl is missing."))); 
+            return ToErrorActionResult(Result.Fail(CommonErrorHelper.NullValue(nameof(returnUrl))));
         }
-        
+
         var properties = new AuthenticationProperties
         {
             RedirectUri = Url.Action(nameof(GoogleResponse), null, new { returnUrl }, Request.Scheme)
@@ -140,22 +104,11 @@ public sealed class AuthorizationController : BaseController
             return BadRequest("External authentication failed");
 
         var loginResponseResult = await _authService.LoginWithProviderAsync(result, Providers.Google);
-        
+
         // append token or session id if needed
-        var urlWithToken = $"{returnUrl}?token={loginResponseResult.Value.AccessToken}&refreshToken={loginResponseResult.Value.RefreshToken}";
+        var urlWithToken =
+            $"{returnUrl}?token={loginResponseResult.Value.AccessToken}&refreshToken={loginResponseResult.Value.RefreshToken}";
 
         return Redirect(urlWithToken);
-        
-        // return ToActionResult(loginResponseResult);
-    }
-    
-    [HttpGet("debug")]
-    public IActionResult Debug()
-    {
-        return Ok(new 
-        {
-            scheme = Request.Scheme,
-            headers = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString())
-        });
     }
 }

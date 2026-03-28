@@ -9,16 +9,16 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         logger, context)
     {
     }
-    
-    public async Task<Result<List<TMapped>>> GetFrom<TMapped>(ApplicationUser user,  int? id)
+
+    public async Task<Result<List<TMapped>>> GetFrom<TMapped>(ApplicationUser user, int? id)
     {
         var q = Query().Where(x =>
             x.OwnerId == user.Id && x.ParentId == id
-            ).OrderBy(x => x.Name);
+        ).OrderBy(x => x.Name);
 
         return Result.Ok(await q.FindListAsync<TMapped>(""));
     }
-    
+
     public async Task<Result<List<Folder>>> GetPath(ApplicationUser user, int? id)
     {
         var path = new List<Folder>();
@@ -26,10 +26,11 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
 
         while (currentId != null)
         {
-            var folderResult = await Query().Where(x => x.Id == currentId && x.OwnerId == user.Id).FirstOrDefaultAsync();
+            var folderResult =
+                await Query().Where(x => x.Id == currentId && x.OwnerId == user.Id).FirstOrDefaultAsync();
             if (folderResult == null)
             {
-                return Result.Fail(new NotFoundError("Folder not found in path."));
+                return Result.Fail(EntityErrors.NotFound<Folder>());
             }
 
             path.Add(folderResult);

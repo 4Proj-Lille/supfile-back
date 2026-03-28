@@ -1,3 +1,6 @@
+using SupFile.Back.Api.Helpers;
+using SupFile.Back.Core.Errors.Base;
+
 namespace SupFile.Back.Api.Controllers.Base;
 
 public class BaseController : ControllerBase
@@ -12,93 +15,88 @@ public class BaseController : ControllerBase
 
     protected ILogger Logger { get; }
 
-    // protected ActionResult<T> ToActionResult<T>(Result<T> result)
-    // {
-    //     if (result.IsSuccess)
-    //     {
-    //         if (result.Value == null)
-    //         {
-    //             return NoContent();
-    //         }
-    //
-    //         return Ok(result.Value);
-    //     }
-    //
-    //     var firstError = result.Errors.First();
-    //     logger.LogWarning("Handled error result: {ErrorType} - {Message}", firstError.GetType().Name,
-    //         firstError.Message);
-    //
-    //
-    //     return firstError switch
-    //     {
-    //         BadRequestError e => new BadRequestObjectResult(ProblemBuilder.Create(e.StatusCode, e.Message)),
-    //         UnauthorizedError e => new UnauthorizedObjectResult(ProblemBuilder.Create(e.StatusCode, e.Message)),
-    //         ConflictError e => new ConflictObjectResult(ProblemBuilder.Create(e.StatusCode, e.Message)),
-    //         UnprocessableEntityError e => new UnprocessableEntityObjectResult(
-    //             ProblemBuilder.Create(e.StatusCode, e.Message)),
-    //         NotFoundError e => new NotFoundObjectResult(ProblemBuilder.Create(e.StatusCode, e.Message)),
-    //         CustomError e => new ObjectResult(ProblemBuilder.Create(e.StatusCode, e.Message)),
-    //         _ => new ObjectResult(ProblemBuilder.Create(500,
-    //             environment.IsDevelopment() ? firstError.Message : "Internal server error"))
-    //     };
-    // }
-
-    protected ActionResult<T> ToActionResult<T>(Result<T> result)
+    protected ActionResult<T> ToOkActionResult<T>(Result<T> result)
     {
-        if (!result.IsSuccess) return HandleError(result.Errors);
-        
-        if (result.Value == null)
-        {
-            return NoContent();
-        }
+        ArgumentNullException.ThrowIfNull(result);
 
-        return Ok(result.Value);
-
-    }
-
-    protected ActionResult ToActionResult(Result result)
-    {
         if (result.IsSuccess)
-        {
-            return NoContent();
-        }
+            return Ok(result.Value);
 
-        return HandleError(result.Errors);
+        return ToErrorActionResult(result);
     }
 
-
-    private ObjectResult HandleError(List<IError> errors)
+    protected ActionResult ToNoContentActionResult(Result result)
     {
-        var firstError = errors.First();
-        Logger.LogWarning("Handled error result: {ErrorType} - {Message}", firstError.GetType().Name,
-            firstError.Message);
+        ArgumentNullException.ThrowIfNull(result);
 
-        return firstError switch
+        if (result.IsSuccess) return NoContent();
+
+        return ToErrorActionResult(result);
+    }
+
+    protected ActionResult<T> ToCreatedAtActionResult<T>(Result<T> result, string? actionName)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+
+        if (result.IsSuccess)
+            return CreatedAtAction(actionName, new { id = result.Value }, result.Value);
+
+        return ToErrorActionResult(result);
+    }
+    
+    protected ActionResult ToCreatedAtActionResult(Result result, string? actionName, object? routeValues = null)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+
+        if (result.IsSuccess)
+            return CreatedAtAction(actionName, routeValues, null);
+
+        return ToErrorActionResult(result);
+    }
+
+    private ActionResult ToErrorActionResult<T>(Result<T> result)
+        => ToErrorActionResult(result.ToResult());
+
+    protected ActionResult ToErrorActionResult(Result result)
+    {
+        if (result.Errors.Cast<CustomError>().Any(x => x.ErrorType == ErrorType.BadRequest))
         {
-            BadRequestError e => new BadRequestObjectResult(ProblemBuilder.Create(e.StatusCode, e.Message)),
-            UnauthorizedError e => new UnauthorizedObjectResult(ProblemBuilder.Create(e.StatusCode, e.Message)),
-            ConflictError e => new ConflictObjectResult(ProblemBuilder.Create(e.StatusCode, e.Message)),
-            UnprocessableEntityError e => new UnprocessableEntityObjectResult(
-                ProblemBuilder.Create(e.StatusCode, e.Message)),
-            NotFoundError e => new NotFoundObjectResult(ProblemBuilder.Create(e.StatusCode, e.Message)),
-            CustomError e => new ObjectResult(ProblemBuilder.Create(e.StatusCode, e.Message)),
-            _ => new ObjectResult(ProblemBuilder.Create(HttpStatusCode.InternalServerError,
-                _environment.IsDevelopment() ? firstError.Message : "Internal server error"))
+            foreach (var err in result.Errors)
+            {
+                var customErr = err as CustomError;
+                ModelState.AddModelError(customErr.Title, customErr.Message);
+            }
+
+            var status = ProblemDetailsHelper.GetStatus((CustomError)result.Errors[0]);
+            var validationProblemDetails = new ValidationProblemDetails(ModelState)
+            {
+                Status = status,
+                Type = ProblemDetailsUriHelper.GetProblemTypeUri(status),
+                Title = ErrorsRes.BadRequest_Title
+            };
+
+            return BadRequest(validationProblemDetails);
+        }
+
+        var error = result.Errors.Count > 0 ? result.Errors[0] : null;
+
+        var customError = error as CustomError;
+
+        if (customError is null)
+            return StatusCode(StatusCodes.Status500InternalServerError);
+
+        var problemDetails = ProblemDetailsHelper.ProblemDetailsBuilder(
+            customError,
+            HttpContext?.TraceIdentifier
+        );
+
+        return customError.ErrorType switch
+        {
+            ErrorType.NotFound => NotFound(problemDetails),
+            ErrorType.BadRequest => BadRequest(problemDetails),
+            ErrorType.Forbidden => StatusCode(problemDetails.Status ?? 403, problemDetails),
+            ErrorType.Failure => StatusCode(problemDetails.Status ?? 500, problemDetails),
+            _ => StatusCode(problemDetails.Status ?? 500, problemDetails),
         };
-    }
-
-    protected async Task<ActionResult?> ValidateAndToActionResult<TModel>(
-        IValidator<TModel> validator,
-        TModel model)
-    {
-        var validationResult = await validator.ValidateAsync(model);
-        if (validationResult.IsValid)
-        {
-            return null;
-        }
-
-        var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-        var result = Result.Fail(new BadRequestError(string.Join(", ", errors)));
-        return ToActionResult(result);
     }
 }
