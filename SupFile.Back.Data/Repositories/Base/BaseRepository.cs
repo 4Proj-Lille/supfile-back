@@ -98,6 +98,23 @@ public abstract class BaseRepository<T, TId, TDbContext> : IBaseRepository<T, TI
 
     #endregion DeleteAsync
 
+
+    #region DeleteAllAsync
+
+    public async Task<Result<int>> DeleteAllAsync(Expression<Func<T, bool>> filterExpression,
+        CancellationToken ct = default)
+    {
+        var deletedCount = await Query().Where(filterExpression).ExecuteDeleteAsync(ct);
+        if (deletedCount == 0)
+        {
+            return Result.Fail(EntityErrors.NotFound<T>());
+        }
+
+        return Result.Ok(deletedCount);
+    }
+
+    #endregion DeleteAllAsync
+
     #region FindListAsync
 
     public async Task<Result<List<TMapped>>> FindListAsync<TMapped>(string filter, string? orderBy = null,

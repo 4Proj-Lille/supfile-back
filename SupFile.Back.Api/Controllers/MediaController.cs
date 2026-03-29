@@ -18,19 +18,32 @@ public sealed class MediaController : BaseAuthController
     [HttpGet("{id:int}")]
     public async Task<ActionResult<MediaModel>> Get(int id)
     {
-        var medias = await _mediaService.GetByIdAsync<MediaModel>(id);
+        var media = await _mediaService.GetByIdAsync<MediaModel>(id);
 
-        return ToOkActionResult(medias);
+        return ToOkActionResult(media);
+    }
+
+    [HttpGet("{id:int}/Download")]
+    public async Task<IActionResult> DownloadPicture(int id)
+    {
+        var mediaResult = await _mediaService.GetByIdAsync<MediaModel>(id);
+        if (mediaResult.IsFailed) return ToErrorActionResult(mediaResult.ToResult());
+
+        var mediaFile = await _mediaService.DownloadPicture(mediaResult.Value.Name, mediaResult.Value.Extension);
+        if (mediaFile.IsFailed) return ToErrorActionResult(mediaFile.ToResult());
+
+        var file = mediaFile.Value.Item1;
+        var contentType = mediaFile.Value.Item2;
+
+        return File(file, contentType, mediaResult.Value.Name);
     }
 
     [HttpPost]
-    public async Task<ActionResult<MediaModel>> Post([FromBody] MediaPostModel model,
-        [FromServices] IValidator<MediaPostModel> validator)
+    public async Task<ActionResult<MediaModel>> Post(IFormFile file, [FromQuery] int? folderId)
     {
-        await validator.ValidateAndThrowAsync(model);
-
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var createdMediaResult = await _mediaService.AddOneAsync(currentUser, model.Adapt<Media>());
+
+        var createdMediaResult = await _mediaService.AddOneAsync(currentUser, file, folderId);
         var mediaModelResult = createdMediaResult.Map(m => m.Adapt<MediaModel>());
         return ToOkActionResult(mediaModelResult);
     }
@@ -42,8 +55,8 @@ public sealed class MediaController : BaseAuthController
         var entity = model.Adapt<Media>();
         var mediaResult = await _mediaService.UpdateAsync(id, entity, currentUser);
 
-        var workspaceModel = mediaResult.Map(m => m.Adapt<MediaModel>());
-        return ToOkActionResult(workspaceModel);
+        var mediaModelResult = mediaResult.Map(m => m.Adapt<MediaModel>());
+        return ToOkActionResult(mediaModelResult);
     }
 
     [HttpDelete("{id:int}")]
@@ -60,13 +73,13 @@ public sealed class MediaController : BaseAuthController
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var mediaResult = await _mediaService.GetByIdAsync<MediaModel>(id);
-        if (mediaResult.IsFailed) return ToOkActionResult(mediaResult);
+        if (mediaResult.IsFailed) return ToErrorActionResult(mediaResult.ToResult());
 
         var media = mediaResult.Value;
 
         if (media.OwnerId != currentUser.Id)
         {
-            return ToErrorActionResult(Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id)));
+            return ToErrorActionResult(AuthErrors.UnauthorizedForEntity<Media, int>(id));
         }
 
         media.IsActive = false;
@@ -81,13 +94,13 @@ public sealed class MediaController : BaseAuthController
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var mediaResult = await _mediaService.GetByIdAsync<MediaModel>(id);
-        if (mediaResult.IsFailed) return ToOkActionResult(mediaResult);
+        if (mediaResult.IsFailed) return ToErrorActionResult(Result.Fail(mediaResult.Errors));
 
         var media = mediaResult.Value;
 
         if (media.OwnerId != currentUser.Id)
         {
-            return ToErrorActionResult(Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id)));
+            return ToErrorActionResult(AuthErrors.UnauthorizedForEntity<Media, int>(id));
         }
 
         media.IsActive = true;
@@ -125,11 +138,11 @@ public sealed class MediaController : BaseAuthController
     }
 
     [HttpDelete]
-    public async Task<ActionResult<bool>> EmptyTrash()
+    public async Task<ActionResult> EmptyTrash()
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var deletedResult = await _mediaService.DeleteAllSoftDeleted(currentUser);
 
-        return ToOkActionResult(deletedResult);
+        return ToNoContentActionResult(deletedResult.ToResult());
     }
 }

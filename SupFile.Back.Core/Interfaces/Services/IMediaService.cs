@@ -2,8 +2,7 @@
 
 public interface IMediaService : IBaseService<Media, int>
 {
-    
-    Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, Media entity);
+    Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null);
 
     Task<Result> DeleteOneAsync(ApplicationUser currentUser, int id);
 
@@ -17,5 +16,7 @@ public interface IMediaService : IBaseService<Media, int>
     
     Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser);
     
-    Task<Result<bool>> DeleteAllSoftDeleted(ApplicationUser currentUser);
+    Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser currentUser);
+
+    Task<Result<(byte[], string)>> DownloadPicture(string name, string extension);
 }

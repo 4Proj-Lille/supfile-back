@@ -8,6 +8,7 @@ public interface IBaseRepository<T, TId> where T : IEntity<T, TId>
 
     Task<Result> DeleteAsync(T entity, CancellationToken ct = default);
     Task<Result> DeleteAsync(TId id, CancellationToken ct = default);
+    Task<Result<int>> DeleteAllAsync(Expression<Func<T, bool>> filterExpression, CancellationToken ct = default);
 
     Task<Result<List<TMapped>>> FindListAsync<TMapped>(string filter, string? orderBy = null, CancellationToken ct = default);
 

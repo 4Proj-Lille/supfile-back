@@ -7,9 +7,7 @@ public class MediaPatchModel
     public string? Extension { get; set; }
 
     public int? Size { get; set; }
-
-    public string? Path { get; set; }
-
+    
     public bool? IsActive { get; set; }
     
     public int? FolderId { get; set; }

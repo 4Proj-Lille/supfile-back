@@ -1,19 +1,57 @@
+using Microsoft.AspNetCore.StaticFiles;
+using SupFile.Back.Storage.Interfaces;
+
 namespace SupFile.Back.Business.Services;
 
 public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaService
 {
-    public MediaService(ILogger<MediaService> logger, IMediaRepository repository) : base(logger,
-        repository)
+    private readonly IStorageProvider _storageProvider;
+
+    public MediaService(
+        ILogger<MediaService> logger,
+        IMediaRepository repository,
+        IStorageProvider storageProvider
+    ) : base(logger, repository)
     {
+        _storageProvider = storageProvider;
     }
 
-    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, Media entity)
+    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null)
     {
-        entity.OwnerId = currentUser.Id;
-        entity.CreatedDate = DateTime.Now;
-        var addFolder = await AddAsync(entity);
+        var name = Path.GetFileNameWithoutExtension(file.FileName);
+        var extension = Path.GetExtension(file.FileName);
 
-        return addFolder;
+        await using var stream = file.OpenReadStream();
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var bytes = ms.ToArray();
+        try
+        {
+            await _storageProvider.WriteAsync(name, extension, bytes);
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail(ex.Message);
+        }
+
+        Media entity = new()
+        {
+            Name = name,
+            Extension = extension,
+            Size = (int)file.Length,
+            FolderId = folderId,
+            OwnerId = currentUser.Id,
+            CreatedDate = DateTime.Now
+        };
+
+        var addMedia = await AddAsync(entity);
+
+        if (addMedia.IsFailed || addMedia.Value == null)
+        {
+            return Result.Fail(addMedia.Errors);
+        }
+
+        return addMedia;
     }
 
 
@@ -24,7 +62,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         var media = mediaResult.Value;
 
-        if (media.Adapt<Media>().OwnerId != currentUser.Id)
+        if (media.OwnerId != currentUser.Id)
         {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
         }
@@ -90,22 +128,30 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
     public async Task<Result<Dictionary<string, int>>> GetStorageByExtension(ApplicationUser currentUser)
     {
-        var storageResult = await Repository.GetStorageByExtension(currentUser);
-
-        return storageResult;
+        return await Repository.GetStorageByExtension(currentUser);
     }
 
     public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser)
     {
-        var mediaResult = await Repository.GetSoftDeleted<TMapped>(currentUser);
-
-        return mediaResult;
+        return await Repository.GetSoftDeleted<TMapped>(currentUser);
     }
 
-    public async Task<Result<bool>> DeleteAllSoftDeleted(ApplicationUser currentUser)
+    public async Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser currentUser)
     {
-        var softDeletedResult = await Repository.DeleteAllSoftDeleted(currentUser);
+        return await Repository.DeleteAllSoftDeleted(currentUser);
+    }
 
-        return softDeletedResult;
+    public async Task<Result<(byte[], string)>> DownloadPicture(string name, string extension)
+    {
+        var fileResult = await _storageProvider.ReadAsync(name, extension);
+        if (fileResult.IsFailed) return fileResult.ToResult();
+
+        var provider = new FileExtensionContentTypeProvider();
+        if (!provider.TryGetContentType($"{name}.{extension}", out var contentType))
+        {
+            contentType = "application/octet-stream";
+        }
+
+        return Result.Ok((fileResult.Value, contentType));
     }
 }
