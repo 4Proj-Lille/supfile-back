@@ -11,14 +11,6 @@ public class LinkRepository : BaseRepository<Link, int, SupFileContext>, ILinkRe
 
     public async Task<Result<Link>> GetByTokenAsync(string token)
     {
-        var q = Query().Where(x => x.Token == token);
-        var entity = await q.FirstOrDefaultAsync();
-        if (entity == null)
-        {
-            return Result.Fail<Link>(new NotFoundError("Invitation not found"));
-        }
-
-        return entity;
+        return await FindOneAsync<Link>(x => x.Token == token);
     }
-
 }

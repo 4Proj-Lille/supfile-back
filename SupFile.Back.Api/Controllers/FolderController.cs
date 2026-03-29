@@ -14,99 +14,74 @@ public sealed class FolderController : BaseAuthController
     {
         _folderService = folderService;
     }
-    
+
     [HttpPost]
     public async Task<ActionResult<FolderModel>> Post([FromBody] FolderPostModel model,
         [FromServices] IValidator<FolderPostModel> validator)
     {
-        var validationCheck = await ValidateAndToActionResult(validator, model);
-        if (validationCheck is not null)
-        {
-            return validationCheck;
-        }
+        await validator.ValidateAndThrowAsync(model);
 
         var currentUser = await GetAuthenticatedAppUserAsync();
         var createdFolderResult = await _folderService.AddOneAsync(currentUser, model.Adapt<Folder>());
-        if (createdFolderResult.IsFailed)
-        {
-            return ToActionResult(Result.Fail(createdFolderResult.Errors));
-        }
 
-        var createdFolder = createdFolderResult.Value;
-        
-        var createdFolderModel = createdFolder.Adapt<FolderModel>();
-        return ToActionResult(Result.Ok(createdFolderModel));
+        var modelResult = createdFolderResult.Map(m => m.Adapt<FolderModel>());
+        return ToCreatedAtActionResult(modelResult, nameof(GetById));
     }
-    
-    
+
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<FolderModel>> Get(int id)
+    public async Task<ActionResult<FolderModel>> GetById(int id)
     {
         var folders = await _folderService.GetByIdAsync<FolderModel>(id);
 
-        return ToActionResult(folders);
+        return ToOkActionResult(folders);
     }
-    
+
     [HttpGet("FromParent")]
-    public async Task<ActionResult<StorageModel>> GetFromParent([FromQuery] int? id = null, [FromQuery] string? sort = "id")
+    public async Task<ActionResult<StorageModel>> GetFromParent([FromQuery] int? id = null,
+        [FromQuery] string? sort = "id")
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        
+
         var result = await _folderService.GetFromParent(currentUser, id, sort);
-    
-        if (!result.IsSuccess)
-            return ToActionResult(Result.Fail<StorageModel>(result.Errors));
-    
-        var (folders, medias) = result.Value;
-    
-        var storageModel = new StorageModel
+
+        return ToOkActionResult(result.Map(value =>
         {
-            Folders = folders.Adapt<List<FolderModel>>(),
-            Medias = medias.Adapt<List<MediaModel>>()
-        };
-    
-        return Ok(storageModel);
+            var (folders, medias) = value;
+            return new StorageModel
+            {
+                Folders = folders.Adapt<List<FolderModel>>(), Medias = medias.Adapt<List<MediaModel>>()
+            };
+        }));
     }
-    
+
     [HttpGet("Path")]
     public async Task<ActionResult<List<FolderModel>>> GetPath([FromQuery] int id)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        
+
         var result = await _folderService.GetPath(currentUser, id);
-    
-        if (!result.IsSuccess)
-            return ToActionResult(Result.Fail<List<FolderModel>>(result.Errors));
-    
-        var folders = result.Value;
-    
-        var folderModels = folders.Adapt<List<FolderModel>>();
-    
-        return Ok(folderModels);
+
+        var folderModelResult = result.Map(m => m.Adapt<List<FolderModel>>());
+        return ToOkActionResult(folderModelResult);
     }
-    
+
     [HttpPatch("{id:int}")]
     public async Task<ActionResult<FolderModel>> Patch(int id, [FromBody] FolderPatchModel model)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var entity = model.Adapt<Folder>();
         var folderResult = await _folderService.UpdateAsync(id, entity, currentUser);
-        if (folderResult.IsFailed)
-        {
-            return ToActionResult(Result.Fail(folderResult.Errors));
-        }
 
-        var folderModel = folderResult.Value.Adapt<FolderModel>();
-        return ToActionResult(Result.Ok(folderModel));
+        var folderModelResult = folderResult.Map(m => m.Adapt<FolderModel>());
+        return ToOkActionResult(folderModelResult);
     }
-    
-    
+
     [HttpDelete("{id:int}")]
-    public async Task<ActionResult<bool>> Delete(int id)
+    public async Task<ActionResult> Delete(int id)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var deletedResult = await _folderService.DeleteOneAsync<FolderModel>(currentUser, id);
+        var deletedResult = await _folderService.DeleteOneAsync(currentUser, id);
 
-        return ToActionResult(deletedResult);
+        return ToNoContentActionResult(deletedResult);
     }
 }

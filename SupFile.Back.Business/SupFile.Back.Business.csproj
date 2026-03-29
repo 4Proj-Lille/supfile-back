@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\SupFile.Back.Storage\SupFile.Back.Storage.csproj"/>
         <ProjectReference Include="..\SupFile.Back.Core\SupFile.Back.Core.csproj"/>
         <ProjectReference Include="..\SupFile.Back.Data\SupFile.Back.Data.csproj"/>
     </ItemGroup>

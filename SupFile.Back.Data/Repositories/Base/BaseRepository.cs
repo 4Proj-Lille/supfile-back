@@ -14,65 +14,47 @@ public abstract class BaseRepository<T, TId, TDbContext> : IBaseRepository<T, TI
         Context = contextFactory.CreateDbContext();
     }
 
-    protected TDbContext Context { get; }
+    private TDbContext Context { get; }
     protected IDbContextFactory<TDbContext> ContextFactory { get; }
     protected ILogger Logger { get; }
 
-    public virtual async Task<T> AddAsync(T entity, CancellationToken ct = default)
+    public virtual async Task<Result<T>> AddAsync(T entity, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        try
-        {
-            var addedEntityEntry = await Context.AddAsync(entity, ct);
-            await Context.SaveChangesAsync(ct);
-            var result = addedEntityEntry.Entity;
+        var addedEntityEntry = await Context.AddAsync(entity, ct);
+        await Context.SaveChangesAsync(ct);
+        var result = addedEntityEntry.Entity;
 
-            return result;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
+        return result;
     }
 
-    public virtual async Task<T> UpdateAsync(TId id, T entity, CancellationToken ct = default)
+    public virtual async Task<Result<T>> UpdateAsync(TId id, T entity, CancellationToken ct = default)
     {
-        // throw new NotImplementedException();
         ArgumentNullException.ThrowIfNull(entity);
 
-        try
-        {
-            await using var myContext = ContextFactory.CreateDbContext();
-            var updatedEntityEntry = myContext.Update(entity);
-            await myContext.SaveChangesAsync(ct);
+        await using var myContext = await ContextFactory.CreateDbContextAsync(ct);
+        var updatedEntityEntry = myContext.Update(entity);
+        await myContext.SaveChangesAsync(ct);
 
-            return updatedEntityEntry.Entity;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
+        return updatedEntityEntry.Entity;
     }
 
     #region GetByIdAsync
 
     public async Task<Result<TMapped>> GetByIdAsync<TMapped>(TId id, CancellationToken ct = default)
     {
-        var result = await Query().FindByIdAsync<TMapped, TId>(id, ct);
-        if (result == null)
-        {
-            return Result.Fail(new NotFoundError($"{typeof(T).Name} {id} not found"));
-        }
+        var entity = await Query().FindByIdAsync<TMapped, TId>(id, ct);
+        if (entity is null) return Result.Fail(EntityErrors.NotFound<T>());
 
-        return Result.Ok(result);
+        return Result.Ok(entity);
     }
 
     #endregion GetByIdAsync
 
     #region GetAllAsync
 
-    public async Task<List<TMapped>> GetAllAsync<TMapped>(CancellationToken ct = default)
+    public async Task<Result<List<TMapped>>> GetAllAsync<TMapped>(CancellationToken ct = default)
     {
         return await Query().FindListAsync<TMapped>("", null, ct);
     }
@@ -86,51 +68,56 @@ public abstract class BaseRepository<T, TId, TDbContext> : IBaseRepository<T, TI
 
     #region DeleteAsync
 
-    public virtual async Task<bool> DeleteAsync(T entity, CancellationToken ct = default)
+    public virtual async Task<Result> DeleteAsync(T entity, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        try
-        {
-            await using var myContext = await ContextFactory.CreateDbContextAsync(ct);
-            myContext.Remove(entity);
-            var numberOfChanges = await myContext.SaveChangesAsync(ct);
-            return numberOfChanges > 0;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
+        await using var myContext = await ContextFactory.CreateDbContextAsync(ct);
+        myContext.Remove(entity);
+        var numberOfChanges = await myContext.SaveChangesAsync(ct);
+        if (numberOfChanges == 0) return Result.Fail(EntityErrors.NotFound<T>());
+
+        return Result.Ok();
     }
 
-    public async Task<bool> DeleteAsync(TId id, CancellationToken ct = default)
+    public async Task<Result> DeleteAsync(TId id, CancellationToken ct = default)
     {
-        ArgumentNullException.ThrowIfNull(id);
-
-        try
+        await using var myContext = await ContextFactory.CreateDbContextAsync(ct);
+        var entity = await myContext.FindAsync<T>([id], ct);
+        if (entity == null)
         {
-            await using var myContext = await ContextFactory.CreateDbContextAsync(ct);
-            var entity = await myContext.FindAsync<T>(id);
-            if (entity == null)
-            {
-                return false;
-            }
+            return Result.Fail(EntityErrors.NotFound<T>());
+        }
 
-            myContext.Remove(entity);
-            var numberOfChanges = await myContext.SaveChangesAsync(ct);
-            return numberOfChanges > 0;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
+        myContext.Remove(entity);
+        var numberOfChanges = await myContext.SaveChangesAsync(ct);
+        if (numberOfChanges == 0) return Result.Fail(EntityErrors.NotFound<T>());
+
+        return Result.Ok();
     }
 
     #endregion DeleteAsync
 
+
+    #region DeleteAllAsync
+
+    public async Task<Result<int>> DeleteAllAsync(Expression<Func<T, bool>> filterExpression,
+        CancellationToken ct = default)
+    {
+        var deletedCount = await Query().Where(filterExpression).ExecuteDeleteAsync(ct);
+        if (deletedCount == 0)
+        {
+            return Result.Fail(EntityErrors.NotFound<T>());
+        }
+
+        return Result.Ok(deletedCount);
+    }
+
+    #endregion DeleteAllAsync
+
     #region FindListAsync
 
-    public async Task<List<TMapped>> FindListAsync<TMapped>(string filter, string? orderBy = null,
+    public async Task<Result<List<TMapped>>> FindListAsync<TMapped>(string filter, string? orderBy = null,
         CancellationToken ct = default)
     {
         return await Query().FindListAsync<TMapped>(filter, orderBy, ct);
@@ -140,32 +127,29 @@ public abstract class BaseRepository<T, TId, TDbContext> : IBaseRepository<T, TI
         Expression<Func<T, bool>> filterExpression,
         Expression<Func<T, TOrderBy>> orderByExpression, bool descending = false, CancellationToken ct = default)
     {
-        try
-        {
-            var q = Query().Where(filterExpression);
-            var resultList = await q.FindListAsync<T, TMapped, TOrderBy>(x => true, orderByExpression, descending, ct);
-
-            return Result.Ok(resultList);
-        }
-        catch (Exception)
-        {
-            return Result.Fail(new NotFoundError($"{typeof(T).Name} {filterExpression} not found"));
-        }
+        var q = Query().Where(filterExpression);
+        var resultList = await q.FindListAsync<T, TMapped, TOrderBy>(x => true, orderByExpression, descending, ct);
+        if (resultList.Count == 0) return Result.Fail(EntityErrors.NotFound<T>());
+        return Result.Ok(resultList);
     }
 
     #endregion FindListAsync
 
     #region FindOneAsync
 
-    public async Task<TMapped?> FindOneAsync<TMapped>(string filter, CancellationToken ct = default)
+    public async Task<Result<TMapped>> FindOneAsync<TMapped>(string filter, CancellationToken ct = default)
     {
-        return await Query().FindOneAsync<TMapped>(filter, ct);
+        var entity = await Query().FindOneAsync<TMapped>(filter, ct);
+        if (entity is null) return Result.Fail(EntityErrors.NotFound<T>());
+        return Result.Ok(entity);
     }
 
-    public async Task<TMapped?> FindOneAsync<TMapped>(Expression<Func<TMapped, bool>> filterExpression,
+    public async Task<Result<TMapped>> FindOneAsync<TMapped>(Expression<Func<TMapped, bool>> filterExpression,
         CancellationToken ct = default)
     {
-        return await Query().FindOneAsync(filterExpression, ct);
+        var entity = await Query().FindOneAsync(filterExpression, ct);
+        if (entity is null) return Result.Fail(EntityErrors.NotFound<T>());
+        return Result.Ok(entity);
     }
 
     #endregion

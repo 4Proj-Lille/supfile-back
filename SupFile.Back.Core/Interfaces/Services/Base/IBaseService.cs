@@ -6,8 +6,8 @@ public interface IBaseService<T, in TId>
 
     Task<Result<T>> UpdateAsync(TId id, T entity, CancellationToken ct = default);
 
-    Task<Result<bool>> DeleteAsync(T entity, CancellationToken ct = default);
-    Task<Result<bool>> DeleteAsync<TMapped>(TId id, CancellationToken ct = default);
+    Task<Result> DeleteAsync(T entity, CancellationToken ct = default);
+    Task<Result> DeleteAsync(TId id, CancellationToken ct = default);
 
     Task<Result<TMapped>> GetByIdAsync<TMapped>(TId id, CancellationToken ct = default);
 

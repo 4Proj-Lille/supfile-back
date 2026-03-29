@@ -1,6 +1,6 @@
+using SupFile.Back.Api.ExceptionHandlers;
 using SupFile.Back.Api.Settings;
 using SupFile.Back.Storage;
-using SupFile.Back.Storage.Configuration;
 
 namespace SupFile.Back.Api;
 
@@ -29,7 +29,10 @@ internal static class DependencyInjection
         });
 
         builder.Configuration.AddEnvironmentVariables();
-        builder.Services.AddControllers().AddJsonOptions(opts =>
+        builder.Services.AddControllers(opt =>
+        {
+            opt.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+        }).AddJsonOptions(opts =>
         {
             var enumConverter = new JsonStringEnumConverter();
             opts.JsonSerializerOptions.Converters.Add(enumConverter);
@@ -107,10 +110,12 @@ internal static class DependencyInjection
                 context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
             };
         });
+        builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
         return builder;
     }
+
 
     public static WebApplicationBuilder AddDatabase(this WebApplicationBuilder builder)
     {
@@ -185,7 +190,7 @@ internal static class DependencyInjection
 
         return builder;
     }
-    
+
     private static WebApplicationBuilder AddOptions<TSettings>(this WebApplicationBuilder builder)
         where TSettings : class
     {
@@ -194,7 +199,7 @@ internal static class DependencyInjection
             .BindConfiguration(typeof(TSettings).Name)
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        
+
         return builder;
     }
 }

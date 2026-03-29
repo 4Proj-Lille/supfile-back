@@ -16,14 +16,14 @@ public sealed class LinkController : BaseAuthController
     {
         _linkService = linkService;
     }
-    
+
     [HttpPost("generate")]
     public async Task<ActionResult<string>> GenerateInviteLink(
-        [FromQuery] int itemId, 
+        [FromQuery] int itemId,
         [FromQuery] InvitationItemType itemType)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-    
+
         var inviteLinkResult = itemType switch
         {
             InvitationItemType.Media => await _linkService.GenerateMediaShareLinkAsync(currentUser, itemId),
@@ -31,44 +31,28 @@ public sealed class LinkController : BaseAuthController
             _ => Result.Fail("Invalid InvitationItemType")
         };
 
-        if (inviteLinkResult.IsFailed)
-        {
-            return ToActionResult(Result.Fail(inviteLinkResult.Errors));
-        }
-
-        return Ok(inviteLinkResult.Value);
+        return ToOkActionResult(inviteLinkResult);
     }
-    
+
     [HttpPost("generate/{userId:int}/email")]
     public async Task<ActionResult<string>> GenerateEmailInviteLink(
         int userId,
-        [FromQuery] int itemId, 
+        [FromQuery] int itemId,
         [FromQuery] InvitationItemType itemType)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        
-        var inviteLinkResult = await _linkService.GenerateEmailShareLinkAsync(currentUser, itemId, itemType.ToString(), userId);
-        if (inviteLinkResult.IsFailed)
-        {
-            return ToActionResult(Result.Fail(inviteLinkResult.Errors));
-        }
- 
-        return Ok(inviteLinkResult.Value);
+
+        var inviteLinkResult = await _linkService.GenerateEmailShareLinkAsync(currentUser, itemId, itemType, userId);
+
+        return ToOkActionResult(inviteLinkResult);
     }
-    
+
     [HttpPost("accept")]
-    public async Task<ActionResult<ShareModel>> AcceptEmailInviteLink([FromQuery] string token)
+    public async Task<ActionResult> AcceptEmailInviteLink([FromQuery] string token)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        
-        var inviteLinkResult = await _linkService.AcceptShareLinkAsync(currentUser, token);
-        if (inviteLinkResult.IsFailed)
-        {
-            return ToActionResult(Result.Fail(inviteLinkResult.Errors));
-        }
 
-        return Ok(inviteLinkResult.Value.Adapt<ShareModel>());
+        var inviteLinkResult = await _linkService.AcceptShareLinkAsync(currentUser, token);
+        return ToNoContentActionResult(inviteLinkResult.ToResult());
     }
-    
-    
 }

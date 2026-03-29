@@ -20,5 +20,9 @@
         <HintPath>..\..\..\..\..\..\..\..\usr\local\share\dotnet\shared\Microsoft.AspNetCore.App\10.0.0\Microsoft.Extensions.Options.dll</HintPath>
       </Reference>
     </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\SupFile.Back.Core\SupFile.Back.Core.csproj"/>
+    </ItemGroup>
 
 </Project>

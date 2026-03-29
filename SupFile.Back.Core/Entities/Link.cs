@@ -1,3 +1,5 @@
+using SupFile.Back.Core.Enums;
+
 namespace SupFile.Back.Core.Entities;
 
 /// <summary>
@@ -28,8 +30,8 @@ public class Link : BaseEntity<Link, int>, IEntity<Link, int>
     /// <value>
     ///     The property value representing column 'Type'.
     /// </value>
-    public string Type { get; set; } = null!;
-    
+    public InvitationItemType Type { get; set; }
+
     /// <summary>
     ///     Gets or sets the property value representing column 'ExpirationDate'.
     /// </summary>
@@ -37,7 +39,7 @@ public class Link : BaseEntity<Link, int>, IEntity<Link, int>
     ///     The property value representing column 'ExpirationDate'.
     /// </value>
     public DateTime ExpirationDate { get; set; }
-    
+
     /// <summary>
     ///     Gets or sets the property value representing column 'ShareFileId'.
     /// </summary>
@@ -45,7 +47,7 @@ public class Link : BaseEntity<Link, int>, IEntity<Link, int>
     ///     The property value representing column 'ShareFileId'.
     /// </value>
     public int? ShareMediaId { get; set; }
-    
+
     /// <summary>
     ///     Gets or sets the property value representing column 'ShareFolderId'.
     /// </summary>
@@ -53,11 +55,11 @@ public class Link : BaseEntity<Link, int>, IEntity<Link, int>
     ///     The property value representing column 'ShareFolderId'.
     /// </value>
     public int? ShareFolderId { get; set; }
-    
+
     #endregion
-    
+
     #region Generated Relationships
-    
+
     /// <summary>
     ///     Gets or sets the navigation property for entity <see cref="Media" />.
     /// </summary>
@@ -66,7 +68,7 @@ public class Link : BaseEntity<Link, int>, IEntity<Link, int>
     /// </value>
     /// <seealso cref="ShareMediaId" />
     public virtual Media? ShareLinkFile { get; set; }
-    
+
     /// <summary>
     ///     Gets or sets the navigation property for entity <see cref="Folder" />.
     /// </summary>
@@ -75,6 +77,6 @@ public class Link : BaseEntity<Link, int>, IEntity<Link, int>
     /// </value>
     /// <seealso cref="ShareFolderId" />
     public virtual Folder? ShareLinkFolder { get; set; }
-    
+
     #endregion
 }

@@ -15,7 +15,7 @@ public abstract class BaseAuthController : BaseController
     {
         _userRepository = userRepository;
     }
-    
+
     protected async Task<ApplicationUser> GetAuthenticatedAppUserAsync()
     {
         var stringUserId = User.FindFirst(CustomClaimTypes.UserId)?.Value;
@@ -30,11 +30,11 @@ public abstract class BaseAuthController : BaseController
         }
 
         var user = await _userRepository.FindOneAsync<ApplicationUser>(x => x.Id == userId);
-        if (user == null)
+        if (user.IsFailed || user.Value == null)
         {
             throw new Exception("User not found");
         }
 
-        return user;
+        return user.Value;
     }
 }

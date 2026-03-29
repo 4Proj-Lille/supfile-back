@@ -10,7 +10,7 @@ namespace SupFile.Back.Core.Interfaces.Repositories;
      
      Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser user);
      
-     Task<Result<bool>> DeleteAllSoftDeleted(ApplicationUser user);
+     Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser user);
  }
  
  

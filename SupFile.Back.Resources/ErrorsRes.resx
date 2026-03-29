@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BadRequest_Title" xml:space="preserve">
+    <value>One or more validation errors occurred</value>
+  </data>
+  <data name="Unauthorize_Title" xml:space="preserve">
+    <value>Unauthorized</value>
+  </data>
+  <data name="Unauthorize_Detail" xml:space="preserve">
+    <value>User is not authorized to edit {0} with ID {1}</value>
+  </data>
+  <data name="Null_Value_Error_Detail" xml:space="preserve">
+    <value>A required value is missing or null.</value>
+  </data>
+  <data name="Null_Value_Error_Title" xml:space="preserve">
+    <value>Null value error</value>
+  </data>
+  <data name="Null_Field_Error_Detail" xml:space="preserve">
+    <value>'{0}' value is missing or null.</value>
+  </data>
+  <data name="UserNotFound_Title" xml:space="preserve">
+    <value>User not found</value>
+  </data>
+  <data name="UserNotFound_Detail" xml:space="preserve">
+    <value>No user matches the provided criteria.</value>
+  </data>
+  <data name="RefreshTokenExpired_Title" xml:space="preserve">
+    <value>Refresh token expired.</value>
+  </data>
+  <data name="RefreshTokenExpired_Detail" xml:space="preserve">
+    <value>The refresh token is expired</value>
+  </data>
+  <data name="CannotBeOwnParent_Title" xml:space="preserve">
+    <value>Invalid parent folder</value>
+  </data>
+  <data name="CannotBeOwnParent_Detail" xml:space="preserve">
+    <value>A folder cannot be its own parent.</value>
+  </data>
+  <data name="ParentFolderNotOwnedByUser_Title" xml:space="preserve">
+    <value>Forbidden parent folder</value>
+  </data>
+  <data name="ParentFolderNotOwnedByUser_Detail" xml:space="preserve">
+    <value>You are not allowed to use a parent folder you do not own.</value>
+  </data>
+  <data name="EmailAlreadyExist_Title" xml:space="preserve">
+    <value>Email already exists</value>
+  </data>
+  <data name="EmailAlreadyExist_Detail" xml:space="preserve">
+    <value>An account with this email already exists.</value>
+  </data>
+  <data name="UsernameAlreadyExist_Title" xml:space="preserve">
+    <value>Username already exists</value>
+  </data>
+  <data name="UsernameAlreadyExist_Detail" xml:space="preserve">
+    <value>An account with this username already exists.</value>
+  </data>
+  <data name="InvalidEmailOrPassword_Title" xml:space="preserve">
+    <value>Invalid credentials</value>
+  </data>
+  <data name="InvalidEmailOrPassword_Detail" xml:space="preserve">
+    <value>The email or password is incorrect.</value>
+  </data>
+  <data name="EmailNotConfirmed_Title" xml:space="preserve">
+    <value>Email not confirmed</value>
+  </data>
+  <data name="EmailNotConfirmed_Detail" xml:space="preserve">
+    <value>Please confirm your email address before signing in.</value>
+  </data>
+  <data name="Entity_Not_Found_Title" xml:space="preserve">
+    <value>Entity not found</value>
+  </data>
+  <data name="Entity_Not_Found_Detail" xml:space="preserve">
+    <value>The requested entity does not exist.</value>
+  </data>
+  <data name="Entity_Not_Found_With_Id_Title" xml:space="preserve">
+    <value>{0} not found</value>
+  </data>
+  <data name="Entity_Not_Found_With_Id_Detail" xml:space="preserve">
+    <value>The requested {0} does not exist.</value>
+  </data>
+  <data name="FileNotFound_Title" xml:space="preserve">
+    <value>File not found</value>
+  </data>
+  <data name="FileNotFound_Detail" xml:space="preserve">
+    <value>The requested file does not exist.</value>
+  </data>
+  <data name="ExtensionDoesNotStartWithADot_Title" xml:space="preserve">
+    <value>Invalid extension</value>
+  </data>
+  <data name="ExtensionDoesNotStartWithADot_Detail" xml:space="preserve">
+    <value>The file extension must start with a dot.</value>
+  </data>
+  <data name="EmptyContent_Title" xml:space="preserve">
+    <value>Empty content</value>
+  </data>
+  <data name="EmptyContent_Detail" xml:space="preserve">
+    <value>File content cannot be empty.</value>
+  </data>
+  <data name="FileAlreadyExists_Title" xml:space="preserve">
+    <value>File already exists</value>
+  </data>
+  <data name="FileAlreadyExists_Detail" xml:space="preserve">
+    <value>File '{0}{1}' already exists.</value>
+  </data>
+  <data name="InvalidType_Title" xml:space="preserve">
+    <value>Invalid link type</value>
+  </data>
+  <data name="InvalidType_Detail" xml:space="preserve">
+    <value>The provided link type is not valid.</value>
+  </data>
+  <data name="CannotAcceptOwnShareLink_Title" xml:space="preserve">
+    <value>Cannot accept own share link</value>
+  </data>
+  <data name="CannotAcceptOwnShareLink_Detail" xml:space="preserve">
+    <value>You cannot accept a share link you created.</value>
+  </data>
+  <data name="LinkExpired_Title" xml:space="preserve">
+    <value>Link expired</value>
+  </data>
+  <data name="LinkExpired_Detail" xml:space="preserve">
+    <value>This link has expired.</value>
+  </data>
+  <data name="InvalidSortField_Title" xml:space="preserve">
+    <value>Invalid sort field: {0}</value>
+  </data>
+  <data name="InvalidSortField_Detail" xml:space="preserve">
+    <value>The sort field '{0}' is not supported.</value>
+  </data>
+  <data name="NoChangesOnDelete_Title" xml:space="preserve">
+    <value>Delete operation failed</value>
+  </data>
+  <data name="NoChangesOnDelete_Detail" xml:space="preserve">
+    <value>No changes were applied during delete.</value>
+  </data>
+  <data name="Internal_Server_Error_Title" xml:space="preserve">
+    <value>Internal server error</value>
+  </data>
+  <data name="Internal_Server_Error_Detail" xml:space="preserve">
+    <value>An unexpected error occurred on the server. Please try again later.</value>
+  </data>
+  <data name="Validation_Title" xml:space="preserve">
+    <value>Validation Error(s)</value>
+  </data>
+  <data name="Validation_Detail" xml:space="preserve">
+    <value>One or more validation errors occurred.</value>
+  </data>
+</root>

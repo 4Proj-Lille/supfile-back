@@ -1,0 +1,53 @@
+using SupFile.Back.Api.ExceptionHandlers.Base;
+using SupFile.Back.Api.Helpers;
+
+namespace SupFile.Back.Api.ExceptionHandlers;
+
+internal sealed class ValidationExceptionHandler : BaseExceptionHandler<ValidationException>
+{
+    public ValidationExceptionHandler(
+        IProblemDetailsService problemDetailsService,
+        ILogger<ValidationExceptionHandler> logger
+    )
+        : base(problemDetailsService, logger) { }
+
+    protected override int StatusCode => StatusCodes.Status400BadRequest;
+    protected override string Title => ErrorsRes.Validation_Title;
+    protected override string Detail => ErrorsRes.Validation_Detail;
+
+    public override async ValueTask<bool> TryHandleAsync(
+        HttpContext httpContext,
+        Exception exception,
+        CancellationToken cancellationToken
+    )
+    {
+        if (exception is not ValidationException validationException)
+            return false;
+
+        if (validationException.Errors?.Any() != true)
+            return false;
+
+        httpContext.Response.StatusCode = StatusCode;
+
+        var errors = validationException
+            .Errors.GroupBy(e => e.PropertyName)
+            .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray());
+
+        var validationProblemDetails = new ValidationProblemDetails(errors)
+        {
+            Status = StatusCode,
+            Type = ProblemDetailsUriHelper.GetProblemTypeUri(StatusCode),
+            Title = Title,
+            Detail = Detail,
+        };
+
+        return await ProblemDetailsService.TryWriteAsync(
+            new ProblemDetailsContext
+            {
+                HttpContext = httpContext,
+                Exception = exception,
+                ProblemDetails = validationProblemDetails,
+            }
+        );
+    }
+}

@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
+using SupFile.Back.Core.Errors.Base;
 
 namespace SupFile.Back.Business.Services.Auth;
 
@@ -38,19 +39,19 @@ public class AuthService : IAuthService
     {
         if (string.IsNullOrEmpty(refreshToken))
         {
-            return Result.Fail(new BadRequestError("Refresh token is missing."));
+            return Result.Fail(CommonErrorHelper.NullValue(nameof(refreshToken)));
         }
 
         var identityUser = await _userManager.GetUserByRefreshTokenAsync(refreshToken);
 
         if (identityUser == null)
         {
-            return Result.Fail(new BadRequestError("Unable to retrieve user for refresh token"));
+            return Result.Fail(AuthErrors.UserNotFound());
         }
 
         if (identityUser.RefreshTokenExpiresAtUtc < DateTime.UtcNow)
         {
-            return Result.Fail(new BadRequestError("Refresh token is expired."));
+            return Result.Fail(AuthErrors.RefreshTokenExpired());
         }
 
         var (jwtToken, jwtExpiresAt) = _authTokenProcessor.GenerateJwtToken(identityUser);
@@ -79,7 +80,7 @@ public class AuthService : IAuthService
         return Result.Ok(responseLoginDto);
     }
 
-    public async Task<Result<bool>> Register(RegisterDto registerDto)
+    public async Task<Result> Register(RegisterDto registerDto)
     {
         var user = await _userManager.FindByEmailAsync(registerDto.Email)
                    ?? await _userManager.FindByNameAsync(registerDto.Username);
@@ -90,55 +91,46 @@ public class AuthService : IAuthService
             await _userManager.DeleteAsync(user);
             user = null;
         }
-
+        
         if (user != null)
         {
-            var conflictDetail = user.Email == registerDto.Email
-                ? "A user with the same email already exists."
-                : "A user with the same username already exists.";
+            if (user.EmailConfirmed)
+                return Result.Fail(AuthErrors.EmailAlreadyExist());
 
-            return Result.Fail(new ConflictError(conflictDetail));
+            return Result.Fail(AuthErrors.UsernameAlreadyExist());
         }
 
-        // var appUser = await _userRepository.FindOneAsync<ApplicationUser>(x => x.Username == registerDto.UserName);
-        // if (appUser != null)
-        // {
-        //     return Result.Fail(new ConflictError("A user with the same username already exists."));
-        // }
-
-        user = new ApplicationUser { UserName = registerDto.Username, Email = registerDto.Email, DisplayName =  registerDto.Username };
-
-        var result = await _userManager.CreateAsync(user, registerDto.Password);
-
-        Console.WriteLine(result.Errors);
-        if (!result.Succeeded)
+        user = new ApplicationUser
         {
-            return Result.Fail(new BadRequestError(result.Errors.First().Description));
-        }
+            UserName = registerDto.Username, Email = registerDto.Email, DisplayName = registerDto.Username
+        };
+
+        var createdResult = await _userManager.CreateAsync(user, registerDto.Password);
+        if (!createdResult.Succeeded)
+            return ResultHelper.ToFluentResult(createdResult);
 
         await SendVerificationEmailAsync(user);
 
-        return Result.Ok(true);
+        return Result.Ok();
     }
 
     public async Task<Result<ResponseLoginDto>> Login(LoginDto loginDto)
     {
-        const string ErrorMessage = "Invalid email or password";
         var user = await _userManager.FindByEmailAsync(loginDto.Email);
-        if (user == null)
+        if (user is null)
         {
-            return Result.Fail(new BadRequestError(ErrorMessage));
+            return Result.Fail(AuthErrors.InvalidEmailOrPassword());
         }
 
         var result = await _userManager.CheckPasswordAsync(user, loginDto.Password);
         if (!result)
         {
-            return Result.Fail(new BadRequestError(ErrorMessage));
+            return Result.Fail(AuthErrors.InvalidEmailOrPassword());
         }
 
         if (_appSettings.RequireEmailVerification && !user.EmailConfirmed)
         {
-            return Result.Fail(new BadRequestError("Email not confirmed"));
+            return Result.Fail(AuthErrors.EmailNotConfirmed());
         }
 
         var (jwtToken, expiresAtUtc) = _authTokenProcessor.GenerateJwtToken(user);
@@ -165,7 +157,7 @@ public class AuthService : IAuthService
     }
 
 
-    public async Task<Result<bool>> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
+    public async Task<Result> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
     {
         var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
         if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
@@ -173,7 +165,7 @@ public class AuthService : IAuthService
             // Don't reveal that the user does not exist or is not confirmed
             LogHelper.LogInformation(_logger, nameof(ForgotPasswordAsync),
                 "User with email {0} not found or email not confirmed.", forgotPasswordDto.Email);
-            return Result.Ok(true);
+            return Result.Ok();
         }
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -193,15 +185,10 @@ public class AuthService : IAuthService
                 FrontEndSettings = _frontEndSettings
             });
 
-        if (isEmailSent.IsFailed)
-        {
-            return Result.Fail<bool>(isEmailSent.Errors);
-        }
-
-        return Result.Ok(true);
+        return isEmailSent;
     }
 
-    public async Task<Result<bool>> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
+    public async Task<Result> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
     {
         var user = await _userManager.FindByIdAsync(resetPasswordDto.UserId.ToString());
         if (user == null)
@@ -209,18 +196,17 @@ public class AuthService : IAuthService
             // Don't reveal that the user does not exist
             LogHelper.LogInformation(_logger, nameof(ResetPasswordAsync), "User with ID {0} not found.",
                 resetPasswordDto.UserId);
-            return Result.Ok(true);
+            return Result.Ok();
         }
 
         var decodedToken = UrlHelper.UrlDecode(resetPasswordDto.Token);
 
-        var result = await _userManager.ResetPasswordAsync(user, decodedToken, resetPasswordDto.NewPassword);
-        if (!result.Succeeded)
-        {
-            return Result.Fail(new BadRequestError(result.Errors.First().Description));
-        }
+        var resetPasswordResult =
+            await _userManager.ResetPasswordAsync(user, decodedToken, resetPasswordDto.NewPassword);
+        if (!resetPasswordResult.Succeeded)
+            return ResultHelper.ToFluentResult(resetPasswordResult);
 
-        return Result.Ok(true);
+        return Result.Ok();
     }
 
     public async Task<Result<ResponseLoginDto>> VerifyEmailAsync(ConfirmEmailDto confirmEmailDto)
@@ -235,11 +221,9 @@ public class AuthService : IAuthService
         }
 
         var decodedToken = WebUtility.UrlDecode(confirmEmailDto.Code);
-        var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
-        if (!result.Succeeded)
-        {
-            return Result.Fail(new BadRequestError(result.Errors.First().Description));
-        }
+        var confirmEmailResult = await _userManager.ConfirmEmailAsync(user, decodedToken);
+        if (!confirmEmailResult.Succeeded)
+            return ResultHelper.ToFluentResult(confirmEmailResult);
 
         var (jwtToken, expiresAtUtc) = _authTokenProcessor.GenerateJwtToken(user);
         var (refreshToken, refreshTokenExpiresAtUtc) = _authTokenProcessor.GenerateRefreshToken();
@@ -264,7 +248,7 @@ public class AuthService : IAuthService
         return Result.Ok(responseLoginDto);
     }
 
-    public async Task<Result<bool>> ResendVerificationEmailAsync(ResendVerificationEmailDto resendVerificationEmailDto)
+    public async Task<Result> ResendVerificationEmailAsync(ResendVerificationEmailDto resendVerificationEmailDto)
     {
         var user = await _userManager.FindByEmailAsync(resendVerificationEmailDto.Email);
         if (user == null || user.EmailConfirmed)
@@ -272,11 +256,11 @@ public class AuthService : IAuthService
             // Don't reveal that the user does not exist or is already confirmed
             LogHelper.LogInformation(_logger, nameof(ResendVerificationEmailAsync),
                 "User with email {0} not found or email already confirmed.", resendVerificationEmailDto.Email);
-            return Result.Ok(true);
+            return Result.Ok();
         }
 
         var verificationEmailSentResult = await SendVerificationEmailAsync(user);
-        return verificationEmailSentResult.IsSuccess;
+        return verificationEmailSentResult;
     }
 
     private async Task<Result> SendVerificationEmailAsync(ApplicationUser user)
@@ -297,12 +281,7 @@ public class AuthService : IAuthService
                 FrontEndSettings = _frontEndSettings
             });
 
-        if (isEmailSent.IsFailed)
-        {
-            return Result.Fail(isEmailSent.Errors);
-        }
-
-        return Result.Ok();
+        return isEmailSent;
     }
 
     public async Task<Result<ResponseLoginDto>> LoginWithProviderAsync(AuthenticateResult result, Providers providerKey)
@@ -324,7 +303,7 @@ public class AuthService : IAuthService
             user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                user = new ApplicationUser { UserName = email, Email = email, DisplayName = name};
+                user = new ApplicationUser { UserName = email, Email = email, DisplayName = name };
                 var userCreatedresult = await _userManager.CreateAsync(user);
                 if (!userCreatedresult.Succeeded)
                 {

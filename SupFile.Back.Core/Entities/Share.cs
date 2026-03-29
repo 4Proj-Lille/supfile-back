@@ -1,3 +1,5 @@
+using SupFile.Back.Core.Enums;
+
 namespace SupFile.Back.Core.Entities;
 
 /// <summary>
@@ -36,7 +38,7 @@ public class Share : BaseEntity<Share, int>, IEntity<Share, int>
     /// <value>
     ///     The property value representing column 'Type'.
     /// </value>
-    public string Type { get; set; } = null!;
+    public InvitationItemType Type { get; set; }
     
     /// <summary>
     ///     Gets or sets the property value representing column 'ShareFileId'.

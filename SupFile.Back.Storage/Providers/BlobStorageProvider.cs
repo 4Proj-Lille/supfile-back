@@ -1,6 +1,7 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Options;
+using SupFile.Back.Core.Errors;
 using SupFile.Back.Storage.Configuration;
 using SupFile.Back.Storage.Interfaces;
 
@@ -18,47 +19,60 @@ public class BlobStorageProvider : IStorageProvider
     }
 
 
-    public string? GetUrl(string name, string extension, string basePath)
+    public Result<string> GetUrl(string name, string extension, string? basePath)
     {
         var containerClient = _blobServiceClient.GetBlobContainerClient(_blobSettings.ContainerName);
         var blobClient = containerClient.GetBlobClient($"{name}{extension}");
-        return blobClient.Uri.ToString();
-
+        var url = blobClient.Uri.ToString();
+        return Result.Ok(url);
     }
 
-    public async Task WriteAsync(string name, string extension, byte[] content, bool forceRewrite = false, string baseUrl = "")
+    public async Task<Result> WriteAsync(string name, string extension, byte[] content, bool forceRewrite = false,
+        string baseUrl = "")
     {
-        Console.WriteLine($"Content length: {content?.Length}"); // add this
-    
+        var existsResult = Exists(name, extension, baseUrl);
+        if (existsResult.IsFailed) return existsResult.ToResult();
+        if (existsResult.Value && !forceRewrite)
+        {
+            return Result.Fail(FileErrors.AlreadyExists(name, extension));
+        }
+
         var containerClient = await GetBlobClientAsync(_blobSettings.ContainerName);
         var blobClient = containerClient.GetBlobClient($"{name}{extension}");
 
         using var stream = new MemoryStream(content);
         const string ContentType = "application/octet-stream";
-        await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = ContentType });
+        var response = await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = ContentType });
+        if (!response.HasValue) return Result.Fail(FileErrors.FileUploadFailed());
+
+        return Result.Ok();
     }
 
-    public bool Exists(string name, string extension, string? baseUrl = null)
+    public Result<bool> Exists(string name, string extension, string? baseUrl = null)
     {
         var containerClient = _blobServiceClient.GetBlobContainerClient(_blobSettings.ContainerName);
         var blobClient = containerClient.GetBlobClient($"{name}{extension}");
-        return blobClient.Exists();
+        var exists = blobClient.Exists();
+        return Result.Ok(exists.Value);
     }
 
-    public async Task<byte[]> ReadAsync(string name, string extension, string baseUrl = "")
+    public async Task<Result<byte[]>> ReadAsync(string name, string extension, string baseUrl = "")
     {
         var containerClient = await GetBlobClientAsync(_blobSettings.ContainerName);
         var blobClient = containerClient.GetBlobClient($"{name}{extension}");
-        
-        if (!await blobClient.ExistsAsync())
+
+        var existsResult = Exists(name, extension, baseUrl);
+        if (existsResult.IsFailed) return existsResult.ToResult();
+        if (!existsResult.Value)
         {
-            throw new FileNotFoundException($"Blob {name}{extension} not found in container {_blobSettings.ContainerName}.");
+            return Result.Fail(FileErrors.FileNotFound());
         }
-        
+
         var downloadInfo = await blobClient.DownloadAsync();
         using var ms = new MemoryStream();
+
         await downloadInfo.Value.Content.CopyToAsync(ms);
-        return ms.ToArray();
+        return Result.Ok(ms.ToArray());
     }
 
     private async Task<BlobContainerClient> GetBlobClientAsync(string name)

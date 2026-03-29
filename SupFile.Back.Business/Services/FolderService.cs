@@ -1,79 +1,65 @@
-using Microsoft.AspNetCore.Hosting;
-
 namespace SupFile.Back.Business.Services;
 
 public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolderService
 {
-    private readonly IUserService _userService;
     private readonly IMediaService _mediaService;
 
-    public FolderService(ILogger<FolderService> logger, IFolderRepository repository,
-        IUserService userService,  IMediaService mediaService
-    ) : base(logger,
-        repository)
+    public FolderService(ILogger<FolderService> logger, IFolderRepository repository, IMediaService mediaService) :
+        base(logger, repository)
     {
-        _userService = userService;
         _mediaService = mediaService;
     }
-    
+
     public async Task<Result<Folder>> AddOneAsync(ApplicationUser currentUser, Folder entity)
     {
         entity.OwnerId = currentUser.Id;
-        if (entity.ParentId != null)
+        if (entity.ParentId == null)
         {
-            var parentFolderResult = await Repository.GetByIdAsync<Folder>(entity.ParentId.Value);
-            if (parentFolderResult.IsFailed || parentFolderResult.Value == null)
-            {
-                return Result.Fail(parentFolderResult.Errors);
-            }
-
-            var parentFolder = parentFolderResult.Value;
-            
-            if (parentFolder.Id == entity.Id)
-            {
-                return Result.Fail(new BadRequestError("A folder cannot be its own parent."));
-            }
-            
-            if (parentFolder.OwnerId != currentUser.Id)
-            {
-                return Result.Fail(new ForbiddenError("You are not authorized to add a folder to this parent."));
-            }
+            return await AddAsync(entity);
         }
-        var addFolder = await AddAsync(entity);
 
-        return addFolder;
+        var parentFolderResult = await Repository.GetByIdAsync<Folder>(entity.ParentId.Value);
+        if (parentFolderResult.IsFailed)
+        {
+            return parentFolderResult;
+        }
+
+        var parentFolder = parentFolderResult.Value;
+
+        if (parentFolder.Id == entity.Id)
+        {
+            return Result.Fail(FolderErrors.CannotBeOwnParent());
+        }
+
+        if (parentFolder.OwnerId != currentUser.Id)
+        {
+            return Result.Fail(FolderErrors.ParentFolderNotOwnedByUser());
+        }
+
+        return await AddAsync(entity);
     }
 
-    
-    public async Task<Result<bool>> DeleteOneAsync<TMapped>(ApplicationUser currentUser, int id)
+
+    public async Task<Result> DeleteOneAsync(ApplicationUser currentUser, int id)
     {
-        var folderResult = await Repository.GetByIdAsync<TMapped>(id);
-        if (folderResult.IsFailed || folderResult.Value == null)
-        {
-            return Result.Fail(folderResult.Errors);
-        }
+        var folderResult = await Repository.GetByIdAsync<Folder>(id);
+        if (folderResult.IsFailed) return folderResult.ToResult();
 
-        var folder = folderResult.Value;
+        if (folderResult.Value.OwnerId != currentUser.Id)
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(id));
 
-        if (folder.Adapt<Folder>().OwnerId == currentUser.Id)
-        {
-            return await DeleteAsync<TMapped>(id);
-        }
-
-        return Result.Fail(new ForbiddenError("You are not authorized to delete this folder."));
+        return await DeleteAsync(id);
     }
-    
-    public async Task<Result<Tuple<List<Folder>,List<Media>>>> GetFromParent(ApplicationUser user, int? id, string? sort)
+
+    public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetFromParent(ApplicationUser user, int? id,
+        string? sort)
     {
         var folderResult = await Repository.GetFrom<Folder>(user, id);
+        if (!folderResult.IsSuccess) return folderResult.ToResult();
+
         var mediaResult = await _mediaService.GetFrom(user, id, sort);
-    
-        if (!folderResult.IsSuccess)
-            return Result.Fail(folderResult.Errors);
-        
-        if (!mediaResult.IsSuccess)
-            return Result.Fail(mediaResult.Errors);
-    
+        if (!mediaResult.IsSuccess) return mediaResult.ToResult();
+
         var tuple = Tuple.Create(folderResult.Value, mediaResult.Value);
         return Result.Ok(tuple);
     }
@@ -81,17 +67,11 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
     public async Task<Result<Folder>> UpdateAsync(int id, Folder entity, ApplicationUser currentUser)
     {
         var folderResult = await Repository.GetByIdAsync<Folder>(id);
-        if (folderResult.IsFailed || folderResult.Value == null)
-        {
-            return folderResult;
-        }
-
+        if (folderResult.IsFailed) return folderResult;
         var folder = folderResult.Value;
 
-        if ( folder.OwnerId != currentUser.Id)
-        {
-            return Result.Fail(new ForbiddenError("You are not authorized to update this folder."));
-        }
+        if (folder.OwnerId != currentUser.Id)
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folder.Id));
 
         foreach (var prop in typeof(Folder).GetProperties())
         {
@@ -110,25 +90,24 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
 
         return await UpdateAsync(id, folder);
     }
-    
+
     public async Task<Result<List<Folder>>> GetPath(ApplicationUser user, int id)
     {
         var folderResult = await Repository.GetByIdAsync<Folder>(id);
-        if (folderResult.IsFailed || folderResult.Value == null)
-        {
-            return Result.Fail(folderResult.Errors);
-        }
+        if (folderResult.IsFailed) return folderResult.ToResult();
 
         var folder = folderResult.Value;
 
         if (folder.OwnerId != user.Id)
         {
-            return Result.Fail(new ForbiddenError("You are not authorized to access this folder."));
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folder.Id));
         }
-        if (folder.ParentId == null)
+
+        if (folder.ParentId is null)
         {
             return Result.Ok(new List<Folder>());
         }
+
         var pathResult = await Repository.GetPath(user, folder.ParentId);
 
         return pathResult;
