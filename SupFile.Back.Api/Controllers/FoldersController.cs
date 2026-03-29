@@ -1,12 +1,12 @@
 ﻿namespace SupFile.Back.Api.Controllers;
 
 [Route("api/[controller]")]
-public sealed class FolderController : BaseAuthController
+public sealed class FoldersController : BaseAuthController
 {
     private readonly IFolderService _folderService;
 
-    public FolderController(
-        ILogger<FolderController> logger,
+    public FoldersController(
+        ILogger<FoldersController> logger,
         IFolderService folderService,
         IUserRepository userRepository,
         IWebHostEnvironment env

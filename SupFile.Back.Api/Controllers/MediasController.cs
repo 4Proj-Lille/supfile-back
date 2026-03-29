@@ -1,12 +1,12 @@
 ﻿namespace SupFile.Back.Api.Controllers;
 
 [Route("api/[controller]")]
-public sealed class MediaController : BaseAuthController
+public sealed class MediasController : BaseAuthController
 {
     private readonly IMediaService _mediaService;
 
-    public MediaController(
-        ILogger<MediaController> logger,
+    public MediasController(
+        ILogger<MediasController> logger,
         IMediaService mediaService,
         IUserRepository userRepository,
         IWebHostEnvironment env

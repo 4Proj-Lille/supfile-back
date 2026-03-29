@@ -1,15 +1,15 @@
 namespace SupFile.Back.Api.Controllers.Auth;
 
 [Route("api/[controller]")]
-public sealed class AccountController : BaseController
+public sealed class AccountsController : BaseController
 {
     private readonly IAuthService _authService;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public AccountController(
+    public AccountsController(
         UserManager<ApplicationUser> userManager,
         IAuthService authService,
-        ILogger<AccountController> logger,
+        ILogger<AccountsController> logger,
         IWebHostEnvironment env) : base(logger, env)
     {
         _authService = authService;

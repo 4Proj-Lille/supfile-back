@@ -1,11 +1,11 @@
 namespace SupFile.Back.Api.Controllers;
 
 [Route("api/[controller]")]
-public class UserController : BaseAuthController
+public class UsersController : BaseAuthController
 {
     private readonly IUserService _userService;
 
-    public UserController(ILogger<UserController> logger,
+    public UsersController(ILogger<UsersController> logger,
         IUserService workspaceService,
         IUserRepository userRepository,
         IWebHostEnvironment env) : base(logger, userRepository, env)

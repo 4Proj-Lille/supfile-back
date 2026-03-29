@@ -3,12 +3,12 @@
 namespace SupFile.Back.Api.Controllers;
 
 [Route("api/[controller]")]
-public sealed class LinkController : BaseAuthController
+public sealed class LinksController : BaseAuthController
 {
     private readonly ILinkService _linkService;
 
-    public LinkController(
-        ILogger<LinkController> logger,
+    public LinksController(
+        ILogger<LinksController> logger,
         ILinkService linkService,
         IUserRepository userRepository,
         IWebHostEnvironment env

@@ -4,11 +4,11 @@ using SupFile.Back.Storage.Interfaces;
 namespace SupFile.Back.Api.Controllers;
 
 [Route("api/[controller]")]
-public class TestController : BaseAuthController
+public class TestsController : BaseAuthController
 {
     private readonly IStorageProvider _storageProvider;
 
-    public TestController(ILogger<TestController> logger,
+    public TestsController(ILogger<TestsController> logger,
         IStorageProvider storageProvider,
         IUserRepository userRepository,
         IWebHostEnvironment env) : base(logger, userRepository, env)

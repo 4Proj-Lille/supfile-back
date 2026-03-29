@@ -20,4 +20,11 @@
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=SupFile_002EBack_002EResources_002FMediasRes/@EntryIndexedValue">False</s:Boolean>
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=SupFile_002EBack_002EResources_002FMediasRes/@EntryIndexRemoved">True</s:Boolean>
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=SupFile_002EBack_002EResources_002FSharedRes/@EntryIndexedValue">False</s:Boolean>
-	<s:Boolean x:Key="/Default/ResxEditorPersonal/Initialized/@EntryValue">True</s:Boolean></wpf:ResourceDictionary>
+	<s:Boolean x:Key="/Default/ResxEditorPersonal/Initialized/@EntryValue">True</s:Boolean>
+	
+	
+	
+	
+	
+	
+	</wpf:ResourceDictionary>

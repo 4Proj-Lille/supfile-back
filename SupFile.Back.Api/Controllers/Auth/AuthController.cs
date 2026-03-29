@@ -1,13 +1,13 @@
 ﻿namespace SupFile.Back.Api.Controllers.Auth;
 
 [Route("api/[controller]")]
-public sealed class AuthorizationController : BaseController
+public sealed class AuthController : BaseController
 {
     private readonly IAuthService _authService;
 
-    public AuthorizationController(
+    public AuthController(
         IAuthService authService,
-        ILogger<AuthorizationController> logger,
+        ILogger<AuthController> logger,
         IWebHostEnvironment env
     ) : base(logger, env)
     {

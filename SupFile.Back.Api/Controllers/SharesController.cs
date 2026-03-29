@@ -1,12 +1,12 @@
 ﻿namespace SupFile.Back.Api.Controllers;
 
 [Route("api/[controller]")]
-public sealed class ShareController : BaseAuthController
+public sealed class SharesController : BaseAuthController
 {
     private readonly IShareService _shareService;
 
-    public ShareController(
-        ILogger<ShareController> logger,
+    public SharesController(
+        ILogger<SharesController> logger,
         IShareService shareService,
         IUserRepository userRepository,
         IWebHostEnvironment env
