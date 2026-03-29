@@ -57,7 +57,7 @@ public sealed class LinkController : BaseAuthController
     }
     
     [HttpPost("accept")]
-    public async Task<ActionResult<Share>> AcceptEmailInviteLink([FromQuery] string token)
+    public async Task<ActionResult<ShareModel>> AcceptEmailInviteLink([FromQuery] string token)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         
@@ -67,7 +67,7 @@ public sealed class LinkController : BaseAuthController
             return ToActionResult(Result.Fail(inviteLinkResult.Errors));
         }
 
-        return Ok(inviteLinkResult.Value);
+        return Ok(inviteLinkResult.Value.Adapt<ShareModel>());
     }
     
     

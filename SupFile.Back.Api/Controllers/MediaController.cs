@@ -1,4 +1,6 @@
-﻿namespace SupFile.Back.Api.Controllers;
+﻿using Microsoft.AspNetCore.StaticFiles;
+
+namespace SupFile.Back.Api.Controllers;
 
 [Route("api/[controller]")]
 public sealed class MediaController : BaseAuthController
@@ -18,23 +20,38 @@ public sealed class MediaController : BaseAuthController
     [HttpGet("{id:int}")]
     public async Task<ActionResult<MediaModel>> Get(int id)
     {
-        var medias = await _mediaService.GetByIdAsync<MediaModel>(id);
-
-        return ToActionResult(medias);
+        var media = await _mediaService.GetByIdAsync<MediaModel>(id);
+        
+        return ToActionResult(media);
     }
     
-    [HttpPost]
-    public async Task<ActionResult<MediaModel>> Post([FromBody] MediaPostModel model,
-        [FromServices] IValidator<MediaPostModel> validator)
+    [HttpGet("{id:int}/Download")]
+    public async Task<IActionResult> DownloadPicture(int id)
     {
-        var validationCheck = await ValidateAndToActionResult(validator, model);
-        if (validationCheck is not null)
+        var mediaResult = await _mediaService.GetByIdAsync<MediaModel>(id);
+        if (mediaResult.IsFailed || mediaResult.Value == null)
         {
-            return validationCheck;
+            return ToActionResult(Result.Fail(mediaResult.Errors));
         }
 
+        var mediaFile = await _mediaService.DownloadPicture(mediaResult.Value.Name, mediaResult.Value.Extension);
+        if (mediaFile.IsFailed)
+        {
+            return ToActionResult(Result.Fail(mediaFile.Errors));
+        }
+        var file = mediaFile.Value.Item1;
+        var contentType = mediaFile.Value.Item2;
+        
+        return File(file, contentType, mediaResult.Value.Name);
+        
+    }
+    [HttpPost]
+    public async Task<ActionResult<MediaModel>> Post(IFormFile file, [FromQuery] int? folderId)
+    {
+
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var createdMediaResult = await _mediaService.AddOneAsync(currentUser, model.Adapt<Media>());
+        
+        var createdMediaResult = await _mediaService.AddOneAsync(currentUser, file, folderId);
         if (createdMediaResult.IsFailed)
         {
             return ToActionResult(Result.Fail(createdMediaResult.Errors));

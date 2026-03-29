@@ -1,24 +1,58 @@
+using Microsoft.AspNetCore.StaticFiles;
+using SupFile.Back.Storage.Interfaces;
+
 namespace SupFile.Back.Business.Services;
 
 public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaService
 {
     private readonly IUserService _userService;
+    private readonly IStorageProvider _storageProvider;
 
     public MediaService(ILogger<MediaService> logger, IMediaRepository repository,
-        IUserService userService
+        IUserService userService, IStorageProvider storageProvider
     ) : base(logger,
         repository)
     {
         _userService = userService;
+        _storageProvider = storageProvider;
     }
     
-    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, Media entity)
+    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null)
     {
+        var name = Path.GetFileNameWithoutExtension(file.FileName);
+        var extension = Path.GetExtension(file.FileName);
+
+        await using var stream = file.OpenReadStream();
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var bytes = ms.ToArray();
+        try
+        {
+            await _storageProvider.WriteAsync(name, extension, bytes);
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail(ex.Message);
+        }
+        
+        var entity = new Media
+        {
+            Name = name,
+            Extension = extension,
+            Size = (int)file.Length,
+            FolderId = folderId
+        };
+        
         entity.OwnerId = currentUser.Id;
         entity.CreatedDate = DateTime.Now;
-        var addFolder = await AddAsync(entity);
-
-        return addFolder;
+        var addMedia = await AddAsync(entity);
+        
+        if (addMedia.IsFailed || addMedia.Value == null)
+        {
+            return Result.Fail(addMedia.Errors);
+        }
+        
+        return addMedia;
     }
     
     
@@ -115,5 +149,25 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         var softDeletedResult = await Repository.DeleteAllSoftDeleted(currentUser);
         
         return softDeletedResult;
+    }
+    
+    public async Task<Result<(byte[], string)>> DownloadPicture(string name, string extension)
+    {
+        try
+        {
+            var file = await _storageProvider.ReadAsync(name, extension);
+
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType($"{name}.{extension}", out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            return Result.Ok((file, contentType));
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail(ex.Message);
+        }
     }
 }
