@@ -59,15 +59,20 @@ public class BaseController : ControllerBase
 
     protected ActionResult ToErrorActionResult(Result result)
     {
-        if (result.Errors.Cast<CustomError>().Any(x => x.ErrorType == ErrorType.BadRequest))
+        var customErrors = result.Errors.OfType<CustomError>().ToList();
+
+        if (customErrors.Any(x => x.ErrorType == ErrorType.BadRequest))
         {
             foreach (var err in result.Errors)
             {
-                var customErr = err as CustomError;
-                ModelState.AddModelError(customErr.Title, customErr.Message);
+                if (err is CustomError customErr)
+                    ModelState.AddModelError(customErr.Title, customErr.Message);
+                else
+                    ModelState.AddModelError(nameof(ErrorType.BadRequest), err.Message);
             }
 
-            var status = ProblemDetailsHelper.GetStatus((CustomError)result.Errors[0]);
+            var firstBadRequestError = customErrors.First(x => x.ErrorType == ErrorType.BadRequest);
+            var status = ProblemDetailsHelper.GetStatus(firstBadRequestError);
             var validationProblemDetails = new ValidationProblemDetails(ModelState)
             {
                 Status = status,
@@ -78,19 +83,17 @@ public class BaseController : ControllerBase
             return BadRequest(validationProblemDetails);
         }
 
-        var error = result.Errors.Count > 0 ? result.Errors[0] : null;
+        var error = customErrors.Count > 0 ? customErrors[0] : null;
 
-        var customError = error as CustomError;
-
-        if (customError is null)
+        if (error is null)
             return StatusCode(StatusCodes.Status500InternalServerError);
 
         var problemDetails = ProblemDetailsHelper.ProblemDetailsBuilder(
-            customError,
+            error,
             HttpContext?.TraceIdentifier
         );
 
-        return customError.ErrorType switch
+        return error.ErrorType switch
         {
             ErrorType.NotFound => NotFound(problemDetails),
             ErrorType.BadRequest => BadRequest(problemDetails),

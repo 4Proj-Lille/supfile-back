@@ -9,11 +9,13 @@ internal sealed class ValidationExceptionHandler : BaseExceptionHandler<Validati
         IProblemDetailsService problemDetailsService,
         ILogger<ValidationExceptionHandler> logger
     )
-        : base(problemDetailsService, logger) { }
+        : base(problemDetailsService, logger)
+    {
+    }
 
     protected override int StatusCode => StatusCodes.Status400BadRequest;
     protected override string Title => ErrorsRes.Validation_Title;
-    protected override string Detail => ErrorsRes.Validation_Detail;
+    protected override string GetDetail(ValidationException exception) => ErrorsRes.Validation_Detail;
 
     public override async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -38,15 +40,13 @@ internal sealed class ValidationExceptionHandler : BaseExceptionHandler<Validati
             Status = StatusCode,
             Type = ProblemDetailsUriHelper.GetProblemTypeUri(StatusCode),
             Title = Title,
-            Detail = Detail,
+            Detail = GetDetail(validationException),
         };
 
         return await ProblemDetailsService.TryWriteAsync(
             new ProblemDetailsContext
             {
-                HttpContext = httpContext,
-                Exception = exception,
-                ProblemDetails = validationProblemDetails,
+                HttpContext = httpContext, Exception = exception, ProblemDetails = validationProblemDetails,
             }
         );
     }

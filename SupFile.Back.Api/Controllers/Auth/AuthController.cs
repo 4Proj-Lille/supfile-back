@@ -19,6 +19,7 @@ public sealed class AuthController : BaseController
     public async Task<ActionResult<ResponseLoginDto>> Login([FromForm] LoginDto loginDto,
         [FromServices] IValidator<LoginDto> validator)
     {
+        // throw new NotImplementedException();
         await validator.ValidateAndThrowAsync(loginDto);
 
         var responseLoginDto = await _authService.Login(loginDto);

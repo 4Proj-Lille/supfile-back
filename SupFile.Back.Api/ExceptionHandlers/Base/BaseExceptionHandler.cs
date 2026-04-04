@@ -7,49 +7,31 @@ internal abstract class BaseExceptionHandler<TException> : IExceptionHandler
     where TException : Exception
 {
     protected readonly IProblemDetailsService ProblemDetailsService;
-    protected readonly Microsoft.Extensions.Logging.ILogger Logger;
+    private readonly ILogger _logger;
 
     protected BaseExceptionHandler(
         IProblemDetailsService problemDetailsService,
-        Microsoft.Extensions.Logging.ILogger logger
+        ILogger logger
     )
     {
         ProblemDetailsService = problemDetailsService;
-        Logger = logger;
+        _logger = logger;
     }
 
     protected abstract int StatusCode { get; }
     protected abstract string Title { get; }
-    protected abstract string Detail { get; }
     protected virtual LogLevel LogLevel => LogLevel.Error;
-    protected virtual string GetDetail(TException exception) => Detail;
+    protected abstract string GetDetail(TException exception);
 
     public virtual async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         if (exception is not TException typedException)
             return false;
 
-        const string UnhandledException = "Unhandled exception occurred. Path: {Path}, Method: {Method}, StatusCode: {StatusCode}, ExceptionType: {ExceptionType}, Message: {Message}, StackTrace: {StackTrace}, TraceId: {TraceId}, User: {User}, InnerException: {InnerException}, Source: {Source}";
-
-        Logger.Log(
-                LogLevel,
-                exception,
-                UnhandledException,
-                httpContext.Request.Path,
-                httpContext.Request.Method,
-                StatusCode,
-                exception.GetType().Name,
-                exception.Message,
-                exception.StackTrace,
-                httpContext.TraceIdentifier,
-                httpContext.User?.Identity?.Name ?? "Anonymous",
-                exception.InnerException?.ToString(),
-                exception.Source
-            );
+        LogException(httpContext, exception);
 
         httpContext.Response.StatusCode = StatusCode;
 
@@ -61,20 +43,33 @@ internal abstract class BaseExceptionHandler<TException> : IExceptionHandler
             Detail = GetDetail(typedException),
         };
 
-        var handled = await ProblemDetailsService.TryWriteAsync(
-            new ProblemDetailsContext
+        if (await ProblemDetailsService.TryWriteAsync(new ProblemDetailsContext
             {
-                HttpContext = httpContext,
-                Exception = exception,
-                ProblemDetails = problemDetails,
-            }
-        );
-
-        if (handled)
+                HttpContext = httpContext, Exception = exception, ProblemDetails = problemDetails,
+            }))
+        {
             return true;
-        
+        }
+
+        _logger.LogWarning("ProblemDetailsService failed to write. Falling back to direct JSON response.");
         httpContext.Response.ContentType = "application/problem+json";
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
         return true;
+    }
+
+    private void LogException(HttpContext httpContext, Exception exception)
+    {
+        _logger.Log(
+            LogLevel,
+            exception,
+            "Unhandled exception. Path: {Path} | Method: {Method} | Status: {StatusCode} | " +
+            "Type: {ExceptionType} | TraceId: {TraceId} | User: {User} | Source: {Source}",
+            httpContext.Request.Path,
+            httpContext.Request.Method,
+            StatusCode,
+            exception.GetType().Name,
+            httpContext.TraceIdentifier,
+            httpContext.User.Identity?.Name ?? "Anonymous",
+            exception.Source);
     }
 }

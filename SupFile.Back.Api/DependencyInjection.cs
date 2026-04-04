@@ -59,15 +59,9 @@ internal static class DependencyInjection
         builder.Services.AddDataRepositories();
         builder.Services.AddSeeders();
 
-        builder.Services.AddStorageProviders(builder.Configuration);
+        builder.Services.AddStorageProviders(builder.Configuration, builder.Environment);
 
         var smptSettings = builder.Configuration.GetSection(nameof(SmtpSettings)).Get<SmtpSettings>();
-
-        // builder.Services
-        //     .AddFluentEmail(
-        //         smptSettings.MailFrom,
-        //         smptSettings.MailFromDisplayName
-        //     );
 
         builder.Services
             .AddFluentEmail(
