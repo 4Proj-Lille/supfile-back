@@ -22,6 +22,7 @@ internal abstract class BaseExceptionHandler<TException> : IExceptionHandler
     protected abstract string Title { get; }
     protected abstract string Detail { get; }
     protected virtual LogLevel LogLevel => LogLevel.Error;
+    protected virtual string GetDetail(TException exception) => Detail;
 
     public virtual async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -29,7 +30,7 @@ internal abstract class BaseExceptionHandler<TException> : IExceptionHandler
         CancellationToken cancellationToken
     )
     {
-        if (exception is not TException)
+        if (exception is not TException typedException)
             return false;
 
         const string UnhandledException = "Unhandled exception occurred. Path: {Path}, Method: {Method}, StatusCode: {StatusCode}, ExceptionType: {ExceptionType}, Message: {Message}, StackTrace: {StackTrace}, TraceId: {TraceId}, User: {User}, InnerException: {InnerException}, Source: {Source}";
@@ -57,10 +58,10 @@ internal abstract class BaseExceptionHandler<TException> : IExceptionHandler
             Status = StatusCode,
             Type = ProblemDetailsUriHelper.GetProblemTypeUri(StatusCode),
             Title = Title,
-            Detail = Detail,
+            Detail = GetDetail(typedException),
         };
 
-        return await ProblemDetailsService.TryWriteAsync(
+        var handled = await ProblemDetailsService.TryWriteAsync(
             new ProblemDetailsContext
             {
                 HttpContext = httpContext,
@@ -68,5 +69,12 @@ internal abstract class BaseExceptionHandler<TException> : IExceptionHandler
                 ProblemDetails = problemDetails,
             }
         );
+
+        if (handled)
+            return true;
+        
+        httpContext.Response.ContentType = "application/problem+json";
+        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        return true;
     }
 }
