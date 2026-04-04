@@ -10,13 +10,20 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     {
     }
 
-    public async Task<Result<List<TMapped>>> GetFrom<TMapped>(ApplicationUser user, int? id, string sort)
+    public async Task<Result<List<TMapped>>> GetFrom<TMapped>(ApplicationUser user, int? folderId, string sort)
     {
         var q = Query().Where(x =>
-            x.OwnerId == user.Id && x.FolderId == id
-        ).OrderBy(sort);
-
-        return Result.Ok(await q.FindListAsync<TMapped>(""));
+            x.OwnerId == user.Id && x.FolderId == folderId
+        );
+        try
+        {
+            var result = await q.FindListAsync<TMapped>("", sort);
+            return Result.Ok(result);
+        }
+        catch(GridifyMapperException ex)
+        {
+            return Result.Fail<List<TMapped>>(ex.Message);
+        }
     }
 
     public async Task<Result<int>> GetGlobalStorage(ApplicationUser user)

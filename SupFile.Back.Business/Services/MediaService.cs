@@ -70,21 +70,21 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return await DeleteAsync(id);
     }
 
-    public async Task<Result<List<Media>>> GetFrom(ApplicationUser currentUser, int? id, string? sort)
+    public async Task<Result<List<Media>>> GetFrom(ApplicationUser currentUser, int? folderId, string? sort)
     {
-        var allowedSortFields = new[] { "id", "name", "sendDate", "size", "extension" };
+        // var allowedSortFields = new[] { "id", "name", "sendDate", "size", "extension" };
 
         if (string.IsNullOrEmpty(sort))
         {
-            sort = "id";
+            sort = nameof(Media.Id).ToLower();
         }
 
-        if (!allowedSortFields.Contains(sort))
-        {
-            return Result.Fail(MediaErrors.InvalidSortField(sort));
-        }
+        // if (!allowedSortFields.Contains(sort))
+        // {
+        //     return Result.Fail(MediaErrors.InvalidSortField(sort));
+        // }
 
-        var mediaResult = await Repository.GetFrom<Media>(currentUser, id, sort);
+        var mediaResult = await Repository.GetFrom<Media>(currentUser, folderId, sort);
 
         return mediaResult;
     }
