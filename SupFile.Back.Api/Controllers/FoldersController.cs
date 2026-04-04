@@ -36,13 +36,13 @@ public sealed class FoldersController : BaseAuthController
         return ToOkActionResult(folders);
     }
 
-    [HttpGet("FromParent")]
-    public async Task<ActionResult<StorageModel>> GetFromParent([FromQuery] int? id = null,
+    [HttpGet("FolderContents")]
+    public async Task<ActionResult<StorageModel>> GetFolderContents([FromQuery] int? folderId = null,
         [FromQuery] string? sort = "id")
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
 
-        var result = await _folderService.GetFromParent(currentUser, id, sort);
+        var result = await _folderService.GetFolderContents(currentUser, folderId, sort);
 
         return ToOkActionResult(result.Map(value =>
         {
@@ -76,12 +76,12 @@ public sealed class FoldersController : BaseAuthController
         return ToOkActionResult(folderModelResult);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<ActionResult> Delete(int id)
+    [HttpPatch("{id:int}/SoftDelete")]
+    public async Task<ActionResult<FolderModel>> SoftDelete(int id)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var deletedResult = await _folderService.DeleteOneAsync(currentUser, id);
-
-        return ToNoContentActionResult(deletedResult);
+        var deletedResult = await _folderService.SoftDeleteAsync(currentUser, id);
+        var folderModelResult = deletedResult.Map(m => m.Adapt<FolderModel>());
+        return ToOkActionResult(folderModelResult);
     }
 }

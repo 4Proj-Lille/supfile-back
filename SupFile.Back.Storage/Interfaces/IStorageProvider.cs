@@ -26,4 +26,6 @@ public interface IStorageProvider
     /// <param name="baseUrl"></param>
     /// <returns></returns>
     Task<Result<byte[]>> ReadAsync(string name, string extension, string baseUrl = "");
+
+    Task<Result> RenameAsync(string oldName, string newName, string extension);
 }

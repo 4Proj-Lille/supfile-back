@@ -9,5 +9,7 @@ public class FolderModel
     public int OwnerId { get; set; }
 
     public int? ParentId { get; set; }
+    
+    public bool IsActive { get; set; }
 
 }

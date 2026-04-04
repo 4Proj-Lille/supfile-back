@@ -82,4 +82,27 @@ public class BlobStorageProvider : IStorageProvider
 
         return containerClient;
     }
+    
+    public async Task<Result> RenameAsync(string oldName, string newName, string extension)
+    {
+        var containerClient = await GetBlobClientAsync(_blobSettings.ContainerName);
+    
+        var sourceBlobClient = containerClient.GetBlobClient($"{oldName}{extension}");
+        var destBlobClient = containerClient.GetBlobClient($"{newName}{extension}");
+
+        var existsResult = Exists(oldName, extension);
+        if (existsResult.IsFailed) return existsResult.ToResult();
+        if (!existsResult.Value) return Result.Fail(FileErrors.FileNotFound());
+
+        var destExistsResult = Exists(newName, extension);
+        if (destExistsResult.IsFailed) return destExistsResult.ToResult();
+        if (destExistsResult.Value) return Result.Fail(FileErrors.AlreadyExists(newName, extension));
+
+        var copyOperation = await destBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
+        await copyOperation.WaitForCompletionAsync();
+
+        await sourceBlobClient.DeleteAsync();
+
+        return Result.Ok();
+    }
 }

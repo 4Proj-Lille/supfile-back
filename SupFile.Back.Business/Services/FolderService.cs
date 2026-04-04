@@ -24,6 +24,11 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
             return parentFolderResult;
         }
 
+        if (parentFolderResult.Value.IsActive == false)
+        {
+            return Result.Fail("Cannot add folder to a soft-deleted parent folder.");
+        }
+        
         var parentFolder = parentFolderResult.Value;
 
         if (parentFolder.Id == entity.Id)
@@ -51,13 +56,18 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return await DeleteAsync(id);
     }
 
-    public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetFromParent(ApplicationUser user, int? id,
+    public async Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser currentUser)
+    {
+        return await Repository.DeleteAllSoftDeleted(currentUser);
+    }
+
+    public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetFolderContents(ApplicationUser user, int? folderId,
         string? sort)
     {
-        var folderResult = await Repository.GetFrom<Folder>(user, id);
+        var folderResult = await Repository.GetFolderContents<Folder>(user, folderId);
         if (!folderResult.IsSuccess) return folderResult.ToResult();
 
-        var mediaResult = await _mediaService.GetFrom(user, id, sort);
+        var mediaResult = await _mediaService.GetFolderContents<Media>(user, folderId, sort);
         if (!mediaResult.IsSuccess) return mediaResult.ToResult();
 
         var tuple = Tuple.Create(folderResult.Value, mediaResult.Value);
@@ -111,5 +121,42 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         var pathResult = await Repository.GetPath(user, folder.ParentId);
 
         return pathResult;
+    }
+
+    public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser)
+    {
+        return await Repository.GetSoftDeleted<TMapped>(currentUser);
+    }
+
+    public async Task<Result<Folder>> SoftDeleteAsync(ApplicationUser currentUser, int id)
+    {
+        var folderResult = await Repository.GetByIdAsync<Folder>(id);
+        if (folderResult.IsFailed) return folderResult.ToResult();
+
+        var folder = folderResult.Value;
+
+        if (folder.OwnerId != currentUser.Id)
+        {
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(id));
+        }
+
+        folder.IsActive = false;
+
+        return await UpdateAsync(id, folder);
+    }
+    
+    public async Task<Result<Folder>> RestoreAsync(ApplicationUser currentUser, int id)
+    {
+        var folderResult = await Repository.GetByIdAsync<Folder>(id);
+        if (folderResult.IsFailed) return folderResult;
+
+        var folder = folderResult.Value;
+
+        if (folder.OwnerId != currentUser.Id)
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folder.Id));
+
+        folder.IsActive = true;
+        
+        return await UpdateAsync(id, folder);
     }
 }

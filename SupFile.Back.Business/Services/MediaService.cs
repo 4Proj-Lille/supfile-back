@@ -70,7 +70,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return await DeleteAsync(id);
     }
 
-    public async Task<Result<List<Media>>> GetFrom(ApplicationUser currentUser, int? folderId, string? sort)
+    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId, string? sort)
     {
         // var allowedSortFields = new[] { "id", "name", "sendDate", "size", "extension" };
 
@@ -84,7 +84,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         //     return Result.Fail(MediaErrors.InvalidSortField(sort));
         // }
 
-        var mediaResult = await Repository.GetFrom<Media>(currentUser, folderId, sort);
+        var mediaResult = await Repository.GetFolderContents<TMapped>(currentUser, folderId, sort);
 
         return mediaResult;
     }
@@ -100,7 +100,18 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
         }
-
+        
+        if (!string.IsNullOrEmpty(entity.Name) && entity.Name != media.Name)
+        {
+            try
+            {
+                await _storageProvider.RenameAsync(media.Name, entity.Name, media.Extension);
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail(ex.Message);
+            }
+        }
         foreach (var prop in typeof(Media).GetProperties())
         {
             var value = prop.GetValue(entity);
@@ -119,16 +130,16 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return await UpdateAsync(id, media);
     }
 
-    public async Task<Result<int>> GetGlobalStorage(ApplicationUser currentUser)
+    public async Task<Result<int>> GetTotalStorageSize(ApplicationUser currentUser)
     {
-        var storageResult = await Repository.GetGlobalStorage(currentUser);
+        var storageResult = await Repository.GetTotalStorageSize(currentUser);
 
         return storageResult;
     }
 
-    public async Task<Result<Dictionary<string, int>>> GetStorageByExtension(ApplicationUser currentUser)
+    public async Task<Result<Dictionary<string, int>>> GetStorageSizeByExtension(ApplicationUser currentUser)
     {
-        return await Repository.GetStorageByExtension(currentUser);
+        return await Repository.GetStorageSizeByExtension(currentUser);
     }
 
     public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser)
@@ -141,17 +152,61 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return await Repository.DeleteAllSoftDeleted(currentUser);
     }
 
-    public async Task<Result<(byte[], string)>> DownloadPicture(string name, string extension)
+    public async Task<Result<(byte[], string, string)>> DownloadPicture(int mediaId)
     {
-        var fileResult = await _storageProvider.ReadAsync(name, extension);
+        var mediaResult = await Repository.GetByIdAsync<Media>(mediaId);
+        if (mediaResult.IsFailed) return mediaResult.ToResult();
+        
+        var fileResult = await _storageProvider.ReadAsync(mediaResult.Value.Name, mediaResult.Value.Extension);
         if (fileResult.IsFailed) return fileResult.ToResult();
 
         var provider = new FileExtensionContentTypeProvider();
-        if (!provider.TryGetContentType($"{name}.{extension}", out var contentType))
+        if (!provider.TryGetContentType($"{mediaResult.Value.Name}.{mediaResult.Value.Extension}", out var contentType))
         {
             contentType = "application/octet-stream";
         }
 
-        return Result.Ok((fileResult.Value, contentType));
+        return Result.Ok((fileResult.Value, contentType, mediaResult.Value.Name ));
+    }
+    
+    public async Task<Result<Media>> SoftDeleteAsync(ApplicationUser currentUser, int id)
+    {
+        var mediaResult = await Repository.GetByIdAsync<Media>(id);
+        if (mediaResult.IsFailed) return mediaResult.ToResult();
+
+        var media = mediaResult.Value;
+
+        if (media.OwnerId != currentUser.Id)
+        {
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
+        }
+
+        media.IsActive = false;
+
+        return await UpdateAsync(id, media);
+    }
+    
+    public async Task<Result<Media>> RestoreAsync(ApplicationUser currentUser, int id)
+    {
+        var mediaResult = await Repository.GetByIdAsync<Media>(id);
+        if (mediaResult.IsFailed) return mediaResult.ToResult();
+
+        var media = mediaResult.Value;
+
+        if (media.OwnerId != currentUser.Id)
+        {
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
+        }
+
+        media.IsActive = true;
+
+        var updateMedia = await UpdateAsync(id, media);
+        
+        if (updateMedia.IsFailed || updateMedia.Value == null)
+        {
+            return Result.Fail(updateMedia.Errors);
+        }
+        
+        return updateMedia;
     }
 }

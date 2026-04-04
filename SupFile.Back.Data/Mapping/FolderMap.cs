@@ -46,6 +46,11 @@ namespace SupFile.Back.Data.Mapping
                 .HasColumnName("ParentId")
                 .HasColumnType("int");
             
+            builder.Property(t => t.IsActive)
+                .IsRequired()
+                .HasColumnName("IsActive")
+                .HasColumnType("boolean");
+            
 
             // relationships
             builder.HasOne(t => t.OwnerApplicationUserFolder)
@@ -87,6 +92,9 @@ namespace SupFile.Back.Data.Mapping
             
             /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Folder.ParentId" /></summary>
             public const string ParentId = "ParentId";
+            
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Folder.IsActive" /></summary>
+            public const string IsActive = "IsActive";
         }
 
         #endregion

@@ -9,8 +9,13 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         logger, context)
     {
     }
+    
+    public async Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser user)
+    {
+        return await DeleteAllAsync(x => x.OwnerId == user.Id && !x.IsActive);
+    }
 
-    public async Task<Result<List<TMapped>>> GetFrom<TMapped>(ApplicationUser user, int? id)
+    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? id)
     {
         var q = Query().Where(x =>
             x.OwnerId == user.Id && x.ParentId == id
@@ -39,5 +44,14 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
 
         path.Reverse();
         return Result.Ok(path);
+    }
+    
+    public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser user)
+    {
+        var q = Query().Where(x =>
+            x.OwnerId == user.Id && !x.IsActive
+        );
+
+        return Result.Ok(await q.FindListAsync<TMapped>(""));
     }
 }

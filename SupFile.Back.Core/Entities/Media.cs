@@ -50,7 +50,7 @@ public class Media : BaseEntity<Media, int>, IEntity<Media, int>
     /// <value>
     ///     The property value representing column 'IsActive'.
     /// </value>
-    public bool IsActive { get; set; }
+    public bool IsActive { get; set; } = true;
     
     /// <summary>
     ///     Gets or sets the property value representing column 'CreatedDate'.

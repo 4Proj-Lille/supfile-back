@@ -10,7 +10,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     {
     }
 
-    public async Task<Result<List<TMapped>>> GetFrom<TMapped>(ApplicationUser user, int? folderId, string sort)
+    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? folderId, string sort)
     {
         var q = Query().Where(x =>
             x.OwnerId == user.Id && x.FolderId == folderId
@@ -26,7 +26,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
         }
     }
 
-    public async Task<Result<int>> GetGlobalStorage(ApplicationUser user)
+    public async Task<Result<int>> GetTotalStorageSize(ApplicationUser user)
     {
         return Result.Ok(
             await Query()
@@ -35,21 +35,21 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
         );
     }
 
-    public async Task<Result<Dictionary<string, int>>> GetStorageByExtension(ApplicationUser user)
+    public async Task<Result<Dictionary<string, int>>> GetStorageSizeByExtension(ApplicationUser user)
     {
-        var storageByExtension = await Query()
+        var storageSizeByExtension = await Query()
             .Where(x => x.OwnerId == user.Id)
             .GroupBy(x => x.Extension)
             .Select(g => new { Extension = g.Key, TotalSize = g.Sum(x => x.Size) })
             .ToDictionaryAsync(x => x.Extension, x => x.TotalSize);
 
-        return Result.Ok(storageByExtension);
+        return Result.Ok(storageSizeByExtension);
     }
 
     public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser user)
     {
         var q = Query().Where(x =>
-            x.OwnerId == user.Id && x.IsActive
+            x.OwnerId == user.Id && !x.IsActive
         );
 
         return Result.Ok(await q.FindListAsync<TMapped>(""));

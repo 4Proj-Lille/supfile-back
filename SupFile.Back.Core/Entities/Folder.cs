@@ -47,6 +47,8 @@ public class Folder : BaseEntity<Folder, int>, IEntity<Folder, int>
     ///     The property value representing column 'ParentId'.
     /// </value>
     public int? ParentId { get; set; }
+    
+    public bool IsActive { get; set; } = true;
 
     #endregion
     
