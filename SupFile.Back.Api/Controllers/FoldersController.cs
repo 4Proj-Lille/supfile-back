@@ -54,8 +54,8 @@ public sealed class FoldersController : BaseAuthController
         }));
     }
 
-    [HttpGet("Path")]
-    public async Task<ActionResult<List<FolderModel>>> GetPath([FromQuery] int id)
+    [HttpGet("{id:int}/Path")]
+    public async Task<ActionResult<List<FolderModel>>> GetPath(int id)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
 
