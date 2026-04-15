@@ -9,5 +9,5 @@ public class ForgotPasswordEmailModel
     public FrontEndSettings FrontEndSettings { get; set; }
 
     public string ResetLink =>
-        $"{FrontEndSettings.BaseUrl}{FrontEndSettings.ResetPasswordLink}?userId={UserId}code={EncodedToken}";
+        $"{FrontEndSettings.BaseUrl}{FrontEndSettings.ResetPasswordLink}?userId={UserId}&code={EncodedToken}";
 }

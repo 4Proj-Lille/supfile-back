@@ -9,5 +9,5 @@ public class VerificationEmailModel
     public FrontEndSettings FrontEndSettings { get; set; }
     
     public string VerificationLink =>
-        $"{FrontEndSettings.BaseUrl}{FrontEndSettings.EmailVerificationLink}?userId={UserId}code={Token}";
+        $"{FrontEndSettings.BaseUrl}{FrontEndSettings.EmailVerificationLink}?userId={UserId}&code={Token}";
 }
