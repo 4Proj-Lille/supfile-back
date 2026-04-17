@@ -9,21 +9,20 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
     private readonly IMediaService _mediaService;
     private readonly IFolderService _folderService;
     private readonly IShareService _shareService;
-    private readonly AppSettings _appSettings;
+    private readonly FrontEndSettings _frontEndSettings;
     private readonly IFluentEmail _fluentEmail;
 
 
     public LinkService(ILogger<LinkService> logger, ILinkRepository repository,
         IUserService userService, IMediaService mediaService, IFolderService folderService, IShareService shareService,
-        IOptions<AppSettings> appSettings, IFluentEmail fluentEmail
-    ) : base(logger,
+        IFluentEmail fluentEmail, IOptions<FrontEndSettings> frontEndSettings) : base(logger,
         repository)
     {
         _userService = userService;
         _mediaService = mediaService;
         _folderService = folderService;
-        _appSettings = appSettings.Value;
         _fluentEmail = fluentEmail;
+        _frontEndSettings = frontEndSettings.Value;
         _shareService = shareService;
     }
 
@@ -50,8 +49,8 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         var result = await Repository.AddAsync(link);
         if (result.IsFailed) return result.ToResult();
 
-        var share = string.Format(CultureInfo.InvariantCulture, _appSettings.EmailGenerationFrontendLink,
-            media.Value.Id, token);
+        var path = Path.Combine(_frontEndSettings.BaseUrl, _frontEndSettings.ShareLink);
+        var share = string.Format(CultureInfo.InvariantCulture, path, media.Value.Id, token);
 
         return share;
     }
@@ -79,7 +78,8 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         var result = await Repository.AddAsync(link);
         if (result.IsFailed) return result.ToResult();
 
-        var share = string.Format(CultureInfo.InvariantCulture, _appSettings.EmailGenerationFrontendLink,
+        var path = Path.Combine(_frontEndSettings.BaseUrl, _frontEndSettings.ShareLink);
+        var share = string.Format(CultureInfo.InvariantCulture, path,
             folder.Value.Id, token);
 
         return share;

@@ -17,5 +17,5 @@ public class FrontEndSettings
     [Required] public required string EmailVerificationLink { get; set; }
 
     [Required] public required string ResetPasswordLink { get; set; }
-
+    [Required] public required string ShareLink { get; set; }
 }
