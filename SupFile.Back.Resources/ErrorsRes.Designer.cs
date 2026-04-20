@@ -332,5 +332,65 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("Validation_Detail", resourceCulture);
             }
         }
+        
+        public static string InvalidTypeProvided_Title {
+            get {
+                return ResourceManager.GetString("InvalidTypeProvided_Title", resourceCulture);
+            }
+        }
+        
+        public static string InvalidTypeProvided_Detail {
+            get {
+                return ResourceManager.GetString("InvalidTypeProvided_Detail", resourceCulture);
+            }
+        }
+        
+        public static string NoMediaFound_Title {
+            get {
+                return ResourceManager.GetString("NoMediaFound_Title", resourceCulture);
+            }
+        }
+        
+        public static string NoMediaFound_Detail {
+            get {
+                return ResourceManager.GetString("NoMediaFound_Detail", resourceCulture);
+            }
+        }
+        
+        public static string NoFolderFound_Title {
+            get {
+                return ResourceManager.GetString("NoFolderFound_Title", resourceCulture);
+            }
+        }
+        
+        public static string NoFolderFound_Detail {
+            get {
+                return ResourceManager.GetString("NoFolderFound_Detail", resourceCulture);
+            }
+        }
+        
+        public static string EmptyBin_Title {
+            get {
+                return ResourceManager.GetString("EmptyBin_Title", resourceCulture);
+            }
+        }
+        
+        public static string EmptyBin_Detail {
+            get {
+                return ResourceManager.GetString("EmptyBin_Detail", resourceCulture);
+            }
+        }
+        
+        public static string BinItem_Title {
+            get {
+                return ResourceManager.GetString("BinItem_Title", resourceCulture);
+            }
+        }
+        
+        public static string BinItem_Detail {
+            get {
+                return ResourceManager.GetString("BinItem_Detail", resourceCulture);
+            }
+        }
     }
 }

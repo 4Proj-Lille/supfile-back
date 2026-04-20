@@ -162,4 +162,34 @@
   <data name="Validation_Detail" xml:space="preserve">
     <value>One or more validation errors occurred.</value>
   </data>
+  <data name="InvalidTypeProvided_Title" xml:space="preserve">
+    <value>Invalid type provided</value>
+  </data>
+  <data name="InvalidTypeProvided_Detail" xml:space="preserve">
+    <value>Type must be either 'media' or 'folder'</value>
+  </data>
+  <data name="NoMediaFound_Title" xml:space="preserve">
+    <value>Media not found</value>
+  </data>
+  <data name="NoMediaFound_Detail" xml:space="preserve">
+    <value>No media found with the provided id.</value>
+  </data>
+  <data name="NoFolderFound_Title" xml:space="preserve">
+    <value>Folder not found</value>
+  </data>
+  <data name="NoFolderFound_Detail" xml:space="preserve">
+    <value>No folder found with the provided id.</value>
+  </data>
+  <data name="EmptyBin_Title" xml:space="preserve">
+    <value>Bin error</value>
+  </data>
+  <data name="EmptyBin_Detail" xml:space="preserve">
+    <value>Failed to empty the bin.</value>
+  </data>
+  <data name="BinItem_Title" xml:space="preserve">
+    <value>Bin error</value>
+  </data>
+  <data name="BinItem_Detail" xml:space="preserve">
+    <value>Failed to retrieve bin items.</value>
+  </data>
 </root>

@@ -35,6 +35,7 @@ public sealed class MediasController : BaseAuthController
         return File(file, contentType, fileName);
     }
 
+    [AllowAnonymous]
     [HttpGet("{mediaId:int}/Preview")]
     public async Task<IActionResult> PreviewPicture(int mediaId)
     {

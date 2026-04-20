@@ -155,4 +155,34 @@
   <data name="Validation_Title" xml:space="preserve">
     <value>Erreur(s) de validation</value>
   </data>
+  <data name="InvalidTypeProvided_Title" xml:space="preserve">
+    <value>Type non valide</value>
+  </data>
+  <data name="InvalidTypeProvided_Detail" xml:space="preserve">
+    <value>Le type doit être soit « média », soit « dossier »</value>
+  </data>
+  <data name="NoMediaFound_Title" xml:space="preserve">
+    <value>Media introuvable</value>
+  </data>
+  <data name="NoMediaFound_Detail" xml:space="preserve">
+    <value>Aucun média n'a été trouvé avec l'identifiant fourni.</value>
+  </data>
+  <data name="NoFolderFound_Detail" xml:space="preserve">
+    <value>Aucun dossier n'a été trouvé avec l'identifiant fourni.</value>
+  </data>
+  <data name="NoFolderFound_Title" xml:space="preserve">
+    <value>Dossier introuvable</value>
+  </data>
+  <data name="EmptyBin_Detail" xml:space="preserve">
+    <value>Impossible de vider la corbeille.</value>
+  </data>
+  <data name="EmptyBin_Title" xml:space="preserve">
+    <value>Erreur de corbeille</value>
+  </data>
+  <data name="BinItem_Detail" xml:space="preserve">
+    <value>Impossible de récupérer les éléments de la corbeille.</value>
+  </data>
+  <data name="BinItem_Title" xml:space="preserve">
+    <value>Erreur de corbeille</value>
+  </data>
 </root>

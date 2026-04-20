@@ -51,7 +51,7 @@ public class BinService : IBinService
             return restoredFolder.ToResult();
             
         }
-        return Result.Fail("Invalid type provided. Type must be either 'media' or 'folder'.");
+        return Result.Fail(BinErrors.InvalidTypeProvided());
     }
     
     public async Task<Result> DeleteOneAsync(int id, ApplicationUser currentUser, string type)
@@ -63,7 +63,7 @@ public class BinService : IBinService
             {
                 return Result.Ok();
             }
-            return Result.Fail("No media found with the provided id.");
+            return Result.Fail(BinErrors.NoMediaFound());
         }
         if (type == "folder")
         {
@@ -72,10 +72,10 @@ public class BinService : IBinService
             {
                 return Result.Ok();
             }
-            return Result.Fail("No folder found with the provided id.");
+            return Result.Fail(BinErrors.NoFolderFound());
         }
         
-        return Result.Fail("Invalid type provided. Type must be either 'media' or 'folder'.");
+        return Result.Fail(BinErrors.InvalidTypeProvided());
     }
     
     public async Task<Result> EmptyBinAsync(ApplicationUser currentUser)
@@ -88,7 +88,7 @@ public class BinService : IBinService
             return Result.Ok();
         }
         
-        return Result.Fail("Failed to empty the bin.");
+        return Result.Fail(BinErrors.BinItem());
     }
     
     public async Task<Result<Tuple<List<Folder>,List<Media>>>>GetBinItemsAsync(ApplicationUser currentUser, string? type = null)
@@ -107,6 +107,6 @@ public class BinService : IBinService
             return Tuple.Create(folderResult.Value, mediaResult.Value);
         }
         
-        return Result.Fail<Tuple<List<Folder>,List<Media>>>("Failed to retrieve bin items.");
+        return Result.Fail<Tuple<List<Folder>,List<Media>>>(BinErrors.BinItem());
     }
 }
