@@ -150,12 +150,12 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         if (fileResult.IsFailed) return fileResult.ToResult();
 
         var provider = new FileExtensionContentTypeProvider();
-        if (!provider.TryGetContentType($"{mediaResult.Value.Name}.{mediaResult.Value.Extension}", out var contentType))
+        if (!provider.TryGetContentType($"{mediaResult.Value.Name}{mediaResult.Value.Extension}", out var contentType))
         {
             contentType = "application/octet-stream";
         }
 
-        return Result.Ok((fileResult.Value, contentType, mediaResult.Value.Name));
+        return Result.Ok((fileResult.Value, contentType, $"{mediaResult.Value.Name}{mediaResult.Value.Extension}"));
     }
 
     public async Task<Result<Media>> SoftDeleteAsync(ApplicationUser currentUser, int id)

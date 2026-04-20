@@ -23,7 +23,7 @@ public sealed class MediasController : BaseAuthController
         return ToOkActionResult(media);
     }
 
-    [HttpGet("{id:int}/Download")]
+    [HttpGet("{mediaId:int}/Download")]
     public async Task<IActionResult> DownloadPicture(int mediaId)
     {
         var mediaFile = await _mediaService.DownloadPicture(mediaId);
@@ -35,6 +35,23 @@ public sealed class MediasController : BaseAuthController
         return File(file, contentType, fileName);
     }
 
+    [HttpGet("{mediaId:int}/Preview")]
+    public async Task<IActionResult> PreviewPicture(int mediaId)
+    {
+        var mediaFile = await _mediaService.DownloadPicture(mediaId);
+
+        if (mediaFile.IsFailed)
+            return NotFound();
+
+        var file = mediaFile.Value.Item1;
+        var contentType = mediaFile.Value.Item2;
+        var fileName = mediaFile.Value.Item3;
+
+        Response.Headers.Append("Content-Disposition", $"inline; filename=\"{fileName}\"");
+
+        return File(file, contentType);
+    }
+    
     [HttpPost]
     public async Task<ActionResult<MediaModel>> Post(IFormFile file, [FromQuery] int? folderId)
     {
