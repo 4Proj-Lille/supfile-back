@@ -1,3 +1,5 @@
+using SupFile.Back.Core.Enums;
+
 namespace SupFile.Back.Api.Controllers;
 
 [Route("api/[controller]")]
@@ -17,7 +19,7 @@ public class BinsController: BaseAuthController
     }
     
     [HttpPatch("{id:int}/Restore")]
-    public async Task<ActionResult> Restore(int id, [FromQuery] string type)
+    public async Task<ActionResult> Restore(int id, [FromQuery] BinType type)
     {        
         var currentUser = await GetAuthenticatedAppUserAsync();
         var restoreResult = await _binService.RestoreAsync(id, currentUser, type);
@@ -26,7 +28,7 @@ public class BinsController: BaseAuthController
     }
     
     [HttpDelete("{id:int}")]
-    public async Task<ActionResult> DeleteOneAsync(int id, [FromQuery] string type)
+    public async Task<ActionResult> DeleteOneAsync(int id, [FromQuery] BinType type)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var deleteResult = await _binService.DeleteOneAsync(id , currentUser, type);
@@ -42,7 +44,7 @@ public class BinsController: BaseAuthController
     }
     
     [HttpGet]
-    public async Task<ActionResult<StorageModel>> GetBinItems([FromQuery] string? type)
+    public async Task<ActionResult<StorageModel>> GetBinItems([FromQuery] BinType? type)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var binItemsResult = await _binService.GetBinItemsAsync(currentUser, type);

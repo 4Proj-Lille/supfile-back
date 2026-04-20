@@ -2,6 +2,8 @@
 // The.NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using SupFile.Back.Core.Enums;
+
 namespace SupFile.Back.Business.Services;
 
 public class BinService : IBinService
@@ -18,9 +20,9 @@ public class BinService : IBinService
         _folderService = folderService;
     }
 
-    public async Task<Result> RestoreAsync(int id, ApplicationUser currentUser, string type)
+    public async Task<Result> RestoreAsync(int id, ApplicationUser currentUser, BinType type)
     {
-        if (type == "media")
+        if (type == BinType.Media)
         {
             var restoredMedia= await _mediaService.RestoreAsync(currentUser, id);
             if (restoredMedia.IsSuccess && restoredMedia.Value != null && restoredMedia.Value.FolderId.HasValue)
@@ -33,7 +35,7 @@ public class BinService : IBinService
             }
             return restoredMedia.ToResult();
         }
-        if (type == "folder")
+        if (type == BinType.Folder)
         {
             var restoredFolder = await _folderService.RestoreAsync(currentUser, id);
             if (restoredFolder.IsSuccess && restoredFolder.Value != null)
@@ -54,9 +56,9 @@ public class BinService : IBinService
         return Result.Fail(BinErrors.InvalidTypeProvided());
     }
     
-    public async Task<Result> DeleteOneAsync(int id, ApplicationUser currentUser, string type)
+    public async Task<Result> DeleteOneAsync(int id, ApplicationUser currentUser, BinType type)
     {
-        if (type == "media")
+        if (type == BinType.Media)
         {
             var mediaDeleteResult = await _mediaService.DeleteOneAsync(currentUser, id);
             if (mediaDeleteResult.IsSuccess)
@@ -65,7 +67,7 @@ public class BinService : IBinService
             }
             return Result.Fail(BinErrors.NoMediaFound());
         }
-        if (type == "folder")
+        if (type == BinType.Folder)
         {
             var folderDeleteResult = await _folderService.DeleteOneAsync(currentUser, id);
             if (folderDeleteResult.IsSuccess)
@@ -91,14 +93,14 @@ public class BinService : IBinService
         return Result.Fail(BinErrors.BinItem());
     }
     
-    public async Task<Result<Tuple<List<Folder>,List<Media>>>>GetBinItemsAsync(ApplicationUser currentUser, string? type = null)
+    public async Task<Result<Tuple<List<Folder>,List<Media>>>>GetBinItemsAsync(ApplicationUser currentUser, BinType? type = null)
     {
         var mediaResult = new Result<List<Media>>();
         var folderResult = new Result<List<Folder>>();
-        if (type == "media" || string.IsNullOrEmpty(type)){
+        if (type == BinType.Media || type == null){
             mediaResult = await _mediaService.GetSoftDeleted<Media>(currentUser);
         }
-        if (type == "folder" || string.IsNullOrEmpty(type)){
+        if (type == BinType.Folder || type == null){
              folderResult = await _folderService.GetSoftDeleted<Folder>(currentUser);
         }
         
