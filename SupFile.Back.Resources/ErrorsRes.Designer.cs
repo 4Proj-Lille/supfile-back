@@ -392,5 +392,17 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("BinItem_Detail", resourceCulture);
             }
         }
+        
+        public static string InvalidStorageSizeGroupBy_Title {
+            get {
+                return ResourceManager.GetString("InvalidStorageSizeGroupBy_Title", resourceCulture);
+            }
+        }
+        
+        public static string InvalidStorageSizeGroupBy_Detail {
+            get {
+                return ResourceManager.GetString("InvalidStorageSizeGroupBy_Detail", resourceCulture);
+            }
+        }
     }
 }

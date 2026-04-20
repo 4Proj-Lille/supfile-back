@@ -1,4 +1,6 @@
-﻿namespace SupFile.Back.Api.Controllers;
+﻿using SupFile.Back.Core.Enums;
+
+namespace SupFile.Back.Api.Controllers;
 
 [Route("api/[controller]")]
 public sealed class MediasController : BaseAuthController
@@ -92,11 +94,11 @@ public sealed class MediasController : BaseAuthController
         return ToOkActionResult(storage);
     }
 
-    [HttpGet("StorageSizeByExtension")]
-    public async Task<ActionResult<Dictionary<string, int>>> GetStorageSizeByExtension()
+    [HttpGet("StorageSizeGroupBy")]
+    public async Task<ActionResult<Dictionary<string, int>>> GetStorageSizeByExtension(StorageSizeGroupBy groupBy)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var storage = await _mediaService.GetStorageSizeByExtension(currentUser);
+        var storage = await _mediaService.GetStorageSizeGroupBy(currentUser, groupBy);
 
         return ToOkActionResult(storage);
     }

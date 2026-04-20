@@ -185,4 +185,10 @@
   <data name="BinItem_Title" xml:space="preserve">
     <value>Erreur de corbeille</value>
   </data>
+  <data name="InvalidStorageSizeGroupBy_Title" xml:space="preserve">
+    <value>Le type est invalide</value>
+  </data>
+  <data name="InvalidStorageSizeGroupBy_Detail" xml:space="preserve">
+    <value>The type n'est pas pris en charge.</value>
+  </data>
 </root>

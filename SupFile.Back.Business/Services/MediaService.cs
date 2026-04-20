@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.StaticFiles;
+using SupFile.Back.Core.Enums;
 using SupFile.Back.Storage.Interfaces;
 
 namespace SupFile.Back.Business.Services;
@@ -126,11 +127,63 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return storageResult;
     }
 
+    public async Task<Result<Dictionary<string, int>>> GetStorageSizeGroupBy (ApplicationUser currentUser, StorageSizeGroupBy groupBy)
+    {
+        return groupBy switch
+        {
+            StorageSizeGroupBy.Extension => await GetStorageSizeByExtension(currentUser),
+            StorageSizeGroupBy.Type => await GetStorageSizeByType(currentUser),
+            _ => Result.Fail(MediaErrors.InvalidStorageSizeGroupBy())
+        };
+    }
+        
     public async Task<Result<Dictionary<string, int>>> GetStorageSizeByExtension(ApplicationUser currentUser)
     {
         return await Repository.GetStorageSizeByExtension(currentUser);
     }
+    
+    private static readonly Dictionary<string, string> _extensionToType = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { ".png", "Picture" },
+        { ".jpg", "Picture" },
+        { ".jpeg", "Picture" },
+        { ".gif", "Picture" },
+        { ".webp", "Picture" },
+        { ".svg", "Picture" },
+        { ".bmp", "Picture" },
 
+        { ".mp4", "Video" },
+        { ".avi", "Video" },
+        { ".mov", "Video" },
+        { ".mkv", "Video" },
+        { ".webm", "Video" },
+
+        { ".pdf", "File" },
+        { ".doc", "File" },
+        { ".docx", "File" },
+        { ".xls", "File" },
+        { ".xlsx", "File" },
+        { ".ppt", "File" },
+        { ".pptx", "File" },
+        { ".txt", "File" },
+        { ".csv", "File" },
+    };
+
+    public async Task<Result<Dictionary<string, int>>> GetStorageSizeByType(ApplicationUser currentUser)
+    {
+        var extensionResult = await Repository.GetStorageSizeByExtension(currentUser);
+        if (extensionResult.IsFailed) return extensionResult;
+
+        var result = extensionResult.Value
+            .GroupBy(kvp => _extensionToType.TryGetValue(kvp.Key, out var type) ? type : "Other")
+            .ToDictionary(
+                group => group.Key,
+                group => group.Sum(kvp => kvp.Value)
+            );
+
+        return Result.Ok(result);
+    }
+    
     public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser)
     {
         return await Repository.GetSoftDeleted<TMapped>(currentUser);
