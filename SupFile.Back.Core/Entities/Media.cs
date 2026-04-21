@@ -58,7 +58,15 @@ public class Media : BaseEntity<Media, int>, IEntity<Media, int>
     /// <value>
     ///     The property value representing column 'CreatedDate'.
     /// </value>
-    public DateTime CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; } = DateTime.Now;
+    
+    /// <summary>
+    ///     Gets or sets the property value representing column 'CreatedDate'.
+    /// </summary>
+    /// <value>
+    ///     The property value representing column 'CreatedDate'.
+    /// </value>
+    public DateTime UpdatedDate { get; set; } = DateTime.Now;
     
     /// <summary>
     ///     Gets or sets the property value representing column 'FolderId'.

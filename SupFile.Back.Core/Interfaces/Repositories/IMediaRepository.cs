@@ -4,7 +4,7 @@ namespace SupFile.Back.Core.Interfaces.Repositories;
  {
      Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? folderId, string sort);
      
-     Task<Result<int>> GetTotalStorageSize(ApplicationUser user);
+     Task<Result<Dictionary<string, int>>> GetTotalStorageSize(ApplicationUser user);
 
      Task<Result<Dictionary<string, int>>> GetStorageSizeByExtension(ApplicationUser user);
      

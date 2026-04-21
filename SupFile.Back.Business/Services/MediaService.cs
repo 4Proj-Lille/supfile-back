@@ -36,7 +36,6 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             Size = (int)file.Length,
             FolderId = folderId,
             OwnerId = currentUser.Id,
-            CreatedDate = DateTime.Now
         };
 
         var addMedia = await AddAsync(entity);
@@ -91,6 +90,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         if (mediaResult.IsFailed) return mediaResult;
 
         var media = mediaResult.Value;
+        media.UpdatedDate = DateTime.Now;
 
         if (media.OwnerId != currentUser.Id)
         {
@@ -120,19 +120,20 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return await UpdateAsync(id, media);
     }
 
-    public async Task<Result<int>> GetTotalStorageSize(ApplicationUser currentUser)
+    public async Task<Result<Dictionary<string, int>>> GetTotalStorageSize(ApplicationUser currentUser)
     {
         var storageResult = await Repository.GetTotalStorageSize(currentUser);
 
         return storageResult;
     }
 
-    public async Task<Result<Dictionary<string, int>>> GetStorageSizeGroupBy (ApplicationUser currentUser, StorageSizeGroupBy groupBy)
+    public async Task<Result<Dictionary<string, int>>> GetStorageSize (ApplicationUser currentUser, StorageSizeGroupBy groupBy)
     {
         return groupBy switch
         {
             StorageSizeGroupBy.Extension => await GetStorageSizeByExtension(currentUser),
             StorageSizeGroupBy.Type => await GetStorageSizeByType(currentUser),
+            StorageSizeGroupBy.Global => await GetTotalStorageSize(currentUser),
             _ => Result.Fail(MediaErrors.InvalidStorageSizeGroupBy())
         };
     }

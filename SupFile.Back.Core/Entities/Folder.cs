@@ -33,6 +33,22 @@ public class Folder : BaseEntity<Folder, int>, IEntity<Folder, int>
     public string Name { get; set; } = null!;
     
     /// <summary>
+    ///     Gets or sets the property value representing column 'CreatedDate'.
+    /// </summary>
+    /// <value>
+    ///     The property value representing column 'CreatedDate'.
+    /// </value>
+    public DateTime CreatedDate { get; set; } = DateTime.Now;
+
+    /// <summary>
+    ///     Gets or sets the property value representing column 'CreatedDate'.
+    /// </summary>
+    /// <value>
+    ///     The property value representing column 'CreatedDate'.
+    /// </value>
+    public DateTime UpdatedDate { get; set; } = DateTime.Now;
+    
+    /// <summary>
     ///     Gets or sets the property value representing column 'OwnerId'.
     /// </summary>
     /// <value>

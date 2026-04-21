@@ -58,6 +58,11 @@ namespace SupFile.Back.Data.Mapping
                 .HasColumnName("CreatedDate")
                 .HasColumnType("timestamp");
             
+            builder.Property(t => t.UpdatedDate)
+                .IsRequired()
+                .HasColumnName("UpdatedDate")
+                .HasColumnType("timestamp");
+            
             builder.Property( t => t.FolderId)
                 .HasColumnName("FolderId")
                 .HasColumnType("int");
@@ -114,6 +119,9 @@ namespace SupFile.Back.Data.Mapping
             
             /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.CreatedDate" /></summary>
             public const string CreatedDate = "CreatedDate";
+            
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.UpdatedDate" /></summary>
+            public const string UpdatedDate = "UpdatedDate";
             
             /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.FolderId" /></summary>
             public const string FolderId = "FolderId";

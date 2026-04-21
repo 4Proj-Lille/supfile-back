@@ -22,12 +22,15 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
         return Result.Ok(result);
     }
 
-    public async Task<Result<int>> GetTotalStorageSize(ApplicationUser user)
+    public async Task<Result<Dictionary<string, int>>> GetTotalStorageSize(ApplicationUser user)
     {
         return Result.Ok(
-            await Query()
-                .Where(x => x.OwnerId == user.Id)
-                .SumAsync(x => x.Size)
+            new Dictionary<string, int>
+            {
+                ["Global"] = await Query()
+                    .Where(x => x.OwnerId == user.Id)
+                    .SumAsync(x => x.Size)
+            }
         );
     }
 

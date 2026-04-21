@@ -37,6 +37,16 @@ namespace SupFile.Back.Data.Mapping
                 .HasColumnType("varchar(255)")
                 .HasMaxLength(255);
             
+            builder.Property(t => t.CreatedDate)
+                .IsRequired()
+                .HasColumnName("CreatedDate")
+                .HasColumnType("timestamp");
+            
+            builder.Property(t => t.UpdatedDate)
+                .IsRequired()
+                .HasColumnName("UpdatedDate")
+                .HasColumnType("timestamp");
+            
             builder.Property(t => t.OwnerId)
                 .IsRequired()
                 .HasColumnName("OwnerId")
@@ -86,6 +96,12 @@ namespace SupFile.Back.Data.Mapping
 
             /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Folder.Name" /></summary>
             public const string Name = "Name";
+            
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.CreatedDate" /></summary>
+            public const string CreatedDate = "CreatedDate";
+            
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.UpdatedDate" /></summary>
+            public const string UpdatedDate = "UpdatedDate";
             
             /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Folder.OwnerId" /></summary>
             public const string OwnerId = "OwnerId";

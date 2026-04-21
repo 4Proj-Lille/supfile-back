@@ -4,4 +4,5 @@ public enum StorageSizeGroupBy
 {
     Extension,
     Type,
+    Global
 }

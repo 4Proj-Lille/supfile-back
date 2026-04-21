@@ -14,6 +14,8 @@ public class MediaModel
     
     public DateTime CreatedDate { get; set; }
     
+    public DateTime UpdatedDate { get; set; }
+    
     public int? FolderId { get; set; }
 
     public int OwnerId { get; set; }

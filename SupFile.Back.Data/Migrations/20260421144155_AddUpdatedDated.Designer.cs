@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SupFile.Back.Data.Context;
@@ -11,9 +12,11 @@ using SupFile.Back.Data.Context;
 namespace SupFile.Back.Data.Migrations
 {
     [DbContext(typeof(SupFileContext))]
-    partial class SupFileContextModelSnapshot : ModelSnapshot
+    [Migration("20260421144155_AddUpdatedDated")]
+    partial class AddUpdatedDated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,8 +263,7 @@ namespace SupFile.Back.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("CreatedDate");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
@@ -282,8 +284,7 @@ namespace SupFile.Back.Data.Migrations
                         .HasColumnName("ParentId");
 
                     b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("UpdatedDate");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -382,8 +383,7 @@ namespace SupFile.Back.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("UpdatedDate");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

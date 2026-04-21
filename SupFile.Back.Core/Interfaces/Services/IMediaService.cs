@@ -12,13 +12,13 @@ public interface IMediaService : IBaseService<Media, int>
     
     Task<Result<Media>> UpdateAsync(int id, Media entity, ApplicationUser currentUser);
     
-    Task<Result<int>> GetTotalStorageSize(ApplicationUser currentUser);
+    Task<Result<Dictionary<string, int>>> GetTotalStorageSize(ApplicationUser currentUser);
 
     Task<Result<Dictionary<string, int>>> GetStorageSizeByExtension(ApplicationUser currentUser);
     
     Task<Result<Dictionary<string, int>>> GetStorageSizeByType(ApplicationUser currentUser);
 
-    Task<Result<Dictionary<string, int>>> GetStorageSizeGroupBy(ApplicationUser currentUser, StorageSizeGroupBy groupBy);
+    Task<Result<Dictionary<string, int>>> GetStorageSize(ApplicationUser currentUser, StorageSizeGroupBy groupBy);
     
     
     Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser);

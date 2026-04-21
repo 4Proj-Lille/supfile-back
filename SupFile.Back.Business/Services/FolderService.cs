@@ -79,10 +79,11 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         var folderResult = await Repository.GetByIdAsync<Folder>(id);
         if (folderResult.IsFailed) return folderResult;
         var folder = folderResult.Value;
-
+        
         if (folder.OwnerId != currentUser.Id)
             return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folder.Id));
 
+        folder.UpdatedDate = DateTime.Now;
         foreach (var prop in typeof(Folder).GetProperties())
         {
             var value = prop.GetValue(entity);

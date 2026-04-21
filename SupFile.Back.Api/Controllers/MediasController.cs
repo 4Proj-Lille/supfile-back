@@ -85,20 +85,11 @@ public sealed class MediasController : BaseAuthController
         return ToOkActionResult(mediaModelResult);
     }
 
-    [HttpGet("TotalStorageSize")]
-    public async Task<ActionResult<int>> GetTotalStorageSize()
-    {
-        var currentUser = await GetAuthenticatedAppUserAsync();
-        var storage = await _mediaService.GetTotalStorageSize(currentUser);
-
-        return ToOkActionResult(storage);
-    }
-
-    [HttpGet("StorageSizeGroupBy")]
+    [HttpGet("StorageSize")]
     public async Task<ActionResult<Dictionary<string, int>>> GetStorageSizeByExtension(StorageSizeGroupBy groupBy)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var storage = await _mediaService.GetStorageSizeGroupBy(currentUser, groupBy);
+        var storage = await _mediaService.GetStorageSize(currentUser, groupBy);
 
         return ToOkActionResult(storage);
     }
