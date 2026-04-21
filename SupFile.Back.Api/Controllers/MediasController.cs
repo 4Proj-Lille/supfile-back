@@ -76,7 +76,7 @@ public sealed class MediasController : BaseAuthController
         return ToOkActionResult(mediaModelResult);
     }
 
-    [HttpPatch("{id:int}/SoftDelete")]
+    [HttpDelete("{id:int}/SoftDelete")]
     public async Task<ActionResult<MediaModel>> SoftDelete(int id)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();

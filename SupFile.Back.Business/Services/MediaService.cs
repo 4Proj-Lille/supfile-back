@@ -168,6 +168,14 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         { ".pptx", "File" },
         { ".txt", "File" },
         { ".csv", "File" },
+        
+        { ".mp3", "Audio" },
+        { ".wav", "Audio" },
+        { ".ogg", "Audio" },
+        { ".flac", "Audio" },
+        { ".aac", "Audio" },
+        { ".m4a", "Audio" },
+        { ".wma", "Audio" },
     };
 
     public async Task<Result<Dictionary<string, int>>> GetStorageSizeByType(ApplicationUser currentUser)

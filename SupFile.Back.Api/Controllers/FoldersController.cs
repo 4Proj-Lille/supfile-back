@@ -76,7 +76,7 @@ public sealed class FoldersController : BaseAuthController
         return ToOkActionResult(folderModelResult);
     }
 
-    [HttpPatch("{id:int}/SoftDelete")]
+    [HttpDelete("{id:int}/SoftDelete")]
     public async Task<ActionResult<FolderModel>> SoftDelete(int id)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
