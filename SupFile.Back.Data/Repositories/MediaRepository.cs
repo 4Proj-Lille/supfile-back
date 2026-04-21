@@ -1,5 +1,6 @@
 using SupFile.Back.Core.Entities.Auth;
 using System.Linq.Dynamic.Core;
+using SupFile.Back.Core.Errors;
 
 namespace SupFile.Back.Data.Repositories;
 
@@ -53,5 +54,18 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     public async Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser user)
     {
         return await DeleteAllAsync(x => x.OwnerId == user.Id && !x.IsActive);
+    }
+
+    public async Task<Result<Media>> GetByUniqueIdAsync(Guid uniqueId)
+    {
+        var q = Query().Where(x => x.UniqueId == uniqueId );
+        
+        var media = await q.FirstOrDefaultAsync();
+        if (media == null)
+        {
+            return Result.Fail(MediaErrors.InvalidUniqueId(uniqueId.ToString()));
+        }
+        
+        return Result.Ok(media);
     }
 }

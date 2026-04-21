@@ -11,6 +11,8 @@ namespace SupFile.Back.Core.Interfaces.Repositories;
      Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser user);
      
      Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser user);
+     
+     Task<Result<Media>> GetByUniqueIdAsync(Guid uniqueId);
  }
  
  

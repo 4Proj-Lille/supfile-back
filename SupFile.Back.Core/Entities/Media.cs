@@ -76,6 +76,13 @@ public class Media : BaseEntity<Media, int>, IEntity<Media, int>
     /// </value>
     public int OwnerId { get; set; }
     
+    /// <summary>
+    ///     Gets or sets the property value representing column 'UniqueId'.
+    /// </summary>
+    /// <value>
+    ///     The property value representing column 'UniqueId'.
+    /// </value>
+    public Guid UniqueId { get; set; } = Guid.NewGuid();
     #endregion
     
     #region Generated Relationships

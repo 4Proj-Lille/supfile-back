@@ -404,5 +404,17 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("InvalidStorageSizeGroupBy_Detail", resourceCulture);
             }
         }
+        
+        public static string InvalidUniqueId_Title {
+            get {
+                return ResourceManager.GetString("InvalidUniqueId_Title", resourceCulture);
+            }
+        }
+        
+        public static string InvalidUniqueId_Detail {
+            get {
+                return ResourceManager.GetString("InvalidUniqueId_Detail", resourceCulture);
+            }
+        }
     }
 }

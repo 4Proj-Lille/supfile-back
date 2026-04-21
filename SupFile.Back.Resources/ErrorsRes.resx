@@ -198,4 +198,10 @@
   <data name="InvalidStorageSizeGroupBy_Detail" xml:space="preserve">
     <value>The type is not supported</value>
   </data>
+  <data name="InvalidUniqueId_Title" xml:space="preserve">
+    <value>Invalid unique id: {0}</value>
+  </data>
+  <data name="InvalidUniqueId_Detail" xml:space="preserve">
+    <value>Media with UniqueId {0} not found.</value>
+  </data>
 </root>

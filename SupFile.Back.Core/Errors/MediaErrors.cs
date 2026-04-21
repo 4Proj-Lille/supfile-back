@@ -13,4 +13,10 @@ public static class MediaErrors
             ErrorsRes.InvalidStorageSizeGroupBy_Title,
           ErrorsRes.InvalidStorageSizeGroupBy_Detail
         );
+    
+    public static CustomError InvalidUniqueId(string uniqueId) =>
+        CommonErrorHelper.BadRequest(
+            string.Format(ErrorsRes.InvalidUniqueId_Title, uniqueId),
+            string.Format(ErrorsRes.InvalidUniqueId_Detail, uniqueId)
+        );
 }

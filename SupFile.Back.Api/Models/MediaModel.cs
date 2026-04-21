@@ -17,4 +17,6 @@ public class MediaModel
     public int? FolderId { get; set; }
 
     public int OwnerId { get; set; }
+    
+    public Guid UniqueId { get; set; }
 }

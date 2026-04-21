@@ -25,10 +25,10 @@ public sealed class MediasController : BaseAuthController
         return ToOkActionResult(media);
     }
 
-    [HttpGet("{mediaId:int}/Download")]
-    public async Task<IActionResult> DownloadPicture(int mediaId)
+    [HttpGet("{mediaUniqueId:Guid}/Download")]
+    public async Task<IActionResult> DownloadPicture(Guid mediaUniqueId)
     {
-        var mediaFile = await _mediaService.DownloadPicture(mediaId);
+        var mediaFile = await _mediaService.DownloadPicture(mediaUniqueId);
 
         var file = mediaFile.Value.Item1;
         var contentType = mediaFile.Value.Item2;
@@ -38,10 +38,10 @@ public sealed class MediasController : BaseAuthController
     }
 
     [AllowAnonymous]
-    [HttpGet("{mediaId:int}/Preview")]
-    public async Task<IActionResult> PreviewPicture(int mediaId)
+    [HttpGet("{mediaUniqueId:Guid}/Preview")]
+    public async Task<IActionResult> PreviewPicture(Guid mediaUniqueId)
     {
-        var mediaFile = await _mediaService.DownloadPicture(mediaId);
+        var mediaFile = await _mediaService.DownloadPicture(mediaUniqueId);
 
         if (mediaFile.IsFailed)
             return NotFound();

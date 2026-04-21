@@ -194,9 +194,9 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return await Repository.DeleteAllSoftDeleted(currentUser);
     }
 
-    public async Task<Result<(byte[], string, string)>> DownloadPicture(int mediaId)
+    public async Task<Result<(byte[], string, string)>> DownloadPicture(Guid mediaUniqueId)
     {
-        var mediaResult = await Repository.GetByIdAsync<Media>(mediaId);
+        var mediaResult = await Repository.GetByUniqueIdAsync(mediaUniqueId);
         if (mediaResult.IsFailed) return mediaResult.ToResult();
 
         var fileResult = await _storageProvider.ReadAsync(mediaResult.Value.Name, mediaResult.Value.Extension);

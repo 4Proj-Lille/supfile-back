@@ -37,6 +37,9 @@
           <Generator>ResXFileCodeGenerator</Generator>
           <LastGenOutput>ErrorsRes.Designer.cs</LastGenOutput>
         </EmbeddedResource>
+        <EmbeddedResource Update="ErrorsRes.fr.resx">
+          <Generator>PublicResXFileCodeGenerator</Generator>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
