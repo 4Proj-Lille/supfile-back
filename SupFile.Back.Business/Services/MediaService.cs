@@ -1,3 +1,4 @@
+using System.Transactions;
 using Microsoft.AspNetCore.StaticFiles;
 using SupFile.Back.Core.Enums;
 using SupFile.Back.Storage.Interfaces;
@@ -19,6 +20,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
     public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null)
     {
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         var name = Path.GetFileNameWithoutExtension(file.FileName);
         var extension = Path.GetExtension(file.FileName);
 
@@ -44,6 +46,8 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         {
             return Result.Fail(addMedia.Errors);
         }
+        
+        scope.Complete();
 
         return addMedia;
     }
