@@ -93,7 +93,7 @@ public sealed class MediasController : BaseAuthController
 
         return ToOkActionResult(storage);
     }
-    
+
     [HttpGet("RecentlyModified")]
     public async Task<ActionResult<List<MediaModel>>> GetRecentlyModified()
     {
@@ -101,4 +101,5 @@ public sealed class MediasController : BaseAuthController
         var mediaResult = await _mediaService.GetRecentlyModified<MediaModel>(currentUser);
 
         return ToOkActionResult(mediaResult);
+    }
 }
