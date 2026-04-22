@@ -118,22 +118,4 @@ public class FileStorageProvider : IStorageProvider
 
         return filePath;
     }
-    
-    public async Task<Result> RenameAsync(string oldName, string newName, string extension)
-    {
-        var oldFilePathResult = GetPhysicalPath(oldName, extension);
-        if (oldFilePathResult.IsFailed) return oldFilePathResult.ToResult();
-
-        var newFilePathResult = GetPhysicalPath(newName, extension);
-        if (newFilePathResult.IsSuccess)
-        {
-            return Result.Fail(FileErrors.AlreadyExists(newName, extension));
-        }
-
-        var oldFilePath = oldFilePathResult.Value;
-        var newFilePath = Path.Combine(Path.GetDirectoryName(oldFilePath)!, $"{newName}{extension}");
-
-        File.Move(oldFilePath, newFilePath);
-        return Result.Ok();
-    }
 }

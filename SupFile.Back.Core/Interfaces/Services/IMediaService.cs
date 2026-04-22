@@ -25,7 +25,7 @@ public interface IMediaService : IBaseService<Media, int>
     
     Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser currentUser);
 
-    Task<Result<(byte[], string, string)>> DownloadPicture(Guid mediaUniqueId);
+    Task<Result<(byte[], string, string)>> DownloadPicture(Guid mediaUniqueId, bool preview = false);
     
     Task<Result<Media>> SoftDeleteAsync(ApplicationUser currentUser, int id);
     

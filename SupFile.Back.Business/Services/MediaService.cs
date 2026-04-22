@@ -27,8 +27,6 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         await stream.CopyToAsync(ms);
         var bytes = ms.ToArray();
 
-        await _storageProvider.WriteAsync(name, extension, bytes);
-
         Media entity = new()
         {
             Name = name,
@@ -37,6 +35,8 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             FolderId = folderId,
             OwnerId = currentUser.Id,
         };
+
+        await _storageProvider.WriteAsync(entity.UniqueId.ToString(), extension, bytes);
 
         var addMedia = await AddAsync(entity);
 
@@ -95,11 +95,6 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         if (media.OwnerId != currentUser.Id)
         {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
-        }
-
-        if (!string.IsNullOrEmpty(entity.Name) && entity.Name != media.Name)
-        {
-            await _storageProvider.RenameAsync(media.Name, entity.Name, media.Extension);
         }
 
         foreach (var prop in typeof(Media).GetProperties())
@@ -203,20 +198,24 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return await Repository.DeleteAllSoftDeleted(currentUser);
     }
 
-    public async Task<Result<(byte[], string, string)>> DownloadPicture(Guid mediaUniqueId)
+    public async Task<Result<(byte[], string, string)>> DownloadPicture(Guid mediaUniqueId, bool preview = false)
     {
         var mediaResult = await Repository.GetByUniqueIdAsync(mediaUniqueId);
         if (mediaResult.IsFailed) return mediaResult.ToResult();
 
-        var fileResult = await _storageProvider.ReadAsync(mediaResult.Value.Name, mediaResult.Value.Extension);
+        var fileResult = await _storageProvider.ReadAsync(mediaResult.Value.UniqueId.ToString(), mediaResult.Value.Extension);
         if (fileResult.IsFailed) return fileResult.ToResult();
 
         var provider = new FileExtensionContentTypeProvider();
-        if (!provider.TryGetContentType($"{mediaResult.Value.Name}{mediaResult.Value.Extension}", out var contentType))
+        if (!provider.TryGetContentType($"{mediaResult.Value.UniqueId.ToString()}{mediaResult.Value.Extension}", out var contentType))
         {
             contentType = "application/octet-stream";
         }
 
+        if (preview)
+        {
+            return Result.Ok((fileResult.Value, contentType, $"{mediaResult.Value.UniqueId.ToString()}{mediaResult.Value.Extension}"));
+        }
         return Result.Ok((fileResult.Value, contentType, $"{mediaResult.Value.Name}{mediaResult.Value.Extension}"));
     }
 

@@ -26,11 +26,12 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         return users;
     }
     
-    private static readonly HashSet<string> s_excludedProps =
+    private static readonly HashSet<string> s_includeProps =
     [
-        nameof(ApplicationUser.ConcurrencyStamp),
-        "RowVersion",
-        nameof(ApplicationUser.Id)
+        nameof(ApplicationUser.Theme),
+        nameof(ApplicationUser.Language),
+        nameof(ApplicationUser.DisplayName),
+        nameof(ApplicationUser.ProfilePictureId),
     ];
     
     public async Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser)
@@ -50,7 +51,7 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         
         foreach (var prop in typeof(ApplicationUser).GetProperties())
         {
-            if (s_excludedProps.Contains(prop.Name))
+            if (!s_includeProps.Contains(prop.Name))
                 continue;
             
             if (!ScalarTypeHelper.IsScalarProperty(prop))

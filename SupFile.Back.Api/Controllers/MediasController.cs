@@ -41,7 +41,7 @@ public sealed class MediasController : BaseAuthController
     [HttpGet("{mediaUniqueId:Guid}/Preview")]
     public async Task<IActionResult> PreviewPicture(Guid mediaUniqueId)
     {
-        var mediaFile = await _mediaService.DownloadPicture(mediaUniqueId);
+        var mediaFile = await _mediaService.DownloadPicture(mediaUniqueId, true);
 
         if (mediaFile.IsFailed)
             return NotFound();
