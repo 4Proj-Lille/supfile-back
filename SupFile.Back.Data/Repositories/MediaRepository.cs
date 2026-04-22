@@ -75,7 +75,8 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     public async Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser user)
     {
         var q = Query().Where(x => x.OwnerId == user.Id)
-            .OrderByDescending(x => x.UpdatedDate);
+            .OrderByDescending(x => x.UpdatedDate)
+            .Take(10);;
 
         var result = await q.FindListAsync<TMapped>("", "UpdatedDate desc");
         return Result.Ok(result);
