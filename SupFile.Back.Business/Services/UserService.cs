@@ -25,5 +25,83 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         var users = await Repository.GetAllUsersAsync<TMapped>(currentUser.Id, pageNumber, pageSize);
         return users;
     }
+    
+    public async Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser)
+    {
+        if (currentUser.Id != userId)
+        {
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
+        }
+        var result = await Repository.UpdateAsync(userId, entity);
+        return result;
+    }
+    
+    public async Task<Result<ApplicationUser>> UpdatePasswordAsync(int userId, string currentPassword,
+        string newPassword, string confirmNewPassword, ApplicationUser currentUser)
+    {
+        if (currentUser.Id != userId)
+        {
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
+        }
+
+        if (newPassword != confirmNewPassword)
+        {
+            return Result.Fail(UserErrors.PasswordDoesntMatch());
+        }
+
+        var userResult = await Repository.GetByIdAsync<ApplicationUser>(userId);
+        if (userResult.IsFailed || userResult.Value == null)
+        {
+            return Result.Fail(AuthErrors.UserNotFound());
+        }
+
+        var user = userResult.Value;
+        
+        var passwordCheck = await _userManager.CheckPasswordAsync(user, currentPassword);
+        if (!passwordCheck)
+        {
+            return Result.Fail(UserErrors.IncorrectPassword());
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        if (result.Succeeded)
+        {
+            return Result.Ok(user);
+        }
+
+        return Result.Fail(result.Errors.Select(e => e.Description).ToList());
+    }
+
+    public async Task<Result> DeleteUserAsync(ApplicationUser currentUser, int userId)
+    {
+        var userResult = await Repository.GetUserById<ApplicationUser>(userId);
+        if (userResult.IsFailed || userResult.Value == null)
+        {
+            return Result.Fail(AuthErrors.UserNotFound());
+        }
+
+        var user = userResult.Value;
+        
+        if (currentUser.Id != userId)
+        {
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
+        }
+        
+        var result = await Repository.DeleteUserAsync(user);
+        if (result.IsFailed)
+        {
+            return Result.Fail(result.Errors);
+        }
+
+        var aspNetUser = await _userManager.FindByIdAsync(user.Id.ToString());
+        if (aspNetUser == null)
+        {
+            return Result.Fail(UserErrors.AspNetUserNotFound());
+        }
+
+        await _userManager.DeleteAsync(aspNetUser);
+
+        return Result.Ok();
+    }
 
 }

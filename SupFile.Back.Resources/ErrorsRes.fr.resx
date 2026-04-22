@@ -197,4 +197,28 @@
   <data name="InvalidUniqueId_Detail" xml:space="preserve">
     <value>Le média avec le UniqueId {0} est introuvable.</value>
   </data>
+  <data name="PasswordDoesntMatch_Detail" xml:space="preserve">
+    <value>Le nouveau mot de passe et le mot de passe de confirmation ne correspondent pas.</value>
+  </data>
+  <data name="PasswordDoesntMatch_Title" xml:space="preserve">
+    <value>Les mots de passe ne correspondent pas</value>
+  </data>
+  <data name="IncorrectPassword_Detail" xml:space="preserve">
+    <value>Le mot de passe saisi est incorrect.</value>
+  </data>
+  <data name="IncorrectPassword_Title" xml:space="preserve">
+    <value>Mot de passe incorrect</value>
+  </data>
+  <data name="AspNetUserNotFound_Detail" xml:space="preserve">
+    <value>L'AspNetUser est introuvable</value>
+  </data>
+  <data name="AspNetUserNotFound_Title" xml:space="preserve">
+    <value>L'AspNetUser est introuvable</value>
+  </data>
+  <data name="CannotAddInSoftDeleted_Detail" xml:space="preserve">
+    <value>Impossible d'ajouter un dossier à un dossier supprimé.</value>
+  </data>
+  <data name="CannotAddInSoftDeleted_Title" xml:space="preserve">
+    <value>Erreur lors de l'ajout d'un dossier</value>
+  </data>
 </root>

@@ -416,5 +416,53 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("InvalidUniqueId_Detail", resourceCulture);
             }
         }
+        
+        public static string IncorrectPassword_Title {
+            get {
+                return ResourceManager.GetString("IncorrectPassword_Title", resourceCulture);
+            }
+        }
+        
+        public static string IncorrectPassword_Detail {
+            get {
+                return ResourceManager.GetString("IncorrectPassword_Detail", resourceCulture);
+            }
+        }
+        
+        public static string PasswordDoesntMatch_Title {
+            get {
+                return ResourceManager.GetString("PasswordDoesntMatch_Title", resourceCulture);
+            }
+        }
+        
+        public static string PasswordDoesntMatch_Detail {
+            get {
+                return ResourceManager.GetString("PasswordDoesntMatch_Detail", resourceCulture);
+            }
+        }
+        
+        public static string AspNetUserNotFound_Title {
+            get {
+                return ResourceManager.GetString("AspNetUserNotFound_Title", resourceCulture);
+            }
+        }
+        
+        public static string AspNetUserNotFound_Detail {
+            get {
+                return ResourceManager.GetString("AspNetUserNotFound_Detail", resourceCulture);
+            }
+        }
+        
+        public static string CannotAddInSoftDeleted_Title {
+            get {
+                return ResourceManager.GetString("CannotAddInSoftDeleted_Title", resourceCulture);
+            }
+        }
+        
+        public static string CannotAddInSoftDeleted_Detail {
+            get {
+                return ResourceManager.GetString("CannotAddInSoftDeleted_Detail", resourceCulture);
+            }
+        }
     }
 }

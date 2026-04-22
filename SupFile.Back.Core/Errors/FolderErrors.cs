@@ -13,4 +13,10 @@ public static class FolderErrors
             ErrorsRes.ParentFolderNotOwnedByUser_Title,
             ErrorsRes.ParentFolderNotOwnedByUser_Detail
         );
+    
+    public static CustomError CannotAddInSoftDeleted() =>
+        CommonErrorHelper.Forbidden(
+            ErrorsRes.CannotAddInSoftDeleted_Title,
+            ErrorsRes.CannotAddInSoftDeleted_Detail
+        );
 }

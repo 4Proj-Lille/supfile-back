@@ -204,4 +204,28 @@
   <data name="InvalidUniqueId_Detail" xml:space="preserve">
     <value>Media with UniqueId {0} not found.</value>
   </data>
+  <data name="IncorrectPassword_Title" xml:space="preserve">
+    <value>Incorrect Password</value>
+  </data>
+  <data name="IncorrectPassword_Detail" xml:space="preserve">
+    <value>The current password is incorrect.</value>
+  </data>
+  <data name="PasswordDoesntMatch_Title" xml:space="preserve">
+    <value>Passwords Doesn't Match</value>
+  </data>
+  <data name="PasswordDoesntMatch_Detail" xml:space="preserve">
+    <value>The new password and confirm password do not match.</value>
+  </data>
+  <data name="AspNetUserNotFound_Title" xml:space="preserve">
+    <value>The AspNetUser not found</value>
+  </data>
+  <data name="AspNetUserNotFound_Detail" xml:space="preserve">
+    <value>The AspNetUser not found</value>
+  </data>
+  <data name="CannotAddInSoftDeleted_Title" xml:space="preserve">
+    <value>Add Folder Error</value>
+  </data>
+  <data name="CannotAddInSoftDeleted_Detail" xml:space="preserve">
+    <value>Cannot add folder to a soft-deleted parent folder.</value>
+  </data>
 </root>

@@ -22,44 +22,41 @@ public class UsersController : BaseAuthController
         return ToOkActionResult(users);
     }
 
-    // [HttpPatch("{userId:int}")]
-    // public async Task<ActionResult<ApplicationUserModel>> Patch(int userId, [FromBody] UserPatchModel model)
-    // {
-    //     var currentUser = await GetAuthenticatedAppUserAsync();
-    //     var entity = model.Adapt<ApplicationUser>();
-    //
-    //     var userResult = await _userService.UpdateAsync(userId, entity, currentUser);
-    //     if (userResult.IsFailed)
-    //     {
-    //         return ToOkActionResult(Result.Fail(userResult.Errors));
-    //     }
-    //
-    //     var userModel = userResult.Value.Adapt<ApplicationUserModel>();
-    //     return ToOkActionResult(Result.Ok(userModel));
-    // }
+    [HttpPatch("{userId:int}")]
+    public async Task<ActionResult<ApplicationUserModel>> Patch(int userId, [FromBody] UserPatchModel model)
+    {
+         var currentUser = await GetAuthenticatedAppUserAsync();
+         var entity = model.Adapt<ApplicationUser>();
+    
+         var userResult = await _userService.UpdateAsync(userId, entity, currentUser);
+         if (userResult.IsFailed)
+         {
+             return ToErrorActionResult(userResult.ToResult());
+         }
+         var userModel = userResult.Value.Adapt<ApplicationUserModel>();
+         return ToOkActionResult(Result.Ok(userModel));
+    }
 
-    // [HttpPatch("{userId:int}/Password")]
-    // public async Task<ActionResult<ApplicationUserModel>> Patch(int userId,
-    //     [FromBody] PasswordPatchModel model)
-    // {
-    //     var currentUser = await GetAuthenticatedAppUserAsync();
-    //     var userResult =
-    //         await _userService.UpdatePasswordAsync(userId, model.CurrentPassword, model.NewPassword,
-    //             model.ConfirmNewPassword, currentUser);
-    //     if (userResult.IsFailed)
-    //     {
-    //         return ToOkActionResult(Result.Fail(userResult.Errors));
-    //     }
-    //
-    //     var userModel = userResult.Value.Adapt<ApplicationUserModel>();
-    //     return ToOkActionResult(Result.Ok(userModel));
-    // }
+    [HttpPatch("{userId:int}/Password")]
+    public async Task<ActionResult<ApplicationUserModel>> Patch(int userId,
+         [FromBody] PasswordPatchModel model)
+    { 
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var userResult = await _userService.UpdatePasswordAsync(userId, model.CurrentPassword, model.NewPassword, model.ConfirmNewPassword, currentUser);
+        if (userResult.IsFailed) 
+        {
+            return ToErrorActionResult(userResult.ToResult());
+        }
+        
+        var userModel = userResult.Value.Adapt<ApplicationUserModel>(); 
+        return ToOkActionResult(Result.Ok(userModel));
+    }
 
-    // [HttpDelete("{userId:int}")]
-    // public async Task<ActionResult> DeleteUser(int userId)
-    // {
-    //     var currentUser = await GetAuthenticatedAppUserAsync();
-    //     var result = await _userService.DeleteUserAsync(currentUser, userId);
-    //     return ToOkActionResult(result);
-    // }
+    [HttpDelete("{userId:int}")]
+    public async Task<ActionResult> DeleteUser(int userId)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var result = await _userService.DeleteUserAsync(currentUser, userId);
+        return ToNoContentActionResult(result);
+    }
 }
