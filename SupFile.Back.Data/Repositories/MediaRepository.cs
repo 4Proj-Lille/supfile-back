@@ -77,7 +77,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
         var q = Query().Where(x => x.OwnerId == user.Id)
             .OrderByDescending(x => x.UpdatedDate);
 
-        var result = await q.FindListAsync<TMapped>("", "UpdatedAt desc");
+        var result = await q.FindListAsync<TMapped>("", "UpdatedDate desc");
         return Result.Ok(result);
     }
 }
