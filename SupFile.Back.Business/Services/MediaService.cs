@@ -260,4 +260,9 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         return updateMedia;
     }
+    
+    public async Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser currentUser)
+    {
+        return await Repository.GetRecentlyModified<TMapped>(currentUser);
+    }
 }

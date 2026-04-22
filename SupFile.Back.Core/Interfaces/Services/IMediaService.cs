@@ -30,4 +30,6 @@ public interface IMediaService : IBaseService<Media, int>
     Task<Result<Media>> SoftDeleteAsync(ApplicationUser currentUser, int id);
     
     Task<Result<Media>> RestoreAsync(ApplicationUser currentUser, int id);
+    
+    Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser currentUser);
 }

@@ -71,4 +71,13 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
         
         return Result.Ok(media);
     }
+    
+    public async Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser user)
+    {
+        var q = Query().Where(x => x.OwnerId == user.Id)
+            .OrderByDescending(x => x.UpdatedDate);
+
+        var result = await q.FindListAsync<TMapped>("", "UpdatedAt desc");
+        return Result.Ok(result);
+    }
 }

@@ -93,4 +93,12 @@ public sealed class MediasController : BaseAuthController
 
         return ToOkActionResult(storage);
     }
+    
+    [HttpGet("RecentlyModified")]
+    public async Task<ActionResult<List<MediaModel>>> GetRecentlyModified()
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var mediaResult = await _mediaService.GetRecentlyModified<MediaModel>(currentUser);
+
+        return ToOkActionResult(mediaResult);
 }
