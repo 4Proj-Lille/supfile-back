@@ -84,4 +84,20 @@ public sealed class FoldersController : BaseAuthController
         var folderModelResult = deletedResult.Map(m => m.Adapt<FolderModel>());
         return ToOkActionResult(folderModelResult);
     }
+    
+    [HttpGet("{folderId:int}/Download")]
+    public async Task<IActionResult> DownloadFolder(int folderId)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var result = await _folderService.DownloadFolderAsync(folderId, currentUser);
+        if (result.IsFailed)
+        {
+            return ToErrorActionResult(result.ToResult());
+        }
+        
+        var folderName = result.Value.Item1;
+        var content = result.Value.Item2;
+
+        return File(content, "application/zip", $"{folderName}.zip");
+    }
 }

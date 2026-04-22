@@ -1,13 +1,19 @@
+using SupFile.Back.Storage.Interfaces;
+
 namespace SupFile.Back.Business.Services;
 
 public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolderService
 {
     private readonly IMediaService _mediaService;
+    private readonly IStorageProvider _storageProvider;
 
-    public FolderService(ILogger<FolderService> logger, IFolderRepository repository, IMediaService mediaService) :
+
+    public FolderService(ILogger<FolderService> logger, IFolderRepository repository, IMediaService mediaService, IStorageProvider storageProvider
+    ) :
         base(logger, repository)
     {
         _mediaService = mediaService;
+        _storageProvider = storageProvider;
     }
 
     public async Task<Result<Folder>> AddOneAsync(ApplicationUser currentUser, Folder entity)
@@ -159,5 +165,33 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         folder.IsActive = true;
         
         return await UpdateAsync(id, folder);
+    }
+    
+    public async Task<Result<Tuple<string,byte[]>>> DownloadFolderAsync(int folderId, ApplicationUser currentUser)
+    {
+        var folderResult = await Repository.GetByIdAsync<Folder>(folderId);
+        if (folderResult.IsFailed) return folderResult.ToResult();
+        
+        var mediasResult = await _mediaService.GetFolderContents<Media>(currentUser, folderId, "id");
+        if (mediasResult.IsFailed) return mediasResult.ToResult();
+
+        using var ms = new MemoryStream();
+        await using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            foreach (var media in mediasResult.Value)
+            {
+                var fileResult = await _storageProvider.ReadAsync(
+                    media.UniqueId.ToString(), 
+                    media.Extension
+                );
+                if (fileResult.IsFailed) continue;
+
+                var entry = archive.CreateEntry($"{media.Name}{media.Extension}", CompressionLevel.Fastest);
+                await using var entryStream = entry.Open();
+                await entryStream.WriteAsync(fileResult.Value);
+            }
+        }
+        var tuple = Tuple.Create(folderResult.Value.Name, ms.ToArray());
+        return Result.Ok(tuple);
     }
 }

@@ -21,4 +21,5 @@ public interface IFolderService : IBaseService<Folder, int>
     
     Task<Result<Folder>> RestoreAsync(ApplicationUser currentUser, int id);
 
+    Task<Result<Tuple<string,byte[]>>> DownloadFolderAsync(int folderId, ApplicationUser currentUser);
 }
