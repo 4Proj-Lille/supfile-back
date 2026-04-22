@@ -26,13 +26,46 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         return users;
     }
     
+    private static readonly HashSet<string> s_excludedProps =
+    [
+        nameof(ApplicationUser.ConcurrencyStamp),
+        "RowVersion",
+        nameof(ApplicationUser.Id)
+    ];
+    
     public async Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser)
     {
         if (currentUser.Id != userId)
         {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
         }
-        var result = await Repository.UpdateAsync(userId, entity);
+        
+        var userResult = await Repository.GetByIdAsync<ApplicationUser>(userId);
+        if (userResult.IsFailed || userResult.Value == null)
+        {
+            return Result.Fail(AuthErrors.UserNotFound());
+        }
+
+        var user = userResult.Value;
+        
+        foreach (var prop in typeof(ApplicationUser).GetProperties())
+        {
+            if (s_excludedProps.Contains(prop.Name))
+                continue;
+            
+            if (!ScalarTypeHelper.IsScalarProperty(prop))
+            {
+                continue;
+            }
+
+            var value = prop.GetValue(entity);
+            if (value != null)
+            {
+                prop.SetValue(user, value);
+            }
+        }
+        
+        var result = await Repository.UpdateAsync(userId, user);
         return result;
     }
     

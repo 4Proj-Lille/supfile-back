@@ -8,6 +8,8 @@ public class UserPatchModel
     public UserLanguage Language { get; set; }
     
     public string? PhoneNumber { get; set; }
+    
+    public UserTheme Theme { get; set; }
 
     public Guid? ProfilePictureId { get; set; }
 }

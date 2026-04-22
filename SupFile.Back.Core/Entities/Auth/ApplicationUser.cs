@@ -30,10 +30,13 @@ public class ApplicationUser : IdentityUser<int>, IEntity<ApplicationUser, int>
     /// </value>
     public DateTime? RefreshTokenExpiresAtUtc { get; set; }
     
-    public UserLanguage Language {get; set;}
+    public UserLanguage Language {get; set;} = UserLanguage.English;
     
     public string DisplayName { get; set; }
+
+    public UserTheme Theme { get; set; } = UserTheme.Light;
     
+    public Guid? ProfilePictureId { get; set; }
     
     #region Generated Relationships
 

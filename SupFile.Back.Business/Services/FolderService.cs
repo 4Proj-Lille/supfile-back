@@ -27,8 +27,6 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         if (parentFolderResult.Value.IsActive == false)
         {
             return Result.Fail(FolderErrors.CannotAddInSoftDeleted());
-
-            return Result.Fail("Cannot add folder to a soft-deleted parent folder.");
         }
         
         var parentFolder = parentFolderResult.Value;
