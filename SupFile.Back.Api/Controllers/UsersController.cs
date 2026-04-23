@@ -23,12 +23,11 @@ public class UsersController : BaseAuthController
     }
 
     [HttpPatch("{userId:int}")]
-    public async Task<ActionResult<ApplicationUserModel>> Patch(int userId, [FromBody] UserPatchModel model)
-    {
+    public async Task<ActionResult<ApplicationUserModel>> Patch(int userId, [FromForm] UserPatchModel model, IFormFile? profilePicture = null)    {
          var currentUser = await GetAuthenticatedAppUserAsync();
          var entity = model.Adapt<ApplicationUser>();
     
-         var userResult = await _userService.UpdateAsync(userId, entity, currentUser);
+         var userResult = await _userService.UpdateAsync(userId, entity, currentUser, profilePicture);
          if (userResult.IsFailed)
          {
              return ToErrorActionResult(userResult.ToResult());

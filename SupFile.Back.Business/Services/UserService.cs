@@ -1,14 +1,18 @@
+using System.Transactions;
+
 namespace SupFile.Back.Business.Services;
 
 public class UserService : BaseService<ApplicationUser, int, IUserRepository>, IUserService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IMediaService _mediaService;
 
-    public UserService(ILogger<UserService> logger, IUserRepository repository,
+    public UserService(ILogger<UserService> logger, IUserRepository repository, IMediaService mediaService,
          UserManager<ApplicationUser> userManager) :
         base(logger, repository)
     {
         _userManager = userManager;
+        _mediaService = mediaService;
     }
     
     public async Task<Result<ApplicationUser>> AddUser(ApplicationUser user)
@@ -31,10 +35,9 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         nameof(ApplicationUser.Theme),
         nameof(ApplicationUser.Language),
         nameof(ApplicationUser.DisplayName),
-        nameof(ApplicationUser.ProfilePictureId),
     ];
     
-    public async Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser)
+    public async Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser, IFormFile? profilePicture)
     {
         if (currentUser.Id != userId)
         {
@@ -65,8 +68,27 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
                 prop.SetValue(user, value);
             }
         }
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        
+        if (profilePicture != null && MediaTypeHelper.Resolve(Path.GetExtension(profilePicture.FileName)) == "Picture")
+        {
+            var mediaResult = await _mediaService.AddOneAsync(user, profilePicture);
+            if (mediaResult.IsFailed)
+            {
+                return Result.Fail(mediaResult.Errors);
+            }
+
+            user.ProfilePictureId = mediaResult.Value.UniqueId;
+        }
         
         var result = await Repository.UpdateAsync(userId, user);
+        if (result.IsFailed)
+        {
+            return Result.Fail(result.Errors);
+        }
+        
+        scope.Complete();
+
         return result;
     }
     

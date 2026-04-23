@@ -6,7 +6,7 @@ public interface IUserService : IBaseService<ApplicationUser, int>
 
     Task<Result<List<TMapped>>> GetAllUsersAsync<TMapped>(ApplicationUser currentUser, int pageNumber, int pageSize);
     
-    Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser);
+    Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser, IFormFile? profilePicture);
     
     Task<Result<ApplicationUser>> UpdatePasswordAsync(int userId, string currentPassword, string newPassword, string confirmNewPassword, ApplicationUser currentUser);
     
