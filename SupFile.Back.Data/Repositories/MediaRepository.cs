@@ -72,7 +72,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     
     public async Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser user)
     {
-        var q = Query().Where(x => x.OwnerId == user.Id)
+        var q = Query().Where(x => x.OwnerId == user.Id && x.IsActive)
             .OrderByDescending(x => x.UpdatedDate)
             .Take(10);
 
