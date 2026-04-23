@@ -10,7 +10,8 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     {
     }
 
-    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? folderId, string filter)
+    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? folderId,
+        string filter)
     {
         var q = Query().Where(x =>
             x.OwnerId == user.Id && x.FolderId == folderId && x.IsActive
@@ -59,17 +60,17 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
 
     public async Task<Result<Media>> GetByUniqueIdAsync(Guid uniqueId)
     {
-        var q = Query().Where(x => x.UniqueId == uniqueId );
-        
+        var q = Query().Where(x => x.UniqueId == uniqueId);
+
         var media = await q.FirstOrDefaultAsync();
         if (media == null)
         {
             return Result.Fail(MediaErrors.InvalidUniqueId(uniqueId.ToString()));
         }
-        
+
         return Result.Ok(media);
     }
-    
+
     public async Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser user)
     {
         var q = Query().Where(x => x.OwnerId == user.Id && x.IsActive)
@@ -79,7 +80,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
         var result = await q.FindListAsync<TMapped>("", "UpdatedDate desc");
         return Result.Ok(result);
     }
-    
+
     public async Task<Result<int>> GetTotalMediaByType(ApplicationUser currentUser, string filter)
     {
         var q = Query().Where(x => x.OwnerId == currentUser.Id);
@@ -89,5 +90,23 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
 
         var count = await q.CountAsync();
         return Result.Ok(count);
+    }
+
+    public async Task<Result<int>> SoftDeleteByFolderIdAsync(List<int> folderIds)
+    {
+        var q = Query().Where(x => x.FolderId.HasValue && folderIds.Contains(x.FolderId.Value) && x.IsActive);
+
+        var affected = await q.ExecuteUpdateAsync(x => x.SetProperty(m => m.IsActive, false));
+
+        return affected;
+    }
+    
+    public async Task<Result<int>> RestoreByFolderIdsAsync(List<int> folderIds)
+    {
+        var affected = await Query()
+            .Where(x => x.FolderId.HasValue && folderIds.Contains(x.FolderId.Value) && !x.IsActive)
+            .ExecuteUpdateAsync(x => x.SetProperty(m => m.IsActive, true));
+
+        return affected;
     }
 }

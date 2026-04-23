@@ -10,15 +10,16 @@ namespace SupFile.Back.Business.Services;
 public class BinService : IBinService
 {
     private readonly IMediaService _mediaService;
+    private readonly IMediaRepository _mediaRepository;
     private readonly IFolderService _folderService;
 
     public BinService(
         IMediaService mediaService,
-        IFolderService folderService
-    )
+        IFolderService folderService, IMediaRepository mediaRepository)
     {
         _mediaService = mediaService;
         _folderService = folderService;
+        _mediaRepository = mediaRepository;
     }
 
     public async Task<Result> RestoreAsync(int id, ApplicationUser currentUser, BinType type)
@@ -27,39 +28,44 @@ public class BinService : IBinService
         {
             case BinType.Media:
                 {
-                    var restoredMedia= await _mediaService.RestoreAsync(currentUser, id);
-                    if (restoredMedia.IsSuccess && restoredMedia.Value != null && restoredMedia.Value.FolderId.HasValue)
+                    var restoredMedia = await _mediaService.RestoreAsync(currentUser, id);
+                    if (restoredMedia is not { IsSuccess: true, Value.FolderId: not null })
                     {
-                        var folder = await _folderService.GetByIdAsync<Folder>(restoredMedia.Value.FolderId.Value);
-                        if (folder.IsFailed || folder.Value == null || folder.Value.IsActive == false){
-                            restoredMedia.Value.FolderId = null;
-                        }
-                    
+                        return restoredMedia.ToResult();
                     }
+
+                    var folder = await _folderService.GetByIdAsync<Folder>(restoredMedia.Value.FolderId.Value);
+                    if (folder.IsFailed || folder.Value == null || folder.Value.IsActive == false)
+                    {
+                        restoredMedia.Value.FolderId = null;
+                    }
+
                     return restoredMedia.ToResult();
                 }
             case BinType.Folder:
                 {
                     var restoredFolder = await _folderService.RestoreAsync(currentUser, id);
-                    if (restoredFolder.IsSuccess && restoredFolder.Value != null)
-                    {
-                        var parentFolderId = restoredFolder.Value.ParentId;
-                        if (parentFolderId.HasValue)
-                        {
-                            var parentFolder = await _folderService.GetByIdAsync<Folder>(parentFolderId.Value);
-                            if (parentFolder.IsFailed || parentFolder.Value == null || parentFolder.Value.IsActive == false)
-                            {
-                                restoredFolder.Value.ParentId = null;
-                            }
-                        }
-                    }
+                    if (restoredFolder is not { IsSuccess: true, Value: not null })
+                        return restoredFolder.ToResult();
+
+                    var chainResult = await _folderService.RestoreChainAsync(currentUser, id);
+                    if (chainResult.IsSuccess) await _mediaRepository.RestoreByFolderIdsAsync(chainResult.Value);
+
+                    var parentFolderId = restoredFolder.Value.ParentId;
+                    if (!parentFolderId.HasValue)
+                        return restoredFolder.ToResult();
+
+                    var parentFolder = await _folderService.GetByIdAsync<Folder>(parentFolderId.Value);
+                    if (parentFolder.IsFailed || parentFolder.Value == null || parentFolder.Value.IsActive == false)
+                        restoredFolder.Value.ParentId = null;
+
                     return restoredFolder.ToResult();
                 }
             default:
                 return Result.Fail(BinErrors.InvalidTypeProvided());
         }
     }
-    
+
     public async Task<Result> DeleteOneAsync(int id, ApplicationUser currentUser, BinType type)
     {
         switch (type)
@@ -71,6 +77,7 @@ public class BinService : IBinService
                     {
                         return Result.Ok();
                     }
+
                     return Result.Fail(BinErrors.NoMediaFound());
                 }
             case BinType.Folder:
@@ -80,13 +87,14 @@ public class BinService : IBinService
                     {
                         return Result.Ok();
                     }
+
                     return Result.Fail(BinErrors.NoFolderFound());
                 }
             default:
                 return Result.Fail(BinErrors.InvalidTypeProvided());
         }
     }
-    
+
     public async Task<Result> EmptyBinAsync(ApplicationUser currentUser)
     {
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -101,25 +109,28 @@ public class BinService : IBinService
 
         scope.Complete();
         return Result.Ok();
-
     }
-    
-    public async Task<Result<Tuple<List<Folder>,List<Media>>>>GetBinItemsAsync(ApplicationUser currentUser, BinType? type = null)
+
+    public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetBinItemsAsync(ApplicationUser currentUser,
+        BinType? type = null)
     {
         var mediaResult = new Result<List<Media>>();
         var folderResult = new Result<List<Folder>>();
-        if (type is BinType.Media or null){
+        if (type is BinType.Media or null)
+        {
             mediaResult = await _mediaService.GetSoftDeleted<Media>(currentUser);
         }
-        if (type is BinType.Folder or null){
-             folderResult = await _folderService.GetSoftDeleted<Folder>(currentUser);
+
+        if (type is BinType.Folder or null)
+        {
+            folderResult = await _folderService.GetSoftDeleted<Folder>(currentUser);
         }
-        
+
         if (mediaResult.IsSuccess && folderResult.IsSuccess)
         {
             return Tuple.Create(folderResult.Value, mediaResult.Value);
         }
-        
-        return Result.Fail<Tuple<List<Folder>,List<Media>>>(BinErrors.BinItem());
+
+        return Result.Fail<Tuple<List<Folder>, List<Media>>>(BinErrors.BinItem());
     }
 }
