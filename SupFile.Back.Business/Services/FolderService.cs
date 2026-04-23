@@ -172,6 +172,10 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         var folderResult = await Repository.GetByIdAsync<Folder>(folderId);
         if (folderResult.IsFailed) return folderResult.ToResult();
 
+        if (!folderResult.Value.IsActive)
+        {
+            return Result.Fail(FolderErrors.CannotDownloadSoftDeleted());
+        }
         using var ms = new MemoryStream();
         await using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
         {

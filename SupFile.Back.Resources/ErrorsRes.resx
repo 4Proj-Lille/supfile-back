@@ -228,4 +228,10 @@
   <data name="CannotAddInSoftDeleted_Detail" xml:space="preserve">
     <value>Cannot add folder to a soft-deleted parent folder.</value>
   </data>
+  <data name="CannotDownloadSoftDeleted_Title" xml:space="preserve">
+    <value>Download Error</value>
+  </data>
+  <data name="CannotDownloadSoftDeleted_Detail" xml:space="preserve">
+    <value>You cannot download soft deleted folder</value>
+  </data>
 </root>

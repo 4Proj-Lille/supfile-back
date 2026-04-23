@@ -19,4 +19,10 @@ public static class FolderErrors
             ErrorsRes.CannotAddInSoftDeleted_Title,
             ErrorsRes.CannotAddInSoftDeleted_Detail
         );
+    
+    public static CustomError CannotDownloadSoftDeleted() =>
+        CommonErrorHelper.Forbidden(
+            ErrorsRes.CannotDownloadSoftDeleted_Title,
+            ErrorsRes.CannotDownloadSoftDeleted_Detail
+        );
 }

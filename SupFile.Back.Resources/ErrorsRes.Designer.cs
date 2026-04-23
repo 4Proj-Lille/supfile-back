@@ -464,5 +464,17 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("CannotAddInSoftDeleted_Detail", resourceCulture);
             }
         }
+        
+        public static string CannotDownloadSoftDeleted_Title {
+            get {
+                return ResourceManager.GetString("CannotDownloadSoftDeleted_Title", resourceCulture);
+            }
+        }
+        
+        public static string CannotDownloadSoftDeleted_Detail {
+            get {
+                return ResourceManager.GetString("CannotDownloadSoftDeleted_Detail", resourceCulture);
+            }
+        }
     }
 }
