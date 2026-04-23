@@ -82,4 +82,17 @@ public class BlobStorageProvider : IStorageProvider
 
         return containerClient;
     }
+    
+    public async Task<Result> DeleteAsync(string name, string extension, string baseUrl = "")
+    {
+        var existsResult = Exists(name, extension, baseUrl);
+        if (existsResult.IsFailed) return existsResult.ToResult();
+        if (!existsResult.Value) return Result.Fail(FileErrors.FileNotFound());
+
+        var containerClient = await GetBlobClientAsync(_blobSettings.ContainerName);
+        var blobClient = containerClient.GetBlobClient($"{name}{extension}");
+
+        await blobClient.DeleteAsync();
+        return Result.Ok();
+    }
 }

@@ -118,4 +118,13 @@ public class FileStorageProvider : IStorageProvider
 
         return filePath;
     }
+    
+    public Task<Result> DeleteAsync(string name, string extension, string baseUrl = "")
+    {
+        var physicalPathResult = GetPhysicalPath(name, extension, baseUrl);
+        if (physicalPathResult.IsFailed) return Task.FromResult(physicalPathResult.ToResult());
+
+        File.Delete(physicalPathResult.Value);
+        return Task.FromResult(Result.Ok());
+    }
 }

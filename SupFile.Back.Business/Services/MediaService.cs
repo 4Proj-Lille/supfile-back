@@ -64,8 +64,16 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
         }
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        
+        var deleteBlobMedia = await _storageProvider.DeleteAsync(media.UniqueId.ToString(), media.Extension);
+        if (deleteBlobMedia.IsFailed) return deleteBlobMedia;
+        
+        var deletedMedia = await DeleteAsync(id);
+        
+        scope.Complete();
 
-        return await DeleteAsync(id);
+        return deletedMedia;
     }
 
     public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId,

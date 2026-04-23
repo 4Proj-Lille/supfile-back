@@ -26,4 +26,7 @@ public interface IStorageProvider
     /// <param name="baseUrl"></param>
     /// <returns></returns>
     Task<Result<byte[]>> ReadAsync(string name, string extension, string baseUrl = "");
+    
+    Task<Result> DeleteAsync(string name, string extension, string baseUrl = "");
+
 }
