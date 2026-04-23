@@ -30,7 +30,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
             return parentFolderResult;
         }
 
-        if (parentFolderResult.Value.IsActive == false)
+        if (!parentFolderResult.Value.IsActive)
         {
             return Result.Fail(FolderErrors.CannotAddInSoftDeleted());
         }
@@ -68,12 +68,12 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
     }
 
     public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetFolderContents(ApplicationUser user, int? folderId,
-        string? sort)
+        MediaSearchQuery query)
     {
         var folderResult = await Repository.GetFolderContents<Folder>(user, folderId);
         if (!folderResult.IsSuccess) return folderResult.ToResult();
 
-        var mediaResult = await _mediaService.GetFolderContents<Media>(user, folderId, sort);
+        var mediaResult = await _mediaService.GetFolderContents<Media>(user, folderId, query);
         if (!mediaResult.IsSuccess) return mediaResult.ToResult();
 
         var tuple = Tuple.Create(folderResult.Value, mediaResult.Value);
@@ -148,6 +148,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         }
 
         folder.IsActive = false;
+        folder.UpdatedDate = DateTime.Now;
 
         return await UpdateAsync(id, folder);
     }
@@ -195,7 +196,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         int folderId,
         string currentPath)
     {
-        var mediasResult = await _mediaService.GetFolderContents<Media>(currentUser, folderId, "id");
+        var mediasResult = await _mediaService.GetFolderContents<Media>(currentUser, folderId, new MediaSearchQuery {});
         if (mediasResult.IsFailed) return mediasResult.ToResult();
 
         foreach (var media in mediasResult.Value)

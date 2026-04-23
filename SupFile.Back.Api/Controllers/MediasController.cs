@@ -24,6 +24,26 @@ public sealed class MediasController : BaseAuthController
 
         return ToOkActionResult(media);
     }
+    
+    [HttpGet("Search")]
+    public async Task<ActionResult<IEnumerable<MediaModel>>> Search([FromQuery] MediaSearchQuery query)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var result = await _mediaService.SearchAsync<MediaModel>(currentUser, query);
+        if (result.IsFailed) return ToErrorActionResult(result.ToResult());
+
+        return ToOkActionResult(result);
+    }
+    
+    [HttpGet("TotalMediaByType")]
+    public async Task<ActionResult<int>> GetTotalMediaByType([FromQuery] MediaType type)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var result = await _mediaService.GetTotalMediaByType(currentUser, type);
+        if (result.IsFailed) return ToErrorActionResult(result.ToResult());
+
+        return ToOkActionResult(result);
+    }
 
     [HttpGet("{mediaUniqueId:Guid}/Download")]
     public async Task<IActionResult> DownloadPicture(Guid mediaUniqueId)

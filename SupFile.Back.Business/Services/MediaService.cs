@@ -76,23 +76,11 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return deletedMedia;
     }
 
-    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId,
-        string? sort)
+    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId, MediaSearchQuery query)
     {
-        // var allowedSortFields = new[] { "id", "name", "sendDate", "size", "extension" };
+        var filter = query.ToGridifyFilter();
 
-        if (string.IsNullOrEmpty(sort))
-        {
-            sort = nameof(Media.Id).ToLower();
-        }
-
-        // if (!allowedSortFields.Contains(sort))
-        // {
-        //     return Result.Fail(MediaErrors.InvalidSortField(sort));
-        // }
-
-        var mediaResult = await Repository.GetFolderContents<TMapped>(currentUser, folderId, sort);
-
+        var mediaResult = await Repository.GetFolderContents<TMapped>(currentUser, folderId, filter);
         return mediaResult;
     }
 
@@ -208,6 +196,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         }
 
         media.IsActive = false;
+        media.UpdatedDate = DateTime.Now;
 
         return await UpdateAsync(id, media);
     }
@@ -239,5 +228,29 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
     public async Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser currentUser)
     {
         return await Repository.GetRecentlyModified<TMapped>(currentUser);
+    }
+    
+    public async Task<Result<IEnumerable<TMapped>>> SearchAsync<TMapped>(ApplicationUser currentUser, MediaSearchQuery query)
+    {
+        var filter = $"OwnerId={currentUser.Id}";
+    
+        var searchFilter = query.ToGridifyFilter();
+        if (!string.IsNullOrWhiteSpace(searchFilter))
+            filter += $",{searchFilter}";
+
+        var result = await Repository.FindListAsync<TMapped>(filter);
+        if (result.IsFailed) return result.ToResult();
+
+        return Result.Ok(result.Value.AsEnumerable());
+    }
+    
+    public async Task<Result<int>> GetTotalMediaByType(ApplicationUser currentUser, MediaType type)
+    {
+        var filter = new MediaSearchQuery { Type = type }.ToGridifyFilter();
+        
+        var result = await Repository.GetTotalMediaByType(currentUser, filter);
+        if (result.IsFailed) return result.ToResult();
+        
+        return Result.Ok(result.Value);
     }
 }

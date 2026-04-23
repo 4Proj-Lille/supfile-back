@@ -1,4 +1,5 @@
-﻿using SupFile.Back.Core.Enums;
+﻿using SupFile.Back.Core.Dto;
+using SupFile.Back.Core.Enums;
 
 namespace SupFile.Back.Core.Interfaces.Services;
 
@@ -8,7 +9,7 @@ public interface IMediaService : IBaseService<Media, int>
 
     Task<Result> DeleteOneAsync(ApplicationUser currentUser, int id);
 
-    Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? id, string? sort);
+    Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? id, MediaSearchQuery query);
     
     Task<Result<Media>> UpdateAsync(int id, Media entity, ApplicationUser currentUser);
     
@@ -32,4 +33,8 @@ public interface IMediaService : IBaseService<Media, int>
     Task<Result<Media>> RestoreAsync(ApplicationUser currentUser, int id);
     
     Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser currentUser);
+
+    Task<Result<IEnumerable<TMapped>>> SearchAsync<TMapped>(ApplicationUser currentUser, MediaSearchQuery query);
+
+    Task<Result<int>> GetTotalMediaByType(ApplicationUser currentUser, MediaType type);
 }

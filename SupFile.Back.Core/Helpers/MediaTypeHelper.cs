@@ -1,45 +1,52 @@
+using SupFile.Back.Core.Enums;
+
 namespace SupFile.Back.Core.Helpers;
 
 public static class MediaTypeHelper
 {
     private static readonly Dictionary<string, string> _extensionToType = new(StringComparer.OrdinalIgnoreCase)
     {
-        { ".png", "Picture" },
-        { ".jpg", "Picture" },
-        { ".jpeg", "Picture" },
-        { ".gif", "Picture" },
-        { ".webp", "Picture" },
-        { ".svg", "Picture" },
-        { ".bmp", "Picture" },
+        { ".png", nameof(MediaType.Picture) },
+        { ".jpg", nameof(MediaType.Picture) },
+        { ".jpeg", nameof(MediaType.Picture) },
+        { ".gif", nameof(MediaType.Picture) },
+        { ".webp", nameof(MediaType.Picture) },
+        { ".svg", nameof(MediaType.Picture) },
+        { ".bmp", nameof(MediaType.Picture) },
 
-        { ".mp4", "Video" },
-        { ".avi", "Video" },
-        { ".mov", "Video" },
-        { ".mkv", "Video" },
-        { ".webm", "Video" },
+        { ".mp4", nameof(MediaType.Video) },
+        { ".avi", nameof(MediaType.Video) },
+        { ".mov", nameof(MediaType.Video) },
+        { ".mkv", nameof(MediaType.Video) },
+        { ".webm", nameof(MediaType.Video) },
 
-        { ".pdf", "File" },
-        { ".doc", "File" },
-        { ".docx", "File" },
-        { ".xls", "File" },
-        { ".xlsx", "File" },
-        { ".ppt", "File" },
-        { ".pptx", "File" },
-        { ".txt", "File" },
-        { ".csv", "File" },
+        { ".pdf", nameof(MediaType.File) },
+        { ".doc", nameof(MediaType.File) },
+        { ".docx", nameof(MediaType.File) },
+        { ".xls", nameof(MediaType.File) },
+        { ".xlsx", nameof(MediaType.File) },
+        { ".ppt", nameof(MediaType.File) },
+        { ".pptx", nameof(MediaType.File) },
+        { ".txt", nameof(MediaType.File) },
+        { ".csv", nameof(MediaType.File) },
 
-        { ".mp3", "Audio" },
-        { ".wav", "Audio" },
-        { ".ogg", "Audio" },
-        { ".flac", "Audio" },
-        { ".aac", "Audio" },
-        { ".m4a", "Audio" },
-        { ".wma", "Audio" },
+        { ".mp3", nameof(MediaType.Audio) },
+        { ".wav", nameof(MediaType.Audio) },
+        { ".ogg", nameof(MediaType.Audio) },
+        { ".flac", nameof(MediaType.Audio) },
+        { ".aac", nameof(MediaType.Audio) },
+        { ".m4a", nameof(MediaType.Audio) },
+        { ".wma", nameof(MediaType.Audio) },
     };
 
     public static string Resolve(string extension) =>
-        _extensionToType.TryGetValue(extension, out var type) ? type : "Other";
+        _extensionToType.TryGetValue(extension, out var type) ? type : nameof(MediaType.Other);
 
     public static bool IsSupported(string extension) =>
         _extensionToType.ContainsKey(extension);
+    
+    public static IEnumerable<string> GetExtensionsByType(MediaType type) =>
+        _extensionToType
+            .Where(kvp => kvp.Value.Equals(type.ToString(), StringComparison.OrdinalIgnoreCase))
+            .Select(kvp => kvp.Key);
 }

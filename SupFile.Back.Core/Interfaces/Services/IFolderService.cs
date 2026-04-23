@@ -1,4 +1,6 @@
-﻿namespace SupFile.Back.Core.Interfaces.Services;
+﻿using SupFile.Back.Core.Dto;
+
+namespace SupFile.Back.Core.Interfaces.Services;
 
 public interface IFolderService : IBaseService<Folder, int>
 {
@@ -9,7 +11,7 @@ public interface IFolderService : IBaseService<Folder, int>
 
     Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser currentUser);
     
-    Task<Result<Tuple<List<Folder>,List<Media>>>> GetFolderContents(ApplicationUser user, int? folderId, string? sort);
+    Task<Result<Tuple<List<Folder>,List<Media>>>> GetFolderContents(ApplicationUser user, int? folderId, MediaSearchQuery query);
 
     Task<Result<Folder>> UpdateAsync(int id, Folder entity, ApplicationUser currentUser);
     

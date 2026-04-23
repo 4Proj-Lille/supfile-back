@@ -1,5 +1,4 @@
 using SupFile.Back.Core.Entities.Auth;
-using System.Linq.Dynamic.Core;
 using SupFile.Back.Core.Errors;
 
 namespace SupFile.Back.Data.Repositories;
@@ -11,14 +10,13 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     {
     }
 
-    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? folderId,
-        string sort)
+    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? folderId, string filter)
     {
         var q = Query().Where(x =>
-            x.OwnerId == user.Id && x.FolderId == folderId
+            x.OwnerId == user.Id && x.FolderId == folderId && x.IsActive
         );
 
-        var result = await q.FindListAsync<TMapped>("", sort);
+        var result = await q.FindListAsync<TMapped>(filter);
         return Result.Ok(result);
     }
 
@@ -80,5 +78,16 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
 
         var result = await q.FindListAsync<TMapped>("", "UpdatedDate desc");
         return Result.Ok(result);
+    }
+    
+    public async Task<Result<int>> GetTotalMediaByType(ApplicationUser currentUser, string filter)
+    {
+        var q = Query().Where(x => x.OwnerId == currentUser.Id);
+
+        if (!string.IsNullOrWhiteSpace(filter))
+            q = q.ApplyFiltering(filter);
+
+        var count = await q.CountAsync();
+        return Result.Ok(count);
     }
 }

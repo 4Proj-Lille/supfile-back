@@ -37,12 +37,11 @@ public sealed class FoldersController : BaseAuthController
     }
 
     [HttpGet("FolderContents")]
-    public async Task<ActionResult<StorageModel>> GetFolderContents([FromQuery] int? folderId = null,
-        [FromQuery] string? sort = "id")
+    public async Task<ActionResult<StorageModel>> GetFolderContents([FromQuery] MediaSearchQuery query, [FromQuery] int? folderId = null)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
 
-        var result = await _folderService.GetFolderContents(currentUser, folderId, sort);
+        var result = await _folderService.GetFolderContents(currentUser, folderId, query);
 
         return ToOkActionResult(result.Map(value =>
         {
