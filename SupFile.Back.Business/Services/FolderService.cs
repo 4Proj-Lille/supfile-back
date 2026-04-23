@@ -167,31 +167,53 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return await UpdateAsync(id, folder);
     }
     
-    public async Task<Result<Tuple<string,byte[]>>> DownloadFolderAsync(int folderId, ApplicationUser currentUser)
+    public async Task<Result<Tuple<string, byte[]>>> DownloadFolderAsync(int folderId, ApplicationUser currentUser)
     {
         var folderResult = await Repository.GetByIdAsync<Folder>(folderId);
         if (folderResult.IsFailed) return folderResult.ToResult();
-        
-        var mediasResult = await _mediaService.GetFolderContents<Media>(currentUser, folderId, "id");
-        if (mediasResult.IsFailed) return mediasResult.ToResult();
 
         using var ms = new MemoryStream();
         await using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
         {
-            foreach (var media in mediasResult.Value)
+            var buildResult = await AddFolderToArchiveAsync(archive, currentUser, folderId, folderResult.Value.Name);
+            if (buildResult.IsFailed)
             {
-                var fileResult = await _storageProvider.ReadAsync(
-                    media.UniqueId.ToString(), 
-                    media.Extension
-                );
-                if (fileResult.IsFailed) continue;
-
-                var entry = archive.CreateEntry($"{media.Name}{media.Extension}", CompressionLevel.Fastest);
-                await using var entryStream = entry.Open();
-                await entryStream.WriteAsync(fileResult.Value);
+                return buildResult;
             }
         }
-        var tuple = Tuple.Create(folderResult.Value.Name, ms.ToArray());
-        return Result.Ok(tuple);
+
+        return Result.Ok(Tuple.Create(folderResult.Value.Name, ms.ToArray()));
+    }
+
+    private async Task<Result> AddFolderToArchiveAsync(
+        ZipArchive archive,
+        ApplicationUser currentUser,
+        int folderId,
+        string currentPath)
+    {
+        var mediasResult = await _mediaService.GetFolderContents<Media>(currentUser, folderId, "id");
+        if (mediasResult.IsFailed) return mediasResult.ToResult();
+
+        foreach (var media in mediasResult.Value)
+        {
+            var fileResult = await _storageProvider.ReadAsync(media.UniqueId.ToString(), media.Extension);
+            if (fileResult.IsFailed) continue;
+
+            var entry = archive.CreateEntry($"{currentPath}/{media.Name}{media.Extension}", CompressionLevel.Fastest);
+            await using var entryStream = entry.Open();
+            await entryStream.WriteAsync(fileResult.Value);
+        }
+
+        var subFoldersResult = await Repository.GetFolderContents<Folder>(currentUser, folderId);
+        if (!subFoldersResult.IsSuccess) return subFoldersResult.ToResult();
+
+        foreach (var subFolder in subFoldersResult.Value)
+        {
+            var subPath = $"{currentPath}/{subFolder.Name}";
+            var subResult = await AddFolderToArchiveAsync(archive, currentUser, subFolder.Id, subPath);
+            if (subResult.IsFailed) return subResult;
+        }
+
+        return Result.Ok();
     }
 }
