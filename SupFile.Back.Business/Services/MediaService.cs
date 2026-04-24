@@ -84,6 +84,13 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return mediaResult;
     }
 
+    private static readonly HashSet<string> s_includeProps =
+    [
+        nameof(Media.Name),
+        nameof(Media.FolderId),
+        nameof(Media.OwnerId),
+    ];
+    
     public async Task<Result<Media>> UpdateAsync(int id, Media entity, ApplicationUser currentUser)
     {
         var mediaResult = await Repository.GetByIdAsync<Media>(id);
@@ -99,12 +106,16 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         foreach (var prop in typeof(Media).GetProperties())
         {
-            var value = prop.GetValue(entity);
 
+            if (!s_includeProps.Contains(prop.Name))
+                continue;
+            
             if (!ScalarTypeHelper.IsScalarProperty(prop))
             {
                 continue;
             }
+            
+            var value = prop.GetValue(entity);
 
             if (value != null)
             {
