@@ -80,6 +80,13 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return Result.Ok(tuple);
     }
 
+    private static readonly HashSet<string> s_includeProps =
+    [
+        nameof(Folder.Name),
+        nameof(Folder.ParentId),
+        nameof(Folder.OwnerId),
+    ];
+    
     public async Task<Result<Folder>> UpdateAsync(int id, Folder entity, ApplicationUser currentUser)
     {
         var folderResult = await Repository.GetByIdAsync<Folder>(id);
@@ -89,15 +96,18 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         if (folder.OwnerId != currentUser.Id)
             return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folder.Id));
 
-        folder.UpdatedDate = DateTime.Now;
         foreach (var prop in typeof(Folder).GetProperties())
         {
-            var value = prop.GetValue(entity);
 
+            if (!s_includeProps.Contains(prop.Name))
+                continue;
+            
             if (!ScalarTypeHelper.IsScalarProperty(prop))
             {
                 continue;
             }
+
+            var value = prop.GetValue(entity);
 
             if (value != null)
             {
@@ -105,6 +115,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
             }
         }
 
+        folder.UpdatedDate = DateTime.Now;
         return await UpdateAsync(id, folder);
     }
 
