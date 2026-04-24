@@ -1,3 +1,4 @@
+using System.Transactions;
 using SupFile.Back.Storage.Interfaces;
 
 namespace SupFile.Back.Business.Services;
@@ -8,7 +9,8 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
     private readonly IStorageProvider _storageProvider;
 
 
-    public FolderService(ILogger<FolderService> logger, IFolderRepository repository, IMediaService mediaService, IStorageProvider storageProvider
+    public FolderService(ILogger<FolderService> logger, IFolderRepository repository, IMediaService mediaService,
+        IStorageProvider storageProvider
     ) :
         base(logger, repository)
     {
@@ -34,7 +36,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         {
             return Result.Fail(FolderErrors.CannotAddInSoftDeleted());
         }
-        
+
         var parentFolder = parentFolderResult.Value;
 
         if (parentFolder.Id == entity.Id)
@@ -92,7 +94,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         var folderResult = await Repository.GetByIdAsync<Folder>(id);
         if (folderResult.IsFailed) return folderResult;
         var folder = folderResult.Value;
-        
+
         if (folder.OwnerId != currentUser.Id)
             return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folder.Id));
 
@@ -148,6 +150,8 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
 
     public async Task<Result<Folder>> SoftDeleteAsync(ApplicationUser currentUser, int id)
     {
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
         var folderResult = await Repository.GetByIdAsync<Folder>(id);
         if (folderResult.IsFailed) return folderResult.ToResult();
 
@@ -161,9 +165,15 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         folder.IsActive = false;
         folder.UpdatedDate = DateTime.Now;
 
-        return await UpdateAsync(id, folder);
+        await _mediaService.SoftDeleteByFolderIdAsync(folder.Id);
+        await Repository.SoftDeleteChildrensAsync(folder.Id);
+        var updatedFolder = await UpdateAsync(id, folder);
+
+        scope.Complete();
+
+        return updatedFolder;
     }
-    
+
     public async Task<Result<Folder>> RestoreAsync(ApplicationUser currentUser, int id)
     {
         var folderResult = await Repository.GetByIdAsync<Folder>(id);
@@ -175,10 +185,25 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
             return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folder.Id));
 
         folder.IsActive = true;
-        
+
         return await UpdateAsync(id, folder);
     }
-    
+
+    public async Task<Result<List<int>>> RestoreChainAsync(ApplicationUser currentUser, int folderId)
+    {
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        var folderIdsResult = await Repository.GetAllDescendantIdsAsync(folderId, onlyActive: false);
+        if (folderIdsResult.IsFailed) return folderIdsResult;
+        var folderIds = folderIdsResult.Value;
+        folderIds.Add(folderId);
+
+        var affected = await Repository.RestoreByIdsAsync(folderIds);
+        if (affected.IsFailed) return affected.ToResult<List<int>>();
+
+        scope.Complete();
+        return Result.Ok(folderIds);
+    }
+
     public async Task<Result<Tuple<string, byte[]>>> DownloadFolderAsync(int folderId, ApplicationUser currentUser)
     {
         var folderResult = await Repository.GetByIdAsync<Folder>(folderId);
@@ -188,6 +213,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         {
             return Result.Fail(FolderErrors.CannotDownloadSoftDeleted());
         }
+
         using var ms = new MemoryStream();
         await using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
         {
@@ -207,7 +233,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         int folderId,
         string currentPath)
     {
-        var mediasResult = await _mediaService.GetFolderContents<Media>(currentUser, folderId, new MediaSearchQuery {});
+        var mediasResult = await _mediaService.GetFolderContents<Media>(currentUser, folderId, new MediaSearchQuery());
         if (mediasResult.IsFailed) return mediasResult.ToResult();
 
         foreach (var media in mediasResult.Value)
@@ -216,7 +242,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
             if (fileResult.IsFailed) continue;
 
             var entry = archive.CreateEntry($"{currentPath}/{media.Name}{media.Extension}", CompressionLevel.Fastest);
-            await using var entryStream = entry.Open();
+            await using var entryStream = await entry.OpenAsync();
             await entryStream.WriteAsync(fileResult.Value);
         }
 

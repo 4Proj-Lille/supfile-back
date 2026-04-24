@@ -8,14 +8,17 @@ namespace SupFile.Back.Business.Services;
 public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaService
 {
     private readonly IStorageProvider _storageProvider;
+    private readonly IFolderRepository _folderRepository;
 
     public MediaService(
         ILogger<MediaService> logger,
         IMediaRepository repository,
-        IStorageProvider storageProvider
+        IStorageProvider storageProvider,
+        IFolderRepository folderRepository
     ) : base(logger, repository)
     {
         _storageProvider = storageProvider;
+        _folderRepository = folderRepository;
     }
 
     public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null)
@@ -46,7 +49,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         {
             return Result.Fail(addMedia.Errors);
         }
-        
+
         scope.Complete();
 
         return addMedia;
@@ -64,19 +67,21 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
         }
+
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-        
+
         var deleteBlobMedia = await _storageProvider.DeleteAsync(media.UniqueId.ToString(), media.Extension);
         if (deleteBlobMedia.IsFailed) return deleteBlobMedia;
-        
+
         var deletedMedia = await DeleteAsync(id);
-        
+
         scope.Complete();
 
         return deletedMedia;
     }
 
-    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId, MediaSearchQuery query)
+    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId,
+        MediaSearchQuery query)
     {
         var filter = query.ToGridifyFilter();
 
@@ -133,7 +138,8 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return storageResult;
     }
 
-    public async Task<Result<Dictionary<string, int>>> GetStorageSize (ApplicationUser currentUser, StorageSizeGroupBy groupBy)
+    public async Task<Result<Dictionary<string, int>>> GetStorageSize(ApplicationUser currentUser,
+        StorageSizeGroupBy groupBy)
     {
         return groupBy switch
         {
@@ -143,7 +149,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             _ => Result.Fail(MediaErrors.InvalidStorageSizeGroupBy())
         };
     }
-        
+
     public async Task<Result<Dictionary<string, int>>> GetStorageSizeByExtension(ApplicationUser currentUser)
     {
         return await Repository.GetStorageSizeByExtension(currentUser);
@@ -162,7 +168,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             );
         return Result.Ok(result);
     }
-    
+
     public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser)
     {
         return await Repository.GetSoftDeleted<TMapped>(currentUser);
@@ -178,19 +184,23 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         var mediaResult = await Repository.GetByUniqueIdAsync(mediaUniqueId);
         if (mediaResult.IsFailed) return mediaResult.ToResult();
 
-        var fileResult = await _storageProvider.ReadAsync(mediaResult.Value.UniqueId.ToString(), mediaResult.Value.Extension);
+        var fileResult =
+            await _storageProvider.ReadAsync(mediaResult.Value.UniqueId.ToString(), mediaResult.Value.Extension);
         if (fileResult.IsFailed) return fileResult.ToResult();
 
         var provider = new FileExtensionContentTypeProvider();
-        if (!provider.TryGetContentType($"{mediaResult.Value.UniqueId.ToString()}{mediaResult.Value.Extension}", out var contentType))
+        if (!provider.TryGetContentType($"{mediaResult.Value.UniqueId.ToString()}{mediaResult.Value.Extension}",
+                out var contentType))
         {
             contentType = "application/octet-stream";
         }
 
         if (preview)
         {
-            return Result.Ok((fileResult.Value, contentType, $"{mediaResult.Value.UniqueId.ToString()}{mediaResult.Value.Extension}"));
+            return Result.Ok((fileResult.Value, contentType,
+                $"{mediaResult.Value.UniqueId.ToString()}{mediaResult.Value.Extension}"));
         }
+
         return Result.Ok((fileResult.Value, contentType, $"{mediaResult.Value.Name}{mediaResult.Value.Extension}"));
     }
 
@@ -235,16 +245,17 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         return updateMedia;
     }
-    
+
     public async Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser currentUser)
     {
         return await Repository.GetRecentlyModified<TMapped>(currentUser);
     }
-    
-    public async Task<Result<IEnumerable<TMapped>>> SearchAsync<TMapped>(ApplicationUser currentUser, MediaSearchQuery query)
+
+    public async Task<Result<IEnumerable<TMapped>>> SearchAsync<TMapped>(ApplicationUser currentUser,
+        MediaSearchQuery query)
     {
         var filter = $"OwnerId={currentUser.Id}";
-    
+
         var searchFilter = query.ToGridifyFilter();
         if (!string.IsNullOrWhiteSpace(searchFilter))
             filter += $",{searchFilter}";
@@ -254,14 +265,24 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         return Result.Ok(result.Value.AsEnumerable());
     }
-    
+
     public async Task<Result<int>> GetTotalMediaByType(ApplicationUser currentUser, MediaType type)
     {
         var filter = new MediaSearchQuery { Type = type }.ToGridifyFilter();
-        
+
         var result = await Repository.GetTotalMediaByType(currentUser, filter);
         if (result.IsFailed) return result.ToResult();
-        
+
         return Result.Ok(result.Value);
+    }
+
+    public async Task<Result<int>> SoftDeleteByFolderIdAsync(int folderId)
+    {
+        var folderIdsResult = await _folderRepository.GetAllDescendantIdsAsync(folderId);
+        if (folderIdsResult.IsFailed) return folderIdsResult.ToResult();
+        var folderIds = folderIdsResult.Value;
+        folderIds.Add(folderId);
+
+        return await Repository.SoftDeleteByFolderIdAsync(folderIds);
     }
 }

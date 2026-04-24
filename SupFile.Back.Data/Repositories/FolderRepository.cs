@@ -46,6 +46,21 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         return Result.Ok(path);
     }
 
+    public async Task<Result<int>> SoftDeleteChildrensAsync(int folderId)
+    {
+        var descendantIdsResult = await GetAllDescendantIdsAsync(folderId);
+        if (descendantIdsResult.IsFailed) return descendantIdsResult.ToResult();
+        var descendantIds = descendantIdsResult.Value;
+
+        if (descendantIds.Count == 0) return Result.Ok(0);
+
+        var affected = await Query()
+            .Where(x => descendantIds.Contains(x.Id))
+            .ExecuteUpdateAsync(x => x.SetProperty(f => f.IsActive, false));
+
+        return Result.Ok(affected);
+    }
+
     public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser user)
     {
         var q = Query().Where(x =>
@@ -53,5 +68,39 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         );
 
         return Result.Ok(await q.FindListAsync<TMapped>(""));
+    }
+
+    public async Task<Result<List<int>>> GetAllDescendantIdsAsync(int folderId, bool onlyActive = true)
+    {
+        var result = new List<int>();
+        var queue = new Queue<int>();
+        queue.Enqueue(folderId);
+
+        while (queue.Count > 0)
+        {
+            var currentId = queue.Dequeue();
+
+            var childIds = await Query()
+                .Where(x => x.ParentId == currentId && (!onlyActive || x.IsActive))
+                .Select(x => x.Id)
+                .ToListAsync();
+
+            foreach (var childId in childIds)
+            {
+                result.Add(childId);
+                queue.Enqueue(childId);
+            }
+        }
+
+        return Result.Ok(result);
+    }
+    
+    public async Task<Result<int>> RestoreByIdsAsync(List<int> folderIds)
+    {
+        var affected = await Query()
+            .Where(x => folderIds.Contains(x.Id) && !x.IsActive)
+            .ExecuteUpdateAsync(x => x.SetProperty(f => f.IsActive, true));
+
+        return affected;
     }
 }
