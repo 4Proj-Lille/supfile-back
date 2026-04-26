@@ -49,4 +49,10 @@ public static class MediaTypeHelper
         _extensionToType
             .Where(kvp => kvp.Value.Equals(type.ToString(), StringComparison.OrdinalIgnoreCase))
             .Select(kvp => kvp.Key);
+    
+    public static MediaType GetMediaTypeByExtension(string extension) =>
+        _extensionToType.TryGetValue(extension, out var type) && Enum.TryParse<MediaType>(type, true, out var mediaType)
+            ? mediaType
+            : MediaType.Other;
+    
 }

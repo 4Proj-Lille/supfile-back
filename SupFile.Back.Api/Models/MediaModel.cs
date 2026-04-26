@@ -1,4 +1,6 @@
-﻿namespace SupFile.Back.Api.Models;
+﻿using SupFile.Back.Core.Enums;
+
+namespace SupFile.Back.Api.Models;
 
 public class MediaModel
 {
@@ -7,6 +9,8 @@ public class MediaModel
     public string Name { get; set; }
     
     public string Extension { get; set; }
+    
+    public MediaType Type { get; set; }
 
     public int Size { get; set; }
 
