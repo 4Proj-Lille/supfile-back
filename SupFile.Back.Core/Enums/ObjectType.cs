@@ -1,7 +1,7 @@
 namespace SupFile.Back.Core.Enums;
 
-public enum BinType
+public enum ObjectType
 {
     Media,
-    Folder,
+    Folder
 }

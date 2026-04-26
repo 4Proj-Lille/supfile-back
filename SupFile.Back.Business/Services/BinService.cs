@@ -22,11 +22,11 @@ public class BinService : IBinService
         _mediaRepository = mediaRepository;
     }
 
-    public async Task<Result> RestoreAsync(int id, ApplicationUser currentUser, BinType type)
+    public async Task<Result> RestoreAsync(int id, ApplicationUser currentUser, ObjectType type)
     {
         switch (type)
         {
-            case BinType.Media:
+            case ObjectType.Media:
                 {
                     var restoredMedia = await _mediaService.RestoreAsync(currentUser, id);
                     if (restoredMedia is not { IsSuccess: true, Value.FolderId: not null })
@@ -42,7 +42,7 @@ public class BinService : IBinService
 
                     return restoredMedia.ToResult();
                 }
-            case BinType.Folder:
+            case ObjectType.Folder:
                 {
                     var restoredFolder = await _folderService.RestoreAsync(currentUser, id);
                     if (restoredFolder is not { IsSuccess: true, Value: not null })
@@ -66,11 +66,11 @@ public class BinService : IBinService
         }
     }
 
-    public async Task<Result> DeleteOneAsync(int id, ApplicationUser currentUser, BinType type)
+    public async Task<Result> DeleteOneAsync(int id, ApplicationUser currentUser, ObjectType type)
     {
         switch (type)
         {
-            case BinType.Media:
+            case ObjectType.Media:
                 {
                     var mediaDeleteResult = await _mediaService.DeleteOneAsync(currentUser, id);
                     if (mediaDeleteResult.IsSuccess)
@@ -80,7 +80,7 @@ public class BinService : IBinService
 
                     return Result.Fail(BinErrors.NoMediaFound());
                 }
-            case BinType.Folder:
+            case ObjectType.Folder:
                 {
                     var folderDeleteResult = await _folderService.DeleteOneAsync(currentUser, id);
                     if (folderDeleteResult.IsSuccess)
@@ -112,16 +112,16 @@ public class BinService : IBinService
     }
 
     public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetBinItemsAsync(ApplicationUser currentUser,
-        BinType? type = null)
+        ObjectType? type = null)
     {
         var mediaResult = new Result<List<Media>>();
         var folderResult = new Result<List<Folder>>();
-        if (type is BinType.Media or null)
+        if (type is ObjectType.Media or null)
         {
             mediaResult = await _mediaService.GetSoftDeleted<Media>(currentUser);
         }
 
-        if (type is BinType.Folder or null)
+        if (type is ObjectType.Folder or null)
         {
             folderResult = await _folderService.GetSoftDeleted<Folder>(currentUser);
         }

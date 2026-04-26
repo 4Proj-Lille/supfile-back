@@ -1,3 +1,5 @@
+using SupFile.Back.Core.Enums;
+
 namespace SupFile.Back.Core.Interfaces.Services;
 
 public interface IUserService : IBaseService<ApplicationUser, int>
@@ -12,4 +14,5 @@ public interface IUserService : IBaseService<ApplicationUser, int>
     
     Task<Result> DeleteUserAsync(ApplicationUser currentUser, int userId);
 
+    Task<Result<List<TMapped>>> GetAccessUsersAsync<TMapped>(int id, ApplicationUser currentUser, ObjectType type);
 }

@@ -1,4 +1,6 @@
-﻿namespace SupFile.Back.Api.Controllers;
+﻿using SupFile.Back.Core.Enums;
+
+namespace SupFile.Back.Api.Controllers;
 
 [Route("api/[controller]")]
 public sealed class SharesController : BaseAuthController
@@ -13,6 +15,14 @@ public sealed class SharesController : BaseAuthController
     ) : base(logger, userRepository, env)
     {
         _shareService = shareService;
+    }
+    
+    [HttpPatch("{objectId:int}/Access")]
+    public async Task<ActionResult<List<ApplicationUserModel>>> UpdateSharePermissions(int objectId, [FromQuery] ObjectType type)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var updateResult = await _shareService.GetAccessUsersAsync<ApplicationUserModel>(objectId, currentUser, type);
+        return ToOkActionResult(updateResult);
     }
     
 }

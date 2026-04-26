@@ -1,3 +1,5 @@
+using SupFile.Back.Core.Enums;
+
 namespace SupFile.Back.Business.Services;
 
 public class ShareService : BaseService<Share, int, IShareRepository>, IShareService
@@ -32,5 +34,11 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
         }
 
         return await DeleteAsync(id);
+    }
+    
+    public async Task<Result<List<TMapped>>> GetAccessUsersAsync<TMapped>(int objectId, ApplicationUser currentUser, ObjectType type)
+    {
+        var accessUsersResult = await _userService.GetAccessUsersAsync<TMapped>(objectId, currentUser, type);
+        return accessUsersResult;
     }
 }

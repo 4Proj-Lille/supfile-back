@@ -1,4 +1,5 @@
 using System.Transactions;
+using SupFile.Back.Core.Enums;
 
 namespace SupFile.Back.Business.Services;
 
@@ -158,6 +159,17 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         await _userManager.DeleteAsync(aspNetUser);
 
         return Result.Ok();
+    }
+    
+    public async Task<Result<List<TMapped>>> GetAccessUsersAsync<TMapped>(int id, ApplicationUser currentUser, ObjectType type)
+    {
+        var usersResult = await Repository.GetAccessUsersAsync<TMapped>(id, currentUser.Id, type);
+        if (usersResult.IsFailed)
+        {
+            return Result.Fail(UserErrors.AspNetUserNotFound());
+        }
+
+        return usersResult;
     }
 
 }
