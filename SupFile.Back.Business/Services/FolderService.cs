@@ -258,4 +258,20 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
 
         return Result.Ok();
     }
+    
+    public async Task<Result<long>> GetFolderSizeRecursive(int? folderId, ApplicationUser currentUser)
+    {
+        if (folderId != null)
+        {
+            var folderResult = await Repository.GetByIdAsync<Folder>(folderId.Value);
+            if (folderResult.IsFailed) return folderResult.ToResult();
+
+            if (folderResult.Value.OwnerId != currentUser.Id)
+            {
+                return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folderId.Value));
+            }
+        }
+        
+        return await Repository.GetFolderSizeRecursive(folderId);
+    }
 }

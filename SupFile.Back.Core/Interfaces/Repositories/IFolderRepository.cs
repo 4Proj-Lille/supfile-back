@@ -12,4 +12,7 @@ public interface IFolderRepository : IBaseRepository<Folder, int>
     Task<Result<int>> SoftDeleteChildrensAsync(int folderId);
     Task<Result<List<int>>> GetAllDescendantIdsAsync(int folderId, bool onlyActive = true);
     Task<Result<int>> RestoreByIdsAsync(List<int> folderIds);
+
+    Task<Result<long>> GetFolderSizeRecursive(int? folderId);
+
 }

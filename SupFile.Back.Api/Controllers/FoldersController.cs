@@ -99,4 +99,12 @@ public sealed class FoldersController : BaseAuthController
 
         return File(content, "application/zip", $"{folderName}.zip");
     }
+    
+    [HttpGet("TotalSize")]
+    public async Task<ActionResult<long>> GetFolderSizeRecursive([FromQuery] int? folderId = null) 
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var result = await _folderService.GetFolderSizeRecursive(folderId, currentUser);
+        return ToOkActionResult(result);
+    }
 }

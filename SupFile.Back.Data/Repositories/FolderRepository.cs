@@ -95,6 +95,32 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         return Result.Ok(result);
     }
     
+    public async Task<Result<long>> GetFolderSizeRecursive(int? folderId)
+    {
+        await using var ctx = await ContextFactory.CreateDbContextAsync();
+
+        var medias = await ctx.Medias
+            .Where(m => m.FolderId == folderId && m.IsActive)
+            .ToListAsync();
+
+        long size = medias.Sum(m => (long)m.Size);
+
+        var subFolders = await ctx.Folders
+            .Where(f => f.ParentId == folderId && f.IsActive)
+            .ToListAsync();
+
+        foreach (var folder in subFolders)
+        {
+            var result = await GetFolderSizeRecursive(folder.Id);
+
+            if (!result.IsSuccess)
+                return result;
+
+            size += result.Value;        }
+
+        return Result.Ok(size);
+    }
+    
     public async Task<Result<int>> RestoreByIdsAsync(List<int> folderIds)
     {
         var affected = await Query()
