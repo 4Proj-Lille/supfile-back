@@ -16,7 +16,8 @@ public interface IMediaRepository : IBaseRepository<Media, int>
 
     Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser user);
 
-    Task<Result<int>> GetTotalMediaByType(ApplicationUser currentUser, string filter);
+    Task<Result<Dictionary<string, int>>> GetTotalMediaByExtension(ApplicationUser user);
+    
     Task<Result<int>> SoftDeleteByFolderIdAsync(List<int> folderIds);
     Task<Result<int>> RestoreByFolderIdsAsync(List<int> folderIds);
 }

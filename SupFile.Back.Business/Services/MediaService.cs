@@ -266,14 +266,19 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return Result.Ok(result.Value.AsEnumerable());
     }
 
-    public async Task<Result<int>> GetTotalMediaByType(ApplicationUser currentUser, MediaType type)
+    public async Task<Result<Dictionary<string, int>>> GetTotalMediaByType(ApplicationUser currentUser)
     {
-        var filter = new MediaSearchQuery { Type = type }.ToGridifyFilter();
+        var extensionResult = await Repository.GetTotalMediaByExtension(currentUser);
+        if (extensionResult.IsFailed) return extensionResult.ToResult();
 
-        var result = await Repository.GetTotalMediaByType(currentUser, filter);
-        if (result.IsFailed) return result.ToResult();
+        var result = extensionResult.Value
+            .GroupBy(kvp => MediaTypeHelper.Resolve(kvp.Key))
+            .ToDictionary(
+                group => group.Key,
+                group => group.Sum(kvp => kvp.Value)
+            );
 
-        return Result.Ok(result.Value);
+        return Result.Ok(result);
     }
 
     public async Task<Result<int>> SoftDeleteByFolderIdAsync(int folderId)

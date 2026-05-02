@@ -36,6 +36,6 @@ public interface IMediaService : IBaseService<Media, int>
 
     Task<Result<IEnumerable<TMapped>>> SearchAsync<TMapped>(ApplicationUser currentUser, MediaSearchQuery query);
 
-    Task<Result<int>> GetTotalMediaByType(ApplicationUser currentUser, MediaType type);
+    Task<Result<Dictionary<string, int>>> GetTotalMediaByType(ApplicationUser currentUser);
     Task<Result<int>> SoftDeleteByFolderIdAsync(int folderId);
 }

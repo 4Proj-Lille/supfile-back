@@ -81,15 +81,15 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
         return Result.Ok(result);
     }
 
-    public async Task<Result<int>> GetTotalMediaByType(ApplicationUser currentUser, string filter)
+    public async Task<Result<Dictionary<string, int>>> GetTotalMediaByExtension(ApplicationUser user)
     {
-        var q = Query().Where(x => x.OwnerId == currentUser.Id);
+        var result = await Query()
+            .Where(x => x.OwnerId == user.Id)
+            .GroupBy(x => x.Extension)
+            .Select(g => new { Extension = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Extension, x => x.Count);
 
-        if (!string.IsNullOrWhiteSpace(filter))
-            q = q.ApplyFiltering(filter);
-
-        var count = await q.CountAsync();
-        return Result.Ok(count);
+        return Result.Ok(result);
     }
 
     public async Task<Result<int>> SoftDeleteByFolderIdAsync(List<int> folderIds)

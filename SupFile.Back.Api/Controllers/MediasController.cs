@@ -36,10 +36,10 @@ public sealed class MediasController : BaseAuthController
     }
     
     [HttpGet("TotalMediaByType")]
-    public async Task<ActionResult<int>> GetTotalMediaByType([FromQuery] MediaType type)
+    public async Task<ActionResult<Dictionary<string, int>>> GetTotalMediaByType()
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var result = await _mediaService.GetTotalMediaByType(currentUser, type);
+        var result = await _mediaService.GetTotalMediaByType(currentUser);
         if (result.IsFailed) return ToErrorActionResult(result.ToResult());
 
         return ToOkActionResult(result);
