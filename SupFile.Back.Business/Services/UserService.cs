@@ -105,14 +105,12 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         {
             return Result.Fail(UserErrors.PasswordDoesntMatch());
         }
-
-        var userResult = await Repository.GetByIdAsync<ApplicationUser>(userId);
-        if (userResult.IsFailed || userResult.Value == null)
+        
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
         {
             return Result.Fail(AuthErrors.UserNotFound());
         }
-
-        var user = userResult.Value;
         
         var passwordCheck = await _userManager.CheckPasswordAsync(user, currentPassword);
         if (!passwordCheck)
