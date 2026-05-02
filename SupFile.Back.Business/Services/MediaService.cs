@@ -122,12 +122,29 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             
             var value = prop.GetValue(entity);
 
-            if (value != null)
+            var isDefault = value == null || value.Equals(
+                prop.PropertyType.IsValueType 
+                    ? Activator.CreateInstance(prop.PropertyType) 
+                    : null
+            );
+
+            if (!isDefault)
             {
                 prop.SetValue(media, value);
             }
+            
+        }
+        
+        if (s_includeProps.Contains(nameof(Media.FolderId)))
+        {
+            media.Folder = null;
         }
 
+        if (s_includeProps.Contains(nameof(Media.OwnerId)))
+        {
+            media.OwnerApplicationUser = null!;
+        }
+        
         return await UpdateAsync(id, media);
     }
 

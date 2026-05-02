@@ -111,10 +111,26 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
 
             var value = prop.GetValue(entity);
 
-            if (value != null)
+            var isDefault = value == null || value.Equals(
+                prop.PropertyType.IsValueType 
+                    ? Activator.CreateInstance(prop.PropertyType) 
+                    : null
+            );
+
+            if (!isDefault)
             {
                 prop.SetValue(folder, value);
             }
+        }
+        
+        if (s_includeProps.Contains(nameof(Folder.ParentId)))
+        {
+            folder.ParentFolder = null;
+        }
+
+        if (s_includeProps.Contains(nameof(Folder.OwnerId)))
+        {
+            folder.OwnerApplicationUserFolder = null!;
         }
 
         folder.UpdatedDate = DateTime.Now;

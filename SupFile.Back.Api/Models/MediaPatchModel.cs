@@ -6,5 +6,5 @@ public class MediaPatchModel
     
     public int? FolderId { get; set; }
 
-    public int OwnerId { get; set; }
+    public int? OwnerId { get; set; }
 }
