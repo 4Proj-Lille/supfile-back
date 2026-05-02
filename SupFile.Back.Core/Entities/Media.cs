@@ -45,6 +45,14 @@ public class Media : BaseEntity<Media, int>, IEntity<Media, int>
     public int Size { get; set; }
     
     /// <summary>
+    ///     Gets or sets the property value representing column 'MimeType'.
+    /// </summary>
+    /// <value>
+    ///     The property value representing column 'MimeType'.
+    /// </value>
+    public string MimeType { get; set; } = null!;
+    
+    /// <summary>
     ///     Gets or sets the property value representing column 'IsActive'.
     /// </summary>
     /// <value>

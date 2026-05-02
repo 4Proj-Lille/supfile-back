@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IShareService, ShareService>();
         services.AddTransient<ILinkService, LinkService>();
         services.AddTransient<IBinService, BinService>();
-
+         
         
         services.AddTransient<IAuthTokenProcessor, AuthTokenProcessor>();
 

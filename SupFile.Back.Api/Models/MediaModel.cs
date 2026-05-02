@@ -13,6 +13,8 @@ public class MediaModel
     public MediaType Type { get; set; }
 
     public int Size { get; set; }
+    
+    public string MimeType { get; set; }
 
     public bool IsActive { get; set; }
     
