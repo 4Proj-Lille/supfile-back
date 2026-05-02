@@ -15,4 +15,9 @@ public interface IUserService : IBaseService<ApplicationUser, int>
     Task<Result> DeleteUserAsync(ApplicationUser currentUser, int userId);
 
     Task<Result<List<TMapped>>> GetAccessUsersAsync<TMapped>(int id, ApplicationUser currentUser, ObjectType type);
+    
+    Task<Result<ApplicationUser>> UpdateProfilePicture(ApplicationUser currentUser, IFormFile file, int userId);
+    
+    Task<Result<(byte[], string, string)>> DownloadPicture(int userId, ApplicationUser currentUser);
+
 }

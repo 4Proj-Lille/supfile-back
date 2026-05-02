@@ -234,4 +234,10 @@
   <data name="CannotDownloadSoftDeleted_Detail" xml:space="preserve">
     <value>You cannot download soft deleted folder</value>
   </data>
+  <data name="UserNameNotFound_Title" xml:space="preserve">
+    <value>UserName not found</value>
+  </data>
+  <data name="UserNameNotFound_Detail" xml:space="preserve">
+    <value>This account does not have a username</value>
+  </data>
 </root>

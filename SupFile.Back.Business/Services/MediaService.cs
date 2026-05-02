@@ -290,4 +290,41 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         return await Repository.SoftDeleteByFolderIdAsync(folderIds);
     }
+    
+    public async Task<Result<(byte[], string, string)>> GenerateProfilePictureThumbnail(string userName)
+    {
+        string first, second;
+
+        var separators = new[] { ' ', '.', '_', '-' };
+
+        if (!string.IsNullOrEmpty(userName) && userName.IndexOfAny(separators) > -1)
+        {
+            var parts = userName.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            first = parts[0];
+            second = parts[1];
+        }
+        else if (!string.IsNullOrEmpty(userName) && userName.Length > 1)
+        {
+            first = userName[0].ToString();
+            second = userName[1].ToString();
+        }
+        else
+        {
+            first = userName ?? "A";
+            second = "Z";
+        }
+
+        var initials = $"{first[0].ToString().ToUpper()}{second[0].ToString().ToUpper()}";
+
+        var svg = $"""
+                   <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128">
+                       <rect width="128" height="128" fill="#CCCCCC"/>
+                       <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle"
+                             font-size="52" font-family="Arial" fill="#FFFFFF">{initials}</text>
+                   </svg>
+                   """;
+
+        var bytes = Encoding.UTF8.GetBytes(svg);
+        return Result.Ok((bytes, "image/svg+xml", $"{initials}.svg"));
+    }
 }

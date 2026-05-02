@@ -476,5 +476,17 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("CannotDownloadSoftDeleted_Detail", resourceCulture);
             }
         }
+        
+        public static string UserNameNotFound_Title {
+            get {
+                return ResourceManager.GetString("UserNameNotFound_Title", resourceCulture);
+            }
+        }
+        
+        public static string UserNameNotFound_Detail {
+            get {
+                return ResourceManager.GetString("UserNameNotFound_Detail", resourceCulture);
+            }
+        }
     }
 }

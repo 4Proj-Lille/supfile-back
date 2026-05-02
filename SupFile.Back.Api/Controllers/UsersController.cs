@@ -58,4 +58,32 @@ public class UsersController : BaseAuthController
         var result = await _userService.DeleteUserAsync(currentUser, userId);
         return ToNoContentActionResult(result);
     }
+    
+    [HttpPatch("{userId:int}/ProfilePicture")]
+    public async Task<ActionResult<ApplicationUserModel>> UpdateProfilePicture(int userId, IFormFile file)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+
+        var createdMediaResult = await _userService.UpdateProfilePicture(currentUser, file, userId);
+        var mediaModelResult = createdMediaResult.Map(m => m.Adapt<ApplicationUserModel>());
+        return ToOkActionResult(mediaModelResult);
+    }
+    
+    [HttpGet("{userId:int}/ProfilePicture")]
+    public async Task<IActionResult> PreviewPicture(int userId)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var mediaFile = await _userService.DownloadPicture(userId, currentUser);
+
+        if (mediaFile.IsFailed)
+            return NotFound();
+
+        var file = mediaFile.Value.Item1;
+        var contentType = mediaFile.Value.Item2;
+        var fileName = mediaFile.Value.Item3;
+
+        Response.Headers.Append("Content-Disposition", $"inline; filename=\"{fileName}\"");
+
+        return File(file, contentType);
+    }
 }

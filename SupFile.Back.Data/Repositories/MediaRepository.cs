@@ -14,7 +14,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
         string filter)
     {
         var q = Query().Where(x =>
-            x.OwnerId == user.Id && x.FolderId == folderId && x.IsActive
+            x.OwnerId == user.Id && x.FolderId == folderId && x.IsActive && x.UniqueId != user.ProfilePictureId
         );
 
         var result = await q.FindListAsync<TMapped>(filter);
@@ -27,7 +27,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
             new Dictionary<string, int>
             {
                 ["Global"] = await Query()
-                    .Where(x => x.OwnerId == user.Id)
+                    .Where(x => x.OwnerId == user.Id && x.UniqueId != user.ProfilePictureId)
                     .SumAsync(x => x.Size)
             }
         );
@@ -36,7 +36,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     public async Task<Result<Dictionary<string, int>>> GetStorageSizeByExtension(ApplicationUser user)
     {
         var storageSizeByExtension = await Query()
-            .Where(x => x.OwnerId == user.Id)
+            .Where(x => x.OwnerId == user.Id && x.UniqueId != user.ProfilePictureId)
             .GroupBy(x => x.Extension)
             .Select(g => new { Extension = g.Key, TotalSize = g.Sum(x => x.Size) })
             .ToDictionaryAsync(x => x.Extension, x => x.TotalSize);
@@ -47,7 +47,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser user)
     {
         var q = Query().Where(x =>
-            x.OwnerId == user.Id && !x.IsActive
+            x.OwnerId == user.Id && !x.IsActive && x.UniqueId != user.ProfilePictureId
         );
 
         return Result.Ok(await q.FindListAsync<TMapped>(""));
@@ -55,12 +55,12 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
 
     public async Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser user)
     {
-        return await DeleteAllAsync(x => x.OwnerId == user.Id && !x.IsActive);
+        return await DeleteAllAsync(x => x.OwnerId == user.Id && !x.IsActive && x.UniqueId != user.ProfilePictureId);
     }
 
     public async Task<Result<Media>> GetByUniqueIdAsync(Guid uniqueId)
     {
-        var q = Query().Where(x => x.UniqueId == uniqueId);
+        var q = Query().Where(x => x.UniqueId == uniqueId );
 
         var media = await q.FirstOrDefaultAsync();
         if (media == null)
@@ -73,7 +73,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
 
     public async Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser user)
     {
-        var q = Query().Where(x => x.OwnerId == user.Id && x.IsActive)
+        var q = Query().Where(x => x.OwnerId == user.Id && x.IsActive && x.UniqueId != user.ProfilePictureId)
             .OrderByDescending(x => x.UpdatedDate)
             .Take(10);
 
@@ -84,7 +84,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     public async Task<Result<Dictionary<string, int>>> GetTotalMediaByExtension(ApplicationUser user)
     {
         var result = await Query()
-            .Where(x => x.OwnerId == user.Id)
+            .Where(x => x.OwnerId == user.Id && x.UniqueId != user.ProfilePictureId)
             .GroupBy(x => x.Extension)
             .Select(g => new { Extension = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.Extension, x => x.Count);

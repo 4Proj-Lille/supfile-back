@@ -170,4 +170,55 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         return usersResult;
     }
 
+    public async Task<Result<ApplicationUser>> UpdateProfilePicture(ApplicationUser currentUser, IFormFile file, int userId)
+    {
+        if (currentUser.Id != userId)
+        {
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
+        }
+
+        var mediaResult = await _mediaService.AddOneAsync(currentUser, file);
+        if (mediaResult.IsFailed)
+        {
+            return Result.Fail(mediaResult.Errors);
+        }
+
+        currentUser.ProfilePictureId = mediaResult.Value.UniqueId;
+
+        var result = await Repository.UpdateAsync(currentUser.Id, currentUser);
+        if (result.IsFailed)
+        {
+            return Result.Fail(result.Errors);
+        }
+
+        return result;
+    }
+    
+    public async Task<Result<(byte[], string, string)>> DownloadPicture(int userId, ApplicationUser currentUser)
+    {
+        if (currentUser.Id != userId)
+        {
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
+        }
+        
+        if (currentUser.ProfilePictureId == null)
+        {
+            if (currentUser.UserName == null)
+            {
+                return Result.Fail(UserErrors.UserNameNotfound());
+            }
+    
+            return await _mediaService.GenerateProfilePictureThumbnail(currentUser.UserName);
+        }
+        
+        var fileResult = await _mediaService.DownloadPicture(currentUser.ProfilePictureId.Value, true);
+        if (fileResult.IsFailed)
+        {
+            return Result.Fail(fileResult.Errors);
+        }
+
+        return fileResult;
+    }
+
+
 }

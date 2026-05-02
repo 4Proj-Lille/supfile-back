@@ -19,4 +19,10 @@ public static class UserErrors
             ErrorsRes.AspNetUserNotFound_Title,
             ErrorsRes.AspNetUserNotFound_Detail
         );
+    
+    public static CustomError UserNameNotfound() =>
+        CommonErrorHelper.NotFound(
+            ErrorsRes.UserNameNotFound_Title,
+            ErrorsRes.UserNameNotFound_Detail
+        );
 }
