@@ -40,4 +40,7 @@ public interface IMediaService : IBaseService<Media, int>
     Task<Result<int>> SoftDeleteByFolderIdAsync(int folderId);
 
     Task<Result<(byte[], string, string)>> GenerateProfilePictureThumbnail(string userName);
+    
+    Task<Result<Media>> GetByUniqueIdAsync(Guid uniqueId);
+
 }

@@ -19,4 +19,10 @@ public static class MediaErrors
             string.Format(ErrorsRes.InvalidUniqueId_Title, uniqueId),
             string.Format(ErrorsRes.InvalidUniqueId_Detail, uniqueId)
         );
+    
+    public static CustomError InvalideProfilePictureType() =>
+        CommonErrorHelper.NotFound(
+            ErrorsRes.InvalideProfilePictureType_Title,
+            ErrorsRes.InvalideProfilePictureType_Detail
+        );
 }

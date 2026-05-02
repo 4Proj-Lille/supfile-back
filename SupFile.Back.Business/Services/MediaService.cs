@@ -327,4 +327,10 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         var bytes = Encoding.UTF8.GetBytes(svg);
         return Result.Ok((bytes, "image/svg+xml", $"{initials}.svg"));
     }
+    
+    public async Task<Result<Media>> GetByUniqueIdAsync(Guid uniqueId) 
+    {
+        return await Repository.GetByUniqueIdAsync(uniqueId);
+    }
+
 }

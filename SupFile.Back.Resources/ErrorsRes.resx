@@ -240,4 +240,10 @@
   <data name="UserNameNotFound_Detail" xml:space="preserve">
     <value>This account does not have a username</value>
   </data>
+  <data name="InvalideProfilePictureType_Title" xml:space="preserve">
+    <value>Invalid profile photo type</value>
+  </data>
+  <data name="InvalideProfilePictureType_Detail" xml:space="preserve">
+    <value>Only image can be uploaded</value>
+  </data>
 </root>

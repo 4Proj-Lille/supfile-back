@@ -488,5 +488,17 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("UserNameNotFound_Detail", resourceCulture);
             }
         }
+        
+        public static string InvalideProfilePictureType_Title {
+            get {
+                return ResourceManager.GetString("InvalideProfilePictureType_Title", resourceCulture);
+            }
+        }
+        
+        public static string InvalideProfilePictureType_Detail {
+            get {
+                return ResourceManager.GetString("InvalideProfilePictureType_Detail", resourceCulture);
+            }
+        }
     }
 }

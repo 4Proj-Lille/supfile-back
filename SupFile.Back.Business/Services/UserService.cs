@@ -176,6 +176,11 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
         }
+        
+        if (MediaTypeHelper.Resolve(Path.GetExtension(file.FileName)) != "Picture") 
+        {
+            return Result.Fail(MediaErrors.InvalideProfilePictureType());
+        }
 
         var mediaResult = await _mediaService.AddOneAsync(currentUser, file);
         if (mediaResult.IsFailed)
