@@ -128,9 +128,10 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
                     : null
             );
             
-            if(prop.Name == nameof(Media.FolderId) && value == null)
+            if(prop.Name == nameof(Media.FolderId) && value is 0)
             {
                 isDefault = false;
+                value = null;
             }
             
             if (!isDefault)
