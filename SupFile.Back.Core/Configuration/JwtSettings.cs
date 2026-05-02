@@ -8,5 +8,6 @@ public class JwtSettings
 
     [Required] public required string Audience { get; set; }
 
-    [Required] public required int ExpirationTimeInMinutes { get; set; }
+    [Required] public required int AccessTokenExpirationTimeInMinutes { get; set; }
+    [Required] public required int RefreshTokenExpirationTimeInMinutes { get; set; }
 }
