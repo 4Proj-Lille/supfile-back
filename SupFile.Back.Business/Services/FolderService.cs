@@ -117,6 +117,11 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
                     : null
             );
 
+            if(prop.Name == nameof(Folder.ParentId) && value == null)
+            {
+                isDefault = false;
+            }
+            
             if (!isDefault)
             {
                 prop.SetValue(folder, value);

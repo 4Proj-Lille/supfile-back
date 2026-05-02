@@ -127,7 +127,12 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
                     ? Activator.CreateInstance(prop.PropertyType) 
                     : null
             );
-
+            
+            if(prop.Name == nameof(Media.FolderId) && value == null)
+            {
+                isDefault = false;
+            }
+            
             if (!isDefault)
             {
                 prop.SetValue(media, value);
