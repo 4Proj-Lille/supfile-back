@@ -239,4 +239,10 @@
   <data name="InvalideProfilePictureType_Detail" xml:space="preserve">
     <value>Seule une image peut être téléchargée</value>
   </data>
+  <data name="MediaIsDeleted_Title" xml:space="preserve">
+    <value>Le Media {0} est supprimé</value>
+  </data>
+  <data name="MediaIsDeleted_Detail" xml:space="preserve">
+    <value>Le media {0} est dans la corbeille.</value>
+  </data>
 </root>

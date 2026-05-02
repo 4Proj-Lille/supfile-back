@@ -246,4 +246,10 @@
   <data name="InvalideProfilePictureType_Detail" xml:space="preserve">
     <value>Only image can be uploaded</value>
   </data>
+  <data name="MediaIsDeleted_Title" xml:space="preserve">
+    <value>Media {0} is Deleted</value>
+  </data>
+  <data name="MediaIsDeleted_Detail" xml:space="preserve">
+    <value>The media {0} is in bin.</value>
+  </data>
 </root>

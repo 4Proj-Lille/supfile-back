@@ -500,5 +500,17 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("InvalideProfilePictureType_Detail", resourceCulture);
             }
         }
+        
+        public static string MediaIsDeleted_Title {
+            get {
+                return ResourceManager.GetString("MediaIsDeleted_Title", resourceCulture);
+            }
+        }
+        
+        public static string MediaIsDeleted_Detail {
+            get {
+                return ResourceManager.GetString("MediaIsDeleted_Detail", resourceCulture);
+            }
+        }
     }
 }

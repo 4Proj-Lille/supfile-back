@@ -59,21 +59,11 @@ public class UsersController : BaseAuthController
         return ToNoContentActionResult(result);
     }
     
-    [HttpPatch("{userId:int}/ProfilePicture")]
-    public async Task<ActionResult<ApplicationUserModel>> UpdateProfilePicture(int userId, IFormFile file)
-    {
-        var currentUser = await GetAuthenticatedAppUserAsync();
-
-        var createdMediaResult = await _userService.UpdateProfilePicture(currentUser, file, userId);
-        var mediaModelResult = createdMediaResult.Map(m => m.Adapt<ApplicationUserModel>());
-        return ToOkActionResult(mediaModelResult);
-    }
-    
+    [AllowAnonymous]
     [HttpGet("{userId:int}/ProfilePicture")]
     public async Task<IActionResult> PreviewPicture(int userId)
     {
-        var currentUser = await GetAuthenticatedAppUserAsync();
-        var mediaFile = await _userService.DownloadPicture(userId, currentUser);
+        var mediaFile = await _userService.DownloadPicture(userId);
 
         if (mediaFile.IsFailed)
             return NotFound();

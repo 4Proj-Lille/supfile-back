@@ -20,6 +20,12 @@ public static class MediaErrors
             string.Format(ErrorsRes.InvalidUniqueId_Detail, uniqueId)
         );
     
+    public static CustomError MediaIsDeleted(string uniqueId) =>
+        CommonErrorHelper.BadRequest(
+            string.Format(ErrorsRes.MediaIsDeleted_Title, uniqueId),
+            string.Format(ErrorsRes.MediaIsDeleted_Detail, uniqueId)
+        );
+    
     public static CustomError InvalideProfilePictureType() =>
         CommonErrorHelper.NotFound(
             ErrorsRes.InvalideProfilePictureType_Title,

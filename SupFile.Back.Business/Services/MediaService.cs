@@ -206,7 +206,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
     {
         var mediaResult = await Repository.GetByUniqueIdAsync(mediaUniqueId);
         if (mediaResult.IsFailed) return mediaResult.ToResult();
-
+        
         var fileResult =
             await _storageProvider.ReadAsync(mediaResult.Value.UniqueId.ToString(), mediaResult.Value.Extension);
         if (fileResult.IsFailed) return fileResult.ToResult();
@@ -279,6 +279,9 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
     {
         var filter = $"OwnerId={currentUser.Id}";
 
+        if (currentUser.ProfilePictureId != null)
+            filter += $",UniqueId!={currentUser.ProfilePictureId}";
+        
         var searchFilter = query.ToGridifyFilter();
         if (!string.IsNullOrWhiteSpace(searchFilter))
             filter += $",{searchFilter}";

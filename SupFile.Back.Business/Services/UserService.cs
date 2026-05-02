@@ -70,9 +70,14 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
             }
         }
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-        
-        if (profilePicture != null && MediaTypeHelper.Resolve(Path.GetExtension(profilePicture.FileName)) == "Picture")
+
+        if (profilePicture != null)
         {
+            if (MediaTypeHelper.Resolve(Path.GetExtension(profilePicture.FileName)) != "Picture")
+            {
+                return Result.Fail(MediaErrors.InvalideProfilePictureType());
+            }
+            
             var mediaResult = await _mediaService.AddOneAsync(user, profilePicture);
             if (mediaResult.IsFailed)
             {
@@ -169,54 +174,29 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
 
         return usersResult;
     }
-
-    public async Task<Result<ApplicationUser>> UpdateProfilePicture(ApplicationUser currentUser, IFormFile file, int userId)
-    {
-        if (currentUser.Id != userId)
-        {
-            return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
-        }
-        
-        if (MediaTypeHelper.Resolve(Path.GetExtension(file.FileName)) != "Picture") 
-        {
-            return Result.Fail(MediaErrors.InvalideProfilePictureType());
-        }
-
-        var mediaResult = await _mediaService.AddOneAsync(currentUser, file);
-        if (mediaResult.IsFailed)
-        {
-            return Result.Fail(mediaResult.Errors);
-        }
-
-        currentUser.ProfilePictureId = mediaResult.Value.UniqueId;
-
-        var result = await Repository.UpdateAsync(currentUser.Id, currentUser);
-        if (result.IsFailed)
-        {
-            return Result.Fail(result.Errors);
-        }
-
-        return result;
-    }
     
-    public async Task<Result<(byte[], string, string)>> DownloadPicture(int userId, ApplicationUser currentUser)
+    public async Task<Result<(byte[], string, string)>> DownloadPicture(int userId)
     {
-        if (currentUser.Id != userId)
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
         {
-            return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
+            return Result.Fail(AuthErrors.UserNotFound());
         }
         
-        if (currentUser.ProfilePictureId == null)
+        var mediaResult = await _mediaService.GetByUniqueIdAsync(user.ProfilePictureId.Value);
+        if (mediaResult.IsFailed) return mediaResult.ToResult();
+        
+        if (user.ProfilePictureId == null || !mediaResult.Value.IsActive)
         {
-            if (currentUser.UserName == null)
+            if (user.UserName == null)
             {
                 return Result.Fail(UserErrors.UserNameNotfound());
             }
     
-            return await _mediaService.GenerateProfilePictureThumbnail(currentUser.UserName);
+            return await _mediaService.GenerateProfilePictureThumbnail(user.UserName);
         }
         
-        var fileResult = await _mediaService.DownloadPicture(currentUser.ProfilePictureId.Value, true);
+        var fileResult = await _mediaService.DownloadPicture(user.ProfilePictureId.Value, true);
         if (fileResult.IsFailed)
         {
             return Result.Fail(fileResult.Errors);
