@@ -31,4 +31,10 @@ public static class MediaErrors
             ErrorsRes.InvalideProfilePictureType_Title,
             ErrorsRes.InvalideProfilePictureType_Detail
         );
+    
+    public static CustomError StorageLimitExceeded() =>
+        CommonErrorHelper.NotFound(
+            ErrorsRes.StorageLimitExceeded_Title,
+            ErrorsRes.StorageLimitExceeded_Detail
+        );
 }

@@ -9,21 +9,33 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 {
     private readonly IStorageProvider _storageProvider;
     private readonly IFolderRepository _folderRepository;
+    private readonly AppSettings _appSettings;
 
     public MediaService(
         ILogger<MediaService> logger,
         IMediaRepository repository,
         IStorageProvider storageProvider,
-        IFolderRepository folderRepository
+        IFolderRepository folderRepository,
+        IOptions<AppSettings> appSettings
     ) : base(logger, repository)
     {
         _storageProvider = storageProvider;
         _folderRepository = folderRepository;
+        _appSettings = appSettings.Value;
     }
 
     public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null, string? folderName = null)
     {
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        
+        var storageSizeResult = await Repository.GetTotalStorageSize(currentUser);
+        if (storageSizeResult.IsFailed) return storageSizeResult.ToResult();
+        var totalStorageSize = storageSizeResult.Value.Values.FirstOrDefault();
+        if (totalStorageSize + file.Length > _appSettings.AllocatedSpace)
+        {
+            return Result.Fail(MediaErrors.StorageLimitExceeded());
+        }
+        
         var name = folderName ?? Path.GetFileNameWithoutExtension(file.FileName);
         var extension = Path.GetExtension(file.FileName);
 

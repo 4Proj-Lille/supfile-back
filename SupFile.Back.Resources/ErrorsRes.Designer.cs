@@ -512,5 +512,17 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("MediaIsDeleted_Detail", resourceCulture);
             }
         }
+        
+        public static string StorageLimitExceeded_Title {
+            get {
+                return ResourceManager.GetString("StorageLimitExceeded_Title", resourceCulture);
+            }
+        }
+        
+        public static string StorageLimitExceeded_Detail {
+            get {
+                return ResourceManager.GetString("StorageLimitExceeded_Detail", resourceCulture);
+            }
+        }
     }
 }

@@ -252,4 +252,10 @@
   <data name="MediaIsDeleted_Detail" xml:space="preserve">
     <value>The media {0} is in bin.</value>
   </data>
+  <data name="StorageLimitExceeded_Title" xml:space="preserve">
+    <value>Storage Limit Exceeded</value>
+  </data>
+  <data name="StorageLimitExceeded_Detail" xml:space="preserve">
+    <value>Storage Limit Exceeded</value>
+  </data>
 </root>
