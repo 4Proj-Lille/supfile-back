@@ -62,5 +62,5 @@ public class AppSettings
 
     public bool RequireEmailVerification { get; set; }
     
-    public int AllocatedSpace { get; set; }
+    public long AllocatedSpace { get; set; }
 }

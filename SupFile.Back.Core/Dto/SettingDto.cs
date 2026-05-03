@@ -2,5 +2,5 @@
 
 public class SettingDto
 {
-    public int AllocatedSpace { get; set; }
+    public long AllocatedSpace { get; set; }
 }
