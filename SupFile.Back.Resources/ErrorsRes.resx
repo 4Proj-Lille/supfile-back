@@ -184,7 +184,7 @@
     <value>Bin error</value>
   </data>
   <data name="EmptyBin_Detail" xml:space="preserve">
-    <value>Failed to empty the bin.</value>
+    <value>You can't empty a bin that's already empty.</value>
   </data>
   <data name="BinItem_Title" xml:space="preserve">
     <value>Bin error</value>

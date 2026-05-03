@@ -21,20 +21,26 @@ public static class MediaErrors
         );
     
     public static CustomError MediaIsDeleted(string uniqueId) =>
-        CommonErrorHelper.BadRequest(
+        CommonErrorHelper.NotFound(
             string.Format(ErrorsRes.MediaIsDeleted_Title, uniqueId),
             string.Format(ErrorsRes.MediaIsDeleted_Detail, uniqueId)
         );
     
     public static CustomError InvalideProfilePictureType() =>
-        CommonErrorHelper.NotFound(
+        CommonErrorHelper.BadRequest(
             ErrorsRes.InvalideProfilePictureType_Title,
             ErrorsRes.InvalideProfilePictureType_Detail
         );
     
     public static CustomError StorageLimitExceeded() =>
-        CommonErrorHelper.NotFound(
+        CommonErrorHelper.BadRequest(
             ErrorsRes.StorageLimitExceeded_Title,
             ErrorsRes.StorageLimitExceeded_Detail
+        );
+    
+    public static CustomError NoMediaFound() =>
+        CommonErrorHelper.NotFound(
+            ErrorsRes.NoMediaFound_Title,
+            ErrorsRes.NoMediaFound_Detail
         );
 }

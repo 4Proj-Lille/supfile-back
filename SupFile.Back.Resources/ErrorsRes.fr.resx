@@ -174,7 +174,7 @@
     <value>Dossier introuvable</value>
   </data>
   <data name="EmptyBin_Detail" xml:space="preserve">
-    <value>Impossible de vider la corbeille.</value>
+    <value>Impossible de vider une poubelle déjà vide.</value>
   </data>
   <data name="EmptyBin_Title" xml:space="preserve">
     <value>Erreur de corbeille</value>

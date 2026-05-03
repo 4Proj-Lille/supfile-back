@@ -16,7 +16,7 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         if (softDeletedFoldersResult.IsFailed) return softDeletedFoldersResult
             .ToResult<int>();
         
-        if (softDeletedFoldersResult.Value.Count == 0) return Result.Ok(0);
+        if (softDeletedFoldersResult.Value.Count == 0) return Result.Fail(BinErrors.NoFolderFound());
         
         return await DeleteAllAsync(x => x.OwnerId == user.Id && !x.IsActive);
     }

@@ -58,7 +58,7 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
         var softDeletedMediaResult = await GetSoftDeleted<Media>(user);
         if (softDeletedMediaResult.IsFailed) return softDeletedMediaResult.ToResult<int>();
         
-        if (softDeletedMediaResult.Value.Count == 0) return Result.Ok(0);
+        if (softDeletedMediaResult.Value.Count == 0) return Result.Fail(BinErrors.NoMediaFound());
         
         return await DeleteAllAsync(x => x.OwnerId == user.Id && !x.IsActive && x.UniqueId != user.ProfilePictureId);
     }

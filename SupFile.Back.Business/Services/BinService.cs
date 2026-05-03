@@ -4,6 +4,8 @@
 
 using System.Transactions;
 using SupFile.Back.Core.Enums;
+using SupFile.Back.Core.Errors.Base;
+using SupFile.Back.Resources;
 
 namespace SupFile.Back.Business.Services;
 
@@ -102,15 +104,22 @@ public class BinService : IBinService
         var mediaEmptyResult = await _mediaService.DeleteAllSoftDeleted(currentUser);
         var folderEmptyResult = await _folderService.DeleteAllSoftDeleted(currentUser);
 
-        if (!mediaEmptyResult.IsSuccess || !folderEmptyResult.IsSuccess)
-        {
+        var mediaIsEmpty = mediaEmptyResult.IsFailed && 
+                           mediaEmptyResult.Errors.OfType<CustomError>().Any(e => e.Title == ErrorsRes.NoMediaFound_Title);
+
+        var folderIsEmpty = folderEmptyResult.IsFailed && 
+                            folderEmptyResult.Errors.OfType<CustomError>().Any(e => e.Title == ErrorsRes.NoFolderFound_Title);
+        
+        if ((mediaEmptyResult.IsFailed && !mediaIsEmpty) || (folderEmptyResult.IsFailed && !folderIsEmpty))
             return Result.Fail(BinErrors.BinItem());
-        }
+
+        if (mediaIsEmpty && folderIsEmpty)
+            return Result.Fail(BinErrors.EmptyBin());
 
         scope.Complete();
         return Result.Ok();
     }
-
+    
     public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetBinItemsAsync(ApplicationUser currentUser,
         ObjectType? type = null)
     {
