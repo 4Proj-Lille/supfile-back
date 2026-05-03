@@ -8,7 +8,7 @@ public interface IUserService : IBaseService<ApplicationUser, int>
 
     Task<Result<List<TMapped>>> GetAllUsersAsync<TMapped>(ApplicationUser currentUser, int pageNumber, int pageSize);
     
-    Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser, IFormFile? profilePicture);
+    Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser);
     
     Task<Result<ApplicationUser>> UpdatePasswordAsync(int userId, string currentPassword, string newPassword, string confirmNewPassword, ApplicationUser currentUser);
     
@@ -17,5 +17,7 @@ public interface IUserService : IBaseService<ApplicationUser, int>
     Task<Result<List<TMapped>>> GetAccessUsersAsync<TMapped>(int id, ApplicationUser currentUser, ObjectType type);
     
     Task<Result<(byte[], string, string)>> DownloadPicture(int userId);
+
+    Task<Result<ApplicationUser>> UpdateProfilePicture(ApplicationUser currentUser, IFormFile file, int userId);
 
 }

@@ -38,7 +38,7 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         nameof(ApplicationUser.DisplayName),
     ];
     
-    public async Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser, IFormFile? profilePicture)
+    public async Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser)
     {
         if (currentUser.Id != userId)
         {
@@ -70,22 +70,6 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
             }
         }
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
-        if (profilePicture != null)
-        {
-            if (MediaTypeHelper.Resolve(Path.GetExtension(profilePicture.FileName)) != "Picture")
-            {
-                return Result.Fail(MediaErrors.InvalideProfilePictureType());
-            }
-            
-            var mediaResult = await _mediaService.AddOneAsync(user, profilePicture);
-            if (mediaResult.IsFailed)
-            {
-                return Result.Fail(mediaResult.Errors);
-            }
-
-            user.ProfilePictureId = mediaResult.Value.UniqueId;
-        }
         
         var result = await Repository.UpdateAsync(userId, user);
         if (result.IsFailed)
@@ -203,6 +187,36 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         }
 
         return fileResult;
+    }
+    
+
+    public async Task<Result<ApplicationUser>> UpdateProfilePicture(ApplicationUser currentUser, IFormFile file, int userId)
+    {
+        if (currentUser.Id != userId)
+        {
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
+        }
+        
+        if (MediaTypeHelper.Resolve(Path.GetExtension(file.FileName)) != "Picture") 
+        {
+            return Result.Fail(MediaErrors.InvalideProfilePictureType());
+        }
+
+        var mediaResult = await _mediaService.AddOneAsync(currentUser, file);
+        if (mediaResult.IsFailed)
+        {
+            return Result.Fail(mediaResult.Errors);
+        }
+
+        currentUser.ProfilePictureId = mediaResult.Value.UniqueId;
+
+        var result = await Repository.UpdateAsync(currentUser.Id, currentUser);
+        if (result.IsFailed)
+        {
+            return Result.Fail(result.Errors);
+        }
+
+        return result;
     }
 
 

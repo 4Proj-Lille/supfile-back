@@ -23,11 +23,11 @@ public class UsersController : BaseAuthController
     }
 
     [HttpPatch("{userId:int}")]
-    public async Task<ActionResult<ApplicationUserModel>> Patch(int userId, [FromForm] UserPatchModel model, IFormFile? profilePicture = null)    {
+    public async Task<ActionResult<ApplicationUserModel>> Patch(int userId, [FromForm] UserPatchModel model) {
          var currentUser = await GetAuthenticatedAppUserAsync();
          var entity = model.Adapt<ApplicationUser>();
     
-         var userResult = await _userService.UpdateAsync(userId, entity, currentUser, profilePicture);
+         var userResult = await _userService.UpdateAsync(userId, entity, currentUser);
          if (userResult.IsFailed)
          {
              return ToErrorActionResult(userResult.ToResult());
@@ -76,4 +76,15 @@ public class UsersController : BaseAuthController
 
         return File(file, contentType);
     }
+    
+    [HttpPatch("{userId:int}/ProfilePicture")]
+    public async Task<ActionResult<ApplicationUserModel>> UpdateProfilePicture(int userId, IFormFile file)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+
+        var createdMediaResult = await _userService.UpdateProfilePicture(currentUser, file, userId);
+        var mediaModelResult = createdMediaResult.Map(m => m.Adapt<ApplicationUserModel>());
+        return ToOkActionResult(mediaModelResult);
+    }
+
 }
