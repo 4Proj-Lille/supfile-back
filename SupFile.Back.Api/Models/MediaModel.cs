@@ -27,4 +27,7 @@ public class MediaModel
     public int OwnerId { get; set; }
     
     public Guid UniqueId { get; set; }
+    
+    public List<ApplicationUserModel> SharedUsers { get; set; } = [];
+
 }

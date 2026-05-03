@@ -10,4 +10,5 @@ public interface IShareService : IBaseService<Share, int>
     
     Task<Result<List<TMapped>>> GetAccessUsersAsync<TMapped>(int objectId, ApplicationUser currentUser, ObjectType type);
     
+    Task<Result<TMapped>> GetAllAsync<TMapped>(ApplicationUser currentUser);
 }

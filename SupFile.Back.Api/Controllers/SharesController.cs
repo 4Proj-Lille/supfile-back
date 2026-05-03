@@ -25,4 +25,12 @@ public sealed class SharesController : BaseAuthController
         return ToOkActionResult(updateResult);
     }
     
+    [HttpGet]
+    public async Task<ActionResult<StorageModel>> GetShares()
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var sharesResult = await _shareService.GetAllAsync<StorageModel>(currentUser);
+        return ToOkActionResult(sharesResult);
+    }
+    
 }

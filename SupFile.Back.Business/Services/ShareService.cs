@@ -41,4 +41,9 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
         var accessUsersResult = await _userService.GetAccessUsersAsync<TMapped>(objectId, currentUser, type);
         return accessUsersResult;
     }
+
+    public Task<Result<TMapped>> GetAllAsync<TMapped>(ApplicationUser currentUser)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -24,7 +24,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         _appSettings = appSettings.Value;
     }
 
-    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null, string? folderName = null)
+    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null, string? mediaName = null)
     {
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         
@@ -36,7 +36,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             return Result.Fail(MediaErrors.StorageLimitExceeded());
         }
         
-        var name = folderName ?? Path.GetFileNameWithoutExtension(file.FileName);
+        var name = mediaName ?? Path.GetFileNameWithoutExtension(file.FileName);
         var extension = Path.GetExtension(file.FileName);
 
         await using var stream = file.OpenReadStream();
