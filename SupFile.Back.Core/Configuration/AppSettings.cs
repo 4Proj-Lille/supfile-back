@@ -61,4 +61,6 @@ public class AppSettings
     public bool AllowSwagger { get; set; }
 
     public bool RequireEmailVerification { get; set; }
+    
+    public int AllocatedSpace { get; set; }
 }

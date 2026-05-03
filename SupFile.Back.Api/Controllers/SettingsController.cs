@@ -3,20 +3,19 @@ namespace SupFile.Back.Api.Controllers;
 [Route("api/[controller]")]
 public class SettingsController : BaseAuthController
 {
+    private readonly ISettingService _settingsService;
     public SettingsController(ILogger<SettingsController> logger,
-        IUserRepository userRepository,
+        IUserRepository userRepository, ISettingService settingsService,
         IWebHostEnvironment env) : base(logger, userRepository, env)
     {
+        _settingsService = settingsService;
     }
     
-    // [HttpGet]
-    // public async Task<ActionResult<SettingDto>> Get()
-    // {
-    //     var settings = new SettingDto
-    //     {
-    //         AllocatedSpace = _environment.
-    //     };        
-    //     
-    //     return ToOkActionResult(Result.Ok(settings));
-    // }
+    [AllowAnonymous]
+    [HttpGet]
+    public async Task<ActionResult<SettingDto>> Get()
+    {
+        var result = await _settingsService.GetSettingsAsync();
+        return ToOkActionResult(result);
+    }
 }

@@ -47,7 +47,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             Name = name,
             Extension = extension,
             Size = (int)file.Length,
-            MimeType = results.ByMimeType().FirstOrDefault()?.MimeType ?? file.ContentType,
+            MimeType = results.ByMimeType().FirstOrDefault()?.MimeType ?? "application/octet-stream",
             FolderId = folderId,
             OwnerId = currentUser.Id,
         };
