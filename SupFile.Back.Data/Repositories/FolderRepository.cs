@@ -12,6 +12,12 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
 
     public async Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser user)
     {
+        var softDeletedFoldersResult = await GetSoftDeleted<Folder>(user);
+        if (softDeletedFoldersResult.IsFailed) return softDeletedFoldersResult
+            .ToResult<int>();
+        
+        if (softDeletedFoldersResult.Value.Count == 0) return Result.Ok(0);
+        
         return await DeleteAllAsync(x => x.OwnerId == user.Id && !x.IsActive);
     }
 

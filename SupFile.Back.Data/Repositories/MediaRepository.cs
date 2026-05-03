@@ -55,6 +55,11 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
 
     public async Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser user)
     {
+        var softDeletedMediaResult = await GetSoftDeleted<Media>(user);
+        if (softDeletedMediaResult.IsFailed) return softDeletedMediaResult.ToResult<int>();
+        
+        if (softDeletedMediaResult.Value.Count == 0) return Result.Ok(0);
+        
         return await DeleteAllAsync(x => x.OwnerId == user.Id && !x.IsActive && x.UniqueId != user.ProfilePictureId);
     }
 
