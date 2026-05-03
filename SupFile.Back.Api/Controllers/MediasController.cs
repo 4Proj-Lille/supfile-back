@@ -76,11 +76,11 @@ public sealed class MediasController : BaseAuthController
     }
     
     [HttpPost]
-    public async Task<ActionResult<MediaModel>> Post(IFormFile file, [FromQuery] int? folderId)
+    public async Task<ActionResult<MediaModel>> Post(IFormFile file, [FromQuery] int? folderId, [FromQuery] string? folderName)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
 
-        var createdMediaResult = await _mediaService.AddOneAsync(currentUser, file, folderId);
+        var createdMediaResult = await _mediaService.AddOneAsync(currentUser, file, folderId, folderName);
         var mediaModelResult = createdMediaResult.Map(m => m.Adapt<MediaModel>());
         return ToOkActionResult(mediaModelResult);
     }

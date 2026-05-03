@@ -1,5 +1,4 @@
 using System.Transactions;
-using Microsoft.AspNetCore.StaticFiles;
 using MimeDetective;
 using SupFile.Back.Core.Enums;
 using SupFile.Back.Storage.Interfaces;
@@ -22,10 +21,10 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         _folderRepository = folderRepository;
     }
 
-    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null)
+    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null, string? folderName = null)
     {
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-        var name = Path.GetFileNameWithoutExtension(file.FileName);
+        var name = folderName ?? Path.GetFileNameWithoutExtension(file.FileName);
         var extension = Path.GetExtension(file.FileName);
 
         await using var stream = file.OpenReadStream();
