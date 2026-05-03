@@ -6,7 +6,7 @@ using SupFile.Back.Core.Enums;
 
 namespace SupFile.Back.Core.Dto;
 
-public class MediaSearchQuery
+public class SearchQuery
 {
     public string? Name { get; set; }
     public string? Extension { get; set; }
@@ -14,12 +14,14 @@ public class MediaSearchQuery
     public DateTime? ModifiedAfter { get; set; }
     public DateTime? ModifiedBefore { get; set; }
 
-    public string ToGridifyFilter()
+    public OrderByType OrderBy { get; set; } = OrderByType.Name;
+    
+    public string ToGridifyMediaFilter()
     {
         var filters = new List<string>();
 
         if (!string.IsNullOrWhiteSpace(Name))
-            filters.Add($"Name=*{Name.ToLower()}");
+            filters.Add($"Name=*{Name}");
 
         if (!string.IsNullOrWhiteSpace(Extension))
             filters.Add($"Extension={Extension}");
@@ -40,4 +42,35 @@ public class MediaSearchQuery
 
         return string.Join(",", filters);
     }
+    
+    public string ToGridifyMediaOrderBy() => OrderBy switch
+    {
+        OrderByType.Name => "Name asc",
+        OrderByType.Date => "UpdatedDate desc",
+        OrderByType.Size => "Size desc",
+        OrderByType.Type => "Extension asc",
+        _                => "Name asc"
+    };
+    
+    public string ToGridifyFolderFilter()
+    {
+        var filters = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(Name))
+            filters.Add($"Name=*{Name}");
+
+        if (ModifiedAfter.HasValue)
+            filters.Add($"CreatedDate>={ModifiedAfter.Value:yyyy-MM-dd}");
+
+        if (ModifiedBefore.HasValue)
+            filters.Add($"CreatedDate<={ModifiedBefore.Value:yyyy-MM-dd}");
+
+        return string.Join(",", filters);
+    }
+
+    public string ToGridifyFolderOrderBy() => OrderBy switch
+    {
+        OrderByType.Date => "UpdatedDate desc",
+        _                => "Name asc"
+    };
 }

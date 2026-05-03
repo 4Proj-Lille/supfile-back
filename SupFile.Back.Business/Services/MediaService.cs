@@ -91,11 +91,12 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
     }
 
     public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId,
-        MediaSearchQuery query)
+        SearchQuery query)
     {
-        var filter = query.ToGridifyFilter();
+        var filter = query.ToGridifyMediaFilter();
+        var orderBy = query.ToGridifyMediaOrderBy();
 
-        var mediaResult = await Repository.GetFolderContents<TMapped>(currentUser, folderId, filter);
+        var mediaResult = await Repository.GetFolderContents<TMapped>(currentUser, folderId, filter, orderBy);
         return mediaResult;
     }
 
@@ -285,18 +286,20 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
     }
 
     public async Task<Result<IEnumerable<TMapped>>> SearchAsync<TMapped>(ApplicationUser currentUser,
-        MediaSearchQuery query)
+        SearchQuery query)
     {
         var filter = $"OwnerId={currentUser.Id}";
 
         if (currentUser.ProfilePictureId != null)
             filter += $",UniqueId!={currentUser.ProfilePictureId}";
+
+        var orderBy = query.ToGridifyMediaOrderBy();
         
-        var searchFilter = query.ToGridifyFilter();
+        var searchFilter = query.ToGridifyMediaFilter();
         if (!string.IsNullOrWhiteSpace(searchFilter))
             filter += $",{searchFilter}";
 
-        var result = await Repository.FindListAsync<TMapped>(filter);
+        var result = await Repository.FindListAsync<TMapped>(filter, orderBy: orderBy);
         if (result.IsFailed) return result.ToResult();
 
         return Result.Ok(result.Value.AsEnumerable());

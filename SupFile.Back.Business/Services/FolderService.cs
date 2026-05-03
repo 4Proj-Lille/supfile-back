@@ -70,9 +70,12 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
     }
 
     public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetFolderContents(ApplicationUser user, int? folderId,
-        MediaSearchQuery query)
+        SearchQuery query)
     {
-        var folderResult = await Repository.GetFolderContents<Folder>(user, folderId);
+        var filter = query.ToGridifyFolderFilter();
+        var orderBy = query.ToGridifyFolderOrderBy();
+
+        var folderResult = await Repository.GetFolderContents<Folder>(user, folderId, filter, orderBy);
         if (!folderResult.IsSuccess) return folderResult.ToResult();
 
         var mediaResult = await _mediaService.GetFolderContents<Media>(user, folderId, query);
@@ -255,7 +258,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         int folderId,
         string currentPath)
     {
-        var mediasResult = await _mediaService.GetFolderContents<Media>(currentUser, folderId, new MediaSearchQuery());
+        var mediasResult = await _mediaService.GetFolderContents<Media>(currentUser, folderId, new SearchQuery());
         if (mediasResult.IsFailed) return mediasResult.ToResult();
 
         foreach (var media in mediasResult.Value)
@@ -268,7 +271,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
             await entryStream.WriteAsync(fileResult.Value);
         }
 
-        var subFoldersResult = await Repository.GetFolderContents<Folder>(currentUser, folderId);
+        var subFoldersResult = await Repository.GetFolderContents<Folder>(currentUser, folderId,"", "");
         if (!subFoldersResult.IsSuccess) return subFoldersResult.ToResult();
 
         foreach (var subFolder in subFoldersResult.Value)

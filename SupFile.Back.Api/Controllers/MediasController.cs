@@ -26,7 +26,7 @@ public sealed class MediasController : BaseAuthController
     }
     
     [HttpGet("Search")]
-    public async Task<ActionResult<IEnumerable<MediaModel>>> Search([FromQuery] MediaSearchQuery query)
+    public async Task<ActionResult<IEnumerable<MediaModel>>> Search([FromQuery] SearchQuery query)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var result = await _mediaService.SearchAsync<MediaModel>(currentUser, query);

@@ -11,13 +11,13 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
     }
 
     public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? folderId,
-        string filter)
+        string filter, string orderBy)
     {
         var q = Query().Where(x =>
             x.OwnerId == user.Id && x.FolderId == folderId && x.IsActive && x.UniqueId != user.ProfilePictureId
         );
 
-        var result = await q.FindListAsync<TMapped>(filter);
+        var result = await q.FindListAsync<TMapped>(filter, orderBy: orderBy);
         return Result.Ok(result);
     }
 

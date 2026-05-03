@@ -9,7 +9,7 @@ public interface IMediaService : IBaseService<Media, int>
 
     Task<Result> DeleteOneAsync(ApplicationUser currentUser, int id);
 
-    Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId, MediaSearchQuery query);
+    Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId, SearchQuery query);
     
     Task<Result<Media>> UpdateAsync(int id, Media entity, ApplicationUser currentUser);
     
@@ -34,7 +34,7 @@ public interface IMediaService : IBaseService<Media, int>
     
     Task<Result<List<TMapped>>> GetRecentlyModified<TMapped>(ApplicationUser currentUser);
 
-    Task<Result<IEnumerable<TMapped>>> SearchAsync<TMapped>(ApplicationUser currentUser, MediaSearchQuery query);
+    Task<Result<IEnumerable<TMapped>>> SearchAsync<TMapped>(ApplicationUser currentUser, SearchQuery query);
 
     Task<Result<Dictionary<string, int>>> GetTotalMediaByType(ApplicationUser currentUser);
     Task<Result<int>> SoftDeleteByFolderIdAsync(int folderId);
