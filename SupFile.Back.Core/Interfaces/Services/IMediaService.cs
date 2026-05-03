@@ -5,7 +5,7 @@ namespace SupFile.Back.Core.Interfaces.Services;
 
 public interface IMediaService : IBaseService<Media, int>
 {
-    Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null);
+    Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null, string? folderName = null);
 
     Task<Result> DeleteOneAsync(ApplicationUser currentUser, int id);
 

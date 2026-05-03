@@ -1,5 +1,5 @@
 using System.Transactions;
-using Microsoft.AspNetCore.StaticFiles;
+using MimeDetective;
 using SupFile.Back.Core.Enums;
 using SupFile.Back.Storage.Interfaces;
 
@@ -21,13 +21,22 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         _folderRepository = folderRepository;
     }
 
-    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null)
+    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null, string? folderName = null)
     {
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-        var name = Path.GetFileNameWithoutExtension(file.FileName);
+        var name = folderName ?? Path.GetFileNameWithoutExtension(file.FileName);
         var extension = Path.GetExtension(file.FileName);
 
         await using var stream = file.OpenReadStream();
+
+        var inspector = new ContentInspectorBuilder() {
+            Definitions = MimeDetective.Definitions.DefaultDefinitions.All()
+        }.Build();
+
+        var results = inspector.Inspect(stream);
+
+        stream.Seek(0, SeekOrigin.Begin);
+
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
         var bytes = ms.ToArray();
@@ -37,6 +46,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             Name = name,
             Extension = extension,
             Size = (int)file.Length,
+            MimeType = results.ByMimeType().FirstOrDefault()?.MimeType ?? "application/octet-stream",
             FolderId = folderId,
             OwnerId = currentUser.Id,
         };
@@ -211,20 +221,20 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             await _storageProvider.ReadAsync(mediaResult.Value.UniqueId.ToString(), mediaResult.Value.Extension);
         if (fileResult.IsFailed) return fileResult.ToResult();
 
-        var provider = new FileExtensionContentTypeProvider();
-        if (!provider.TryGetContentType($"{mediaResult.Value.UniqueId.ToString()}{mediaResult.Value.Extension}",
-                out var contentType))
-        {
-            contentType = "application/octet-stream";
-        }
+        // var provider = new FileExtensionContentTypeProvider();
+        // if (!provider.TryGetContentType($"{mediaResult.Value.UniqueId.ToString()}{mediaResult.Value.Extension}",
+        //         out var contentType))
+        // {
+        //     contentType = "application/octet-stream";
+        // }
 
         if (preview)
         {
-            return Result.Ok((fileResult.Value, contentType,
+            return Result.Ok((fileResult.Value, mediaResult.Value.MimeType,
                 $"{mediaResult.Value.UniqueId.ToString()}{mediaResult.Value.Extension}"));
         }
 
-        return Result.Ok((fileResult.Value, contentType, $"{mediaResult.Value.Name}{mediaResult.Value.Extension}"));
+        return Result.Ok((fileResult.Value, mediaResult.Value.MimeType, $"{mediaResult.Value.Name}{mediaResult.Value.Extension}"));
     }
 
     public async Task<Result<Media>> SoftDeleteAsync(ApplicationUser currentUser, int id)

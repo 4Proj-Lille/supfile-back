@@ -32,7 +32,7 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         while (currentId != null)
         {
             var folderResult =
-                await Query().Where(x => x.Id == currentId && x.OwnerId == user.Id).FirstOrDefaultAsync();
+                await Query().Where(x => x.Id == currentId && x.OwnerId == user.Id && x.IsActive).FirstOrDefaultAsync();
             if (folderResult == null)
             {
                 return Result.Fail(EntityErrors.NotFound<Folder>());

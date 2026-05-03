@@ -48,6 +48,12 @@ namespace SupFile.Back.Data.Mapping
                 .HasColumnName("Size")
                 .HasColumnType("bigint");
             
+            builder.Property(t => t.MimeType)
+                .IsRequired()
+                .HasColumnName("MimeType")
+                .HasColumnType("varchar(255)")
+                .HasMaxLength(255);
+            
             builder.Property(t => t.IsActive)
                 .IsRequired()
                 .HasColumnName("IsActive")
@@ -114,6 +120,9 @@ namespace SupFile.Back.Data.Mapping
             /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.Size" /></summary>
             public const string Size = "Size";
 
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.MimeType" /></summary>
+            public const string MimeType = "MimeType";
+            
             /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Media.IsActive" /></summary>
             public const string IsActive = "IsActive";
             
