@@ -1,4 +1,6 @@
-﻿using SupFile.Back.Core.Enums;
+﻿using Microsoft.AspNetCore.Mvc;
+using SupFile.Back.Core.Dto;
+using SupFile.Back.Core.Enums;
 
 namespace SupFile.Back.Core.Interfaces.Services;
 
@@ -10,5 +12,5 @@ public interface IShareService : IBaseService<Share, int>
     
     Task<Result<List<TMapped>>> GetAccessUsersAsync<TMapped>(int objectId, ApplicationUser currentUser, ObjectType type);
     
-    Task<Result<TMapped>> GetAllAsync<TMapped>(ApplicationUser currentUser);
+    Task<Result<Tuple<List<Folder>, List<Media>>>> GetAllAsync(ApplicationUser currentUser, SearchQuery query, int? folderId = null);
 }

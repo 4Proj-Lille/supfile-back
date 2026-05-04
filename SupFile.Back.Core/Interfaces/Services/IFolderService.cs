@@ -11,7 +11,7 @@ public interface IFolderService : IBaseService<Folder, int>
     Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser currentUser);
 
     Task<Result<Tuple<List<Folder>, List<Media>>>> GetFolderContents(ApplicationUser user, int? folderId,
-        SearchQuery query);
+        SearchQuery query, bool shared = false);
 
     Task<Result<Folder>> UpdateAsync(int id, Folder entity, ApplicationUser currentUser);
 

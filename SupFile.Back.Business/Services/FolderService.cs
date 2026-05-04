@@ -70,15 +70,15 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
     }
 
     public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetFolderContents(ApplicationUser user, int? folderId,
-        SearchQuery query)
+        SearchQuery query, bool shared = false)
     {
         var filter = query.ToGridifyFolderFilter();
         var orderBy = query.ToGridifyFolderOrderBy();
 
-        var folderResult = await Repository.GetFolderContents<Folder>(user, folderId, filter, orderBy);
+        var folderResult = await Repository.GetFolderContents<Folder>(user, folderId, filter, orderBy, shared);
         if (!folderResult.IsSuccess) return folderResult.ToResult();
 
-        var mediaResult = await _mediaService.GetFolderContents<Media>(user, folderId, query);
+        var mediaResult = await _mediaService.GetFolderContents<Media>(user, folderId, query, shared);
         if (!mediaResult.IsSuccess) return mediaResult.ToResult();
 
         var tuple = Tuple.Create(folderResult.Value, mediaResult.Value);

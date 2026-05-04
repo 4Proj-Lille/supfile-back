@@ -5,13 +5,15 @@ namespace SupFile.Back.Business.Services;
 public class ShareService : BaseService<Share, int, IShareRepository>, IShareService
 {
     private readonly IUserService _userService;
+    private readonly IFolderService _folderService;
 
     public ShareService(ILogger<ShareService> logger, IShareRepository repository,
-        IUserService userService
+        IUserService userService, IFolderService folderService
     ) : base(logger,
         repository)
     {
         _userService = userService;
+        _folderService = folderService;
     }
 
     public async Task<Result<Share>> AddOneAsync(ApplicationUser currentUser, Share entity)
@@ -42,8 +44,21 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
         return accessUsersResult;
     }
 
-    public Task<Result<TMapped>> GetAllAsync<TMapped>(ApplicationUser currentUser)
+    public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetAllAsync(ApplicationUser currentUser, SearchQuery query, int? folderId = null)
     {
-        throw new NotImplementedException();
+        var folderFilter = query.ToGridifyFolderFilter();
+        var folderOrderBy = query.ToGridifyFolderOrderBy();
+        var mediaFilter = query.ToGridifyMediaFilter();
+        var mediaOrderBy = query.ToGridifyMediaOrderBy();
+        
+        if (folderId.HasValue)
+        {
+            return await _folderService.GetFolderContents(currentUser, folderId.Value, query, true);
+        }
+
+        var folderResult = await Repository.GetAllFoldersSharedAsync<Folder>(currentUser, folderFilter, folderOrderBy);
+        var mediaResult = await Repository.GetAllMediasSharedAsync<Media>(currentUser, mediaFilter, mediaOrderBy);
+        
+        return Tuple.Create(folderResult.Value, mediaResult.Value);
     }
 }

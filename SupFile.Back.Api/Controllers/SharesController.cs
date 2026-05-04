@@ -26,11 +26,17 @@ public sealed class SharesController : BaseAuthController
     }
     
     [HttpGet]
-    public async Task<ActionResult<StorageModel>> GetShares()
+    public async Task<ActionResult<StorageModel>> GetShares([FromQuery] SearchQuery query, [FromQuery] int? folderId = null)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var sharesResult = await _shareService.GetAllAsync<StorageModel>(currentUser);
-        return ToOkActionResult(sharesResult);
-    }
+        var sharesResult = await _shareService.GetAllAsync(currentUser, query, folderId);
+        return ToOkActionResult(sharesResult.Map(value =>
+        {
+            var (folders, medias) = value;
+            return new StorageModel
+            {
+                Folders = folders.Adapt<List<FolderModel>>(), Medias = medias.Adapt<List<MediaModel>>()
+            };
+        }));    }
     
 }
