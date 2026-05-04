@@ -8,6 +8,8 @@ public interface IUserService : IBaseService<ApplicationUser, int>
 
     Task<Result<List<TMapped>>> GetAllUsersAsync<TMapped>(ApplicationUser currentUser, int pageNumber, int pageSize);
     
+    Task<Result<List<TMapped>>> GetUsersByNameAsync<TMapped>(ApplicationUser currentUser, string name);
+    
     Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser);
     
     Task<Result<ApplicationUser>> UpdatePasswordAsync(int userId, string currentPassword, string newPassword, string confirmNewPassword, ApplicationUser currentUser);

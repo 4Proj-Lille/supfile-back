@@ -21,7 +21,15 @@ public class UsersController : BaseAuthController
         var users = await _userService.GetAllUsersAsync<ApplicationUserModel>(currentUser, pageNumber, pageSize);
         return ToOkActionResult(users);
     }
-
+    
+    [HttpGet]
+    public async Task<ActionResult<List<ApplicationUserModel>>> GetUserByName([FromQuery] string name)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var users = await _userService.GetUsersByNameAsync<ApplicationUserModel>(currentUser, name);
+        return ToOkActionResult(users);
+    }
+    
     [HttpPatch("{userId:int}")]
     public async Task<ActionResult<ApplicationUserModel>> Patch(int userId, [FromForm] UserPatchModel model) {
          var currentUser = await GetAuthenticatedAppUserAsync();

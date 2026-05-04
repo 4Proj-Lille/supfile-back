@@ -31,6 +31,16 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         return users;
     }
     
+    public async Task<Result<List<TMapped>>> GetUsersByNameAsync<TMapped>(ApplicationUser currentUser, string name)
+    {
+        if (string.IsNullOrWhiteSpace(name) || name.Length < 3)
+            return Result.Fail(UserErrors.InvalidUserName());
+
+        var users = await Repository.GetUsersByNameAsync<TMapped>(currentUser.Id, name);
+        return users;
+    }
+
+    
     private static readonly HashSet<string> s_includeProps =
     [
         nameof(ApplicationUser.Theme),

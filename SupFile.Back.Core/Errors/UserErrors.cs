@@ -15,7 +15,7 @@ public static class UserErrors
         );
     
     public static CustomError AspNetUserNotFound() =>
-        CommonErrorHelper.BadRequest(
+        CommonErrorHelper.NotFound(
             ErrorsRes.AspNetUserNotFound_Title,
             ErrorsRes.AspNetUserNotFound_Detail
         );
@@ -24,5 +24,11 @@ public static class UserErrors
         CommonErrorHelper.NotFound(
             ErrorsRes.UserNameNotFound_Title,
             ErrorsRes.UserNameNotFound_Detail
+        );
+    
+    public static CustomError InvalidUserName() =>
+        CommonErrorHelper.BadRequest(
+            ErrorsRes.InvalidUserName_Title,
+            ErrorsRes.InvalidUserName_Detail
         );
 }

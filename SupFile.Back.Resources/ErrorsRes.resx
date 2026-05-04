@@ -258,4 +258,10 @@
   <data name="StorageLimitExceeded_Detail" xml:space="preserve">
     <value>Storage Limit Exceeded</value>
   </data>
+  <data name="InvalidUserName_Title" xml:space="preserve">
+    <value>Invalid Username</value>
+  </data>
+  <data name="InvalidUserName_Detail" xml:space="preserve">
+    <value>The "Username" field must contain at least 3 characters</value>
+  </data>
 </root>

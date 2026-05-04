@@ -524,5 +524,17 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("StorageLimitExceeded_Detail", resourceCulture);
             }
         }
+        
+        public static string InvalidUserName_Title {
+            get {
+                return ResourceManager.GetString("InvalidUserName_Title", resourceCulture);
+            }
+        }
+        
+        public static string InvalidUserName_Detail {
+            get {
+                return ResourceManager.GetString("InvalidUserName_Detail", resourceCulture);
+            }
+        }
     }
 }
