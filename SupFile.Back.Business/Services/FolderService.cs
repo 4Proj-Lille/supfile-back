@@ -69,13 +69,13 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return await Repository.DeleteAllSoftDeleted(currentUser);
     }
 
-    public async Task<Result<Tuple<List<Folder>, List<TMedia>>>> GetFolderContents<TMedia>(ApplicationUser user, int? folderId,
+    public async Task<Result<Tuple<List<TFolder>, List<TMedia>>>> GetFolderContents<TFolder, TMedia>(ApplicationUser user, int? folderId,
         SearchQuery query, bool shared = false)
     {
         var filter = query.ToGridifyFolderFilter();
         var orderBy = query.ToGridifyFolderOrderBy();
 
-        var folderResult = await Repository.GetFolderContents<Folder>(user, folderId, filter, orderBy, shared);
+        var folderResult = await Repository.GetFolderContents<TFolder>(user, folderId, filter, orderBy, shared);
         if (!folderResult.IsSuccess) return folderResult.ToResult();
 
         var mediaResult = await _mediaService.GetFolderContents<TMedia>(user, folderId, query, shared);
@@ -146,7 +146,7 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return await UpdateAsync(id, folder);
     }
 
-    public async Task<Result<List<Folder>>> GetPath(ApplicationUser user, int id)
+    public async Task<Result<List<TMapped>>> GetPath<TMapped>(ApplicationUser user, int id)
     {
         var folderResult = await Repository.GetByIdAsync<Folder>(id);
         if (folderResult.IsFailed) return folderResult.ToResult();
@@ -160,12 +160,10 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
 
         if (folder.ParentId is null)
         {
-            return Result.Ok(new List<Folder>());
+            return Result.Ok(new List<TMapped>());
         }
 
-        var pathResult = await Repository.GetPath(user, folder.ParentId);
-
-        return pathResult;
+        return await Repository.GetPath<TMapped>(user, folder.ParentId);
     }
 
     public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser)

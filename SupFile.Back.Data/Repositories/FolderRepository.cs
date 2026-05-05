@@ -31,22 +31,28 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         return Result.Ok(await q.FindListAsync<TMapped>(filter, orderBy: orderBy));
     }
 
-    public async Task<Result<List<Folder>>> GetPath(ApplicationUser user, int? id)
+    public async Task<Result<List<TMapped>>> GetPath<TMapped>(ApplicationUser user, int? id)
     {
-        var path = new List<Folder>();
+        var path = new List<TMapped>();
         var currentId = id;
 
         while (currentId != null)
         {
-            var folderResult =
-                await Query().Where(x => x.Id == currentId && x.OwnerId == user.Id && x.IsActive).FirstOrDefaultAsync();
-            if (folderResult == null)
-            {
-                return Result.Fail(EntityErrors.NotFound<Folder>());
-            }
+            var info = await Query()
+                .Where(x => x.Id == currentId && x.OwnerId == user.Id && x.IsActive)
+                .Select(x => new { x.Id, x.ParentId })
+                .FirstOrDefaultAsync();
 
-            path.Add(folderResult);
-            currentId = folderResult.ParentId;
+            if (info == null)
+                return Result.Fail(EntityErrors.NotFound<TMapped>());
+
+            var mapped = await Query()
+                .Where(x => x.Id == info.Id)
+                .ProjectToType<TMapped>()
+                .FirstOrDefaultAsync();
+
+            path.Add(mapped!);
+            currentId = info.ParentId;
         }
 
         path.Reverse();

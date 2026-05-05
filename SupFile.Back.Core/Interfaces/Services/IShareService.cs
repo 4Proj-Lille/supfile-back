@@ -12,5 +12,5 @@ public interface IShareService : IBaseService<Share, int>
     
     Task<Result<List<TMapped>>> GetAccessUsersAsync<TMapped>(int objectId, ApplicationUser currentUser, ObjectType type);
     
-    Task<Result<Tuple<List<Folder>, List<Media>>>> GetAllAsync(ApplicationUser currentUser, SearchQuery query, int? folderId = null);
+    Task<Result<Tuple<List<TFolder>, List<TMedia>>>> GetAllAsync<TFolder, TMedia>(ApplicationUser currentUser, SearchQuery query, int? folderId = null);
 }

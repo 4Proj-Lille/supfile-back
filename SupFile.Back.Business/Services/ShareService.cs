@@ -44,7 +44,7 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
         return accessUsersResult;
     }
 
-    public async Task<Result<Tuple<List<Folder>, List<Media>>>> GetAllAsync(ApplicationUser currentUser, SearchQuery query, int? folderId = null)
+    public async Task<Result<Tuple<List<TFolder>, List<TMedia>>>> GetAllAsync<TFolder, TMedia>(ApplicationUser currentUser, SearchQuery query, int? folderId = null)
     {
         var folderFilter = query.ToGridifyFolderFilter();
         var folderOrderBy = query.ToGridifyFolderOrderBy();
@@ -53,11 +53,11 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
         
         if (folderId.HasValue)
         {
-            return await _folderService.GetFolderContents<Media>(currentUser, folderId.Value, query, true);
+            return await _folderService.GetFolderContents<TFolder, TMedia>(currentUser, folderId.Value, query, true);
         }
 
-        var folderResult = await Repository.GetAllFoldersSharedAsync<Folder>(currentUser, folderFilter, folderOrderBy);
-        var mediaResult = await Repository.GetAllMediasSharedAsync<Media>(currentUser, mediaFilter, mediaOrderBy);
+        var folderResult = await Repository.GetAllFoldersSharedAsync<TFolder>(currentUser, folderFilter, folderOrderBy);
+        var mediaResult = await Repository.GetAllMediasSharedAsync<TMedia>(currentUser, mediaFilter, mediaOrderBy);
         
         return Tuple.Create(folderResult.Value, mediaResult.Value);
     }

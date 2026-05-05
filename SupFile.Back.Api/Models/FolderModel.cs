@@ -15,5 +15,7 @@ public class FolderModel
     public int? ParentId { get; set; }
     
     public bool IsActive { get; set; }
+    
+    public List<ApplicationUserModel> SharedUsers { get; set; } = [];
 
 }

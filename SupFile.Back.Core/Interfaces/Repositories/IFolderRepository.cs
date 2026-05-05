@@ -8,7 +8,7 @@ public interface IFolderRepository : IBaseRepository<Folder, int>
 
     Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? id, string filter, string orderBy, bool shared = false);
 
-    Task<Result<List<Folder>>> GetPath(ApplicationUser user, int? id);
+    Task<Result<List<TMapped>>> GetPath<TMapped>(ApplicationUser user, int? id);
     Task<Result<int>> SoftDeleteChildrensAsync(int folderId);
     Task<Result<List<int>>> GetAllDescendantIdsAsync(int folderId, bool onlyActive = true);
     Task<Result<int>> RestoreByIdsAsync(List<int> folderIds);
