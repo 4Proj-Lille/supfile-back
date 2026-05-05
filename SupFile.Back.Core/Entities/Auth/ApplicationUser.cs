@@ -32,8 +32,6 @@ public class ApplicationUser : IdentityUser<int>, IEntity<ApplicationUser, int>
     
     public UserLanguage Language {get; set;} = UserLanguage.English;
     
-    public string DisplayName { get; set; }
-
     public UserTheme Theme { get; set; } = UserTheme.Light;
     
     public Guid? ProfilePictureId { get; set; }

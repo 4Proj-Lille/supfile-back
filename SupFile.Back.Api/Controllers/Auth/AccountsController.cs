@@ -48,7 +48,7 @@ public sealed class AccountsController : BaseController
             return Unauthorized();
         }
 
-        var userModel = user.Adapt<ApplicationUserModel>();
+        var userModel = user.Adapt<UserModel>();
         return Ok(userModel);
     }
 }

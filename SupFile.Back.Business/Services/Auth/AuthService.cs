@@ -82,27 +82,31 @@ public class AuthService : IAuthService
 
     public async Task<Result> Register(RegisterDto registerDto)
     {
-        var user = await _userManager.FindByEmailAsync(registerDto.Email)
-                   ?? await _userManager.FindByNameAsync(registerDto.Username);
+        var userByEmail = await _userManager.FindByEmailAsync(registerDto.Email);
+        var userByName = await _userManager.FindByNameAsync(registerDto.Username);
 
-        //if user already exists but email is not confirmed, override it
-        if (user is { EmailConfirmed: false })
+        if (userByEmail is { EmailConfirmed: false })
         {
-            await _userManager.DeleteAsync(user);
-            user = null;
+            await _userManager.DeleteAsync(userByEmail);
+            if (userByName?.Id == userByEmail.Id) userByName = null;
+            userByEmail = null;
         }
-        
-        if (user != null)
-        {
-            if (user.EmailConfirmed)
-                return Result.Fail(AuthErrors.EmailAlreadyExist());
 
+        if (userByName is { EmailConfirmed: false })
+        {
+            await _userManager.DeleteAsync(userByName);
+            userByName = null;
+        }
+
+        if (userByEmail != null)
+            return Result.Fail(AuthErrors.EmailAlreadyExist());
+
+        if (userByName != null)
             return Result.Fail(AuthErrors.UsernameAlreadyExist());
-        }
 
-        user = new ApplicationUser
+        var user = new ApplicationUser
         {
-            UserName = registerDto.Username, Email = registerDto.Email, DisplayName = registerDto.Username
+            UserName = registerDto.Username, Email = registerDto.Email
         };
 
         var createdResult = await _userManager.CreateAsync(user, registerDto.Password);
@@ -303,11 +307,11 @@ public class AuthService : IAuthService
             user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                user = new ApplicationUser { UserName = email, Email = email, DisplayName = name };
+                var uniqueUsername = await GenerateUniqueUsernameAsync(name ?? email);
+                user = new ApplicationUser { UserName = uniqueUsername, Email = email };
                 var userCreatedresult = await _userManager.CreateAsync(user);
                 if (!userCreatedresult.Succeeded)
                 {
-                    // log errors
                     var errors = string.Join(", ", userCreatedresult.Errors.Select(e => e.Description));
                     LogHelper.LogInformation(_logger, nameof(LoginWithProviderAsync), "Failed to create user: {0}",
                         errors);
@@ -352,5 +356,27 @@ public class AuthService : IAuthService
         };
 
         return Result.Ok(responseLoginDto);
+    }
+
+    private async Task<string> GenerateUniqueUsernameAsync(string name)
+    {
+        var sanitized = new string(name.Select(c => c == ' ' ? '.' : c)
+            .Where(c => char.IsLetterOrDigit(c) || c is '-' or '.' or '_')
+            .ToArray());
+
+        if (string.IsNullOrEmpty(sanitized))
+            sanitized = "user";
+
+        if (await _userManager.FindByNameAsync(sanitized) == null)
+            return sanitized;
+
+        var counter = 2;
+        string candidate;
+        do
+        {
+            candidate = $"{sanitized}_{counter++}";
+        } while (await _userManager.FindByNameAsync(candidate) != null);
+
+        return candidate;
     }
 }

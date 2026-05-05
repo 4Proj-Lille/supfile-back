@@ -2,7 +2,7 @@
 
 public class UserPatchModel
 {
-    public string DisplayName { get; set; }
+    public string UserName { get; set; }
     
     public UserLanguage Language { get; set; }
     

@@ -28,7 +28,6 @@ public class UsersSeeder
 
         var user = new ApplicationUser
         {
-            DisplayName = "Default User",
             UserName = _appSettings.DefaultUserEmail,
             Email = _appSettings.DefaultUserEmail,
             EmailConfirmed = true,

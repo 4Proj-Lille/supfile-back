@@ -28,7 +28,7 @@ public class UserRepository : BaseRepository<ApplicationUser, int, SupFileContex
     
     public async Task<Result<List<TMapped>>> GetUsersByNameAsync<TMapped>(int currentUserId, string name)
     {
-        var q = Query().Where(x => x.Id != currentUserId && x.DisplayName.Contains(name));
+        var q = Query().Where(x => x.Id != currentUserId && x.UserName.Contains(name));
         return Result.Ok(await q.FindListAsync<TMapped>(""));
     }
 

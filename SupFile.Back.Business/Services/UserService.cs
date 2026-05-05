@@ -45,51 +45,48 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
     [
         nameof(ApplicationUser.Theme),
         nameof(ApplicationUser.Language),
-        nameof(ApplicationUser.DisplayName),
     ];
-    
+
     public async Task<Result<ApplicationUser>> UpdateAsync(int userId, ApplicationUser entity, ApplicationUser currentUser)
     {
         if (currentUser.Id != userId)
         {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
         }
-        
-        var userResult = await Repository.GetByIdAsync<ApplicationUser>(userId);
-        if (userResult.IsFailed || userResult.Value == null)
-        {
+
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
             return Result.Fail(AuthErrors.UserNotFound());
+
+        if (!string.IsNullOrWhiteSpace(entity.UserName) && entity.UserName != user.UserName)
+        {
+            var existing = await _userManager.FindByNameAsync(entity.UserName);
+            if (existing != null)
+                return Result.Fail(AuthErrors.UsernameAlreadyExist());
+
+            var setNameResult = await _userManager.SetUserNameAsync(user, entity.UserName);
+            if (!setNameResult.Succeeded)
+                return Result.Fail(setNameResult.Errors.Select(e => e.Description).ToList());
         }
 
-        var user = userResult.Value;
-        
         foreach (var prop in typeof(ApplicationUser).GetProperties())
         {
             if (!s_includeProps.Contains(prop.Name))
                 continue;
-            
+
             if (!ScalarTypeHelper.IsScalarProperty(prop))
-            {
                 continue;
-            }
 
             var value = prop.GetValue(entity);
             if (value != null)
-            {
                 prop.SetValue(user, value);
-            }
         }
-        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-        
-        var result = await Repository.UpdateAsync(userId, user);
-        if (result.IsFailed)
-        {
-            return Result.Fail(result.Errors);
-        }
-        
-        scope.Complete();
 
-        return result;
+        var updateResult = await _userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+            return Result.Fail(updateResult.Errors.Select(e => e.Description).ToList());
+
+        return Result.Ok(user);
     }
     
     public async Task<Result<ApplicationUser>> UpdatePasswordAsync(int userId, string currentPassword,

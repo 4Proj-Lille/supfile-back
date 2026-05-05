@@ -31,7 +31,7 @@ public class UsersController : BaseAuthController
     }
     
     [HttpPatch("{userId:int}")]
-    public async Task<ActionResult<ApplicationUserModel>> Patch(int userId, [FromForm] UserPatchModel model) {
+    public async Task<ActionResult<UserModel>> Patch(int userId, [FromForm] UserPatchModel model) {
          var currentUser = await GetAuthenticatedAppUserAsync();
          var entity = model.Adapt<ApplicationUser>();
     
@@ -40,7 +40,7 @@ public class UsersController : BaseAuthController
          {
              return ToErrorActionResult(userResult.ToResult());
          }
-         var userModel = userResult.Value.Adapt<ApplicationUserModel>();
+         var userModel = userResult.Value.Adapt<UserModel>();
          return ToOkActionResult(Result.Ok(userModel));
     }
 
