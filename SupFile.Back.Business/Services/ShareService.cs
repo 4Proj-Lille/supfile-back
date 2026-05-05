@@ -53,7 +53,7 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
         
         if (folderId.HasValue)
         {
-            return await _folderService.GetFolderContents(currentUser, folderId.Value, query, true);
+            return await _folderService.GetFolderContents<Media>(currentUser, folderId.Value, query, true);
         }
 
         var folderResult = await Repository.GetAllFoldersSharedAsync<Folder>(currentUser, folderFilter, folderOrderBy);

@@ -13,16 +13,16 @@ public class UsersController : BaseAuthController
         _userService = workspaceService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<List<ApplicationUserModel>>> GetAll([FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 10)
-    {
-        var currentUser = await GetAuthenticatedAppUserAsync();
-        var users = await _userService.GetAllUsersAsync<ApplicationUserModel>(currentUser, pageNumber, pageSize);
-        return ToOkActionResult(users);
-    }
+    // [HttpGet]
+    // public async Task<ActionResult<List<ApplicationUserModel>>> GetAll([FromQuery] int pageNumber = 1,
+    //     [FromQuery] int pageSize = 10)
+    // {
+    //     var currentUser = await GetAuthenticatedAppUserAsync();
+    //     var users = await _userService.GetAllUsersAsync<ApplicationUserModel>(currentUser, pageNumber, pageSize);
+    //     return ToOkActionResult(users);
+    // }
     
-    [HttpGet]
+    [HttpGet("ByName")]
     public async Task<ActionResult<List<ApplicationUserModel>>> GetUserByName([FromQuery] string name)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();

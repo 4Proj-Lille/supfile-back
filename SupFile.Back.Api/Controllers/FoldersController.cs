@@ -41,14 +41,14 @@ public sealed class FoldersController : BaseAuthController
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
 
-        var result = await _folderService.GetFolderContents(currentUser, folderId, query);
+        var result = await _folderService.GetFolderContents<MediaModel>(currentUser, folderId, query);
 
         return ToOkActionResult(result.Map(value =>
         {
             var (folders, medias) = value;
             return new StorageModel
             {
-                Folders = folders.Adapt<List<FolderModel>>(), Medias = medias.Adapt<List<MediaModel>>()
+                Folders = folders.Adapt<List<FolderModel>>(), Medias = medias
             };
         }));
     }
