@@ -360,8 +360,8 @@ public class AuthService : IAuthService
 
     private async Task<string> GenerateUniqueUsernameAsync(string name)
     {
-        var sanitized = new string(name.Select(c => c == ' ' ? '.' : c)
-            .Where(c => char.IsLetterOrDigit(c) || c is '-' or '.' or '_')
+        var sanitized = new string(name
+            .Where(c => char.IsLetterOrDigit(c) || c is '-' or '.' or '_' or '@' or '+' or ' ')
             .ToArray());
 
         if (string.IsNullOrEmpty(sanitized))
