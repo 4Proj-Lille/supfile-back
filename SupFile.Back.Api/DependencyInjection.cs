@@ -178,7 +178,8 @@ internal static class DependencyInjection
                     .WithOrigins(corsOptions.AllowedOrigins)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
-                    .AllowCredentials();
+                    .AllowCredentials()
+                    .WithExposedHeaders("Content-Disposition");
             });
         });
 
