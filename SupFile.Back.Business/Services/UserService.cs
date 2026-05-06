@@ -58,13 +58,14 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         if (user == null)
             return Result.Fail(AuthErrors.UserNotFound());
 
-        if (!string.IsNullOrWhiteSpace(entity.UserName) && entity.UserName != user.UserName)
+        if (!string.IsNullOrWhiteSpace(entity.UserName) && entity.UserName.Trim() != user.UserName)
         {
-            var existing = await _userManager.FindByNameAsync(entity.UserName);
+            var trimmedName = entity.UserName.Trim();
+            var existing = await _userManager.FindByNameAsync(trimmedName);
             if (existing != null)
                 return Result.Fail(AuthErrors.UsernameAlreadyExist());
 
-            var setNameResult = await _userManager.SetUserNameAsync(user, entity.UserName);
+            var setNameResult = await _userManager.SetUserNameAsync(user, trimmedName);
             if (!setNameResult.Succeeded)
                 return Result.Fail(setNameResult.Errors.Select(e => e.Description).ToList());
         }
