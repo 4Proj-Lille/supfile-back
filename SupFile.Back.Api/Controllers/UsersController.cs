@@ -22,6 +22,13 @@ public class UsersController : BaseAuthController
     //     return ToOkActionResult(users);
     // }
     
+    [HttpGet("{userId:int}")]
+    public async Task<ActionResult<ApplicationUserModel>> GetUserById(int userId)
+    {
+        var user = await _userService.GetByIdAsync<ApplicationUserModel>(userId);
+        return ToOkActionResult(user);
+    }
+    
     [HttpGet("ByName")]
     public async Task<ActionResult<List<ApplicationUserModel>>> GetUserByName([FromQuery] string name)
     {
