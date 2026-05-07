@@ -189,6 +189,18 @@ namespace SupFile.Back.Resources {
             }
         }
 
+        public static string ShareNotFound_Title {
+            get {
+                return ResourceManager.GetString("ShareNotFound_Title", resourceCulture);
+            }
+        }
+
+        public static string ShareNotFound_Detail {
+            get {
+                return ResourceManager.GetString("ShareNotFound_Detail", resourceCulture);
+            }
+        }
+
         public static string Entity_Not_Found_Title {
             get {
                 return ResourceManager.GetString("Entity_Not_Found_Title", resourceCulture);

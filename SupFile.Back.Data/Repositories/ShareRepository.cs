@@ -1,4 +1,6 @@
 using SupFile.Back.Core.Entities.Auth;
+using SupFile.Back.Core.Enums;
+using SupFile.Back.Core.Errors;
 
 namespace SupFile.Back.Data.Repositories;
 
@@ -31,5 +33,39 @@ public class ShareRepository : BaseRepository<Share, int, SupFileContext>, IShar
 
         var result = await q.FindListAsync<TMapped>(filter, orderBy: orderBy);
         return Result.Ok(result);
+    }
+
+    public async Task<bool> HasMediaPermissionAsync(int mediaId, int userId, SharePermission permission)
+    {
+        await using var ctx = await ContextFactory.CreateDbContextAsync();
+
+        return await ctx.Shares.AnyAsync(s =>
+            s.ShareMediaId == mediaId &&
+            s.UserId == userId &&
+            s.Permission == permission.ToString());
+    }
+
+    public async Task<bool> HasFolderPermissionAsync(int folderId, int userId, SharePermission permission)
+    {
+        await using var ctx = await ContextFactory.CreateDbContextAsync();
+
+        return await ctx.Shares.AnyAsync(s =>
+            s.ShareFolderId == folderId &&
+            s.UserId == userId &&
+            s.Permission == permission.ToString());
+    }
+
+    public async Task<Result<Share>> GetByObjectAndUserAsync(int objectId, int targetUserId, InvitationItemType type)
+    {
+        await using var ctx = await ContextFactory.CreateDbContextAsync();
+
+        var share = type == InvitationItemType.Media
+            ? await ctx.Shares.FirstOrDefaultAsync(s => s.ShareMediaId == objectId && s.UserId == targetUserId)
+            : await ctx.Shares.FirstOrDefaultAsync(s => s.ShareFolderId == objectId && s.UserId == targetUserId);
+
+        if (share == null)
+            return Result.Fail(ShareErrors.ShareNotFound());
+
+        return Result.Ok(share);
     }
 }

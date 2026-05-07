@@ -157,7 +157,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
 
         var share = new Share
         {
-            Permission = "Read",
+            Permission = nameof(SharePermission.Viewer),
             UserId = currentUser.Id,
             Type = linkResult.Value.Type,
             ShareMediaId = linkResult.Value.ShareMediaId,

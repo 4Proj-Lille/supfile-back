@@ -90,6 +90,12 @@
   <data name="InvalidVerificationToken_Detail" xml:space="preserve">
     <value>The verification token is invalid or has already been used.</value>
   </data>
+  <data name="ShareNotFound_Title" xml:space="preserve">
+    <value>Share not found</value>
+  </data>
+  <data name="ShareNotFound_Detail" xml:space="preserve">
+    <value>No share exists for this object with the specified user.</value>
+  </data>
   <data name="Entity_Not_Found_Title" xml:space="preserve">
     <value>Entity not found</value>
   </data>

@@ -9,6 +9,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 {
     private readonly IStorageProvider _storageProvider;
     private readonly IFolderRepository _folderRepository;
+    private readonly IShareRepository _shareRepository;
     private readonly AppSettings _appSettings;
 
     public MediaService(
@@ -16,11 +17,13 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         IMediaRepository repository,
         IStorageProvider storageProvider,
         IFolderRepository folderRepository,
+        IShareRepository shareRepository,
         IOptions<AppSettings> appSettings
     ) : base(logger, repository)
     {
         _storageProvider = storageProvider;
         _folderRepository = folderRepository;
+        _shareRepository = shareRepository;
         _appSettings = appSettings.Value;
     }
 
@@ -148,7 +151,9 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         if (media.OwnerId != currentUser.Id)
         {
-            return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
+            var hasEditPermission = await _shareRepository.HasMediaPermissionAsync(id, currentUser.Id, SharePermission.Editor);
+            if (!hasEditPermission)
+                return Result.Fail(AuthErrors.UnauthorizedForEntity<Media, int>(id));
         }
 
         foreach (var prop in typeof(Media).GetProperties())

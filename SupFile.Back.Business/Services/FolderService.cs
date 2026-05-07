@@ -1,4 +1,5 @@
 using System.Transactions;
+using SupFile.Back.Core.Enums;
 using SupFile.Back.Storage.Interfaces;
 
 namespace SupFile.Back.Business.Services;
@@ -7,15 +8,16 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
 {
     private readonly IMediaService _mediaService;
     private readonly IStorageProvider _storageProvider;
-
+    private readonly IShareRepository _shareRepository;
 
     public FolderService(ILogger<FolderService> logger, IFolderRepository repository, IMediaService mediaService,
-        IStorageProvider storageProvider
+        IStorageProvider storageProvider, IShareRepository shareRepository
     ) :
         base(logger, repository)
     {
         _mediaService = mediaService;
         _storageProvider = storageProvider;
+        _shareRepository = shareRepository;
     }
 
     public async Task<Result<Folder>> AddOneAsync(ApplicationUser currentUser, Folder entity)
@@ -99,7 +101,11 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         var folder = folderResult.Value;
 
         if (folder.OwnerId != currentUser.Id)
-            return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folder.Id));
+        {
+            var hasEditPermission = await _shareRepository.HasFolderPermissionAsync(id, currentUser.Id, SharePermission.Editor);
+            if (!hasEditPermission)
+                return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folder.Id));
+        }
 
         foreach (var prop in typeof(Folder).GetProperties())
         {

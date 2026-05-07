@@ -18,13 +18,21 @@ public sealed class SharesController : BaseAuthController
     }
     
     [HttpPatch("{objectId:int}/Access")]
-    public async Task<ActionResult<List<ApplicationUserModel>>> UpdateSharePermissions(int objectId, [FromQuery] ObjectType type)
+    public async Task<ActionResult<List<ApplicationUserModel>>> GetAccessUsersAsync(int objectId, [FromQuery] ObjectType type)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var updateResult = await _shareService.GetAccessUsersAsync<ApplicationUserModel>(objectId, currentUser, type);
         return ToOkActionResult(updateResult);
     }
     
+    [HttpPatch("Permission")]
+    public async Task<ActionResult<Share>> UpdatePermission([FromBody] UpdateSharePermissionDto dto)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var result = await _shareService.UpdatePermissionAsync(currentUser, dto);
+        return ToOkActionResult(result);
+    }
+
     [HttpGet]
     public async Task<ActionResult<StorageModel>> GetShares([FromQuery] SearchQuery query, [FromQuery] int? folderId = null)
     {

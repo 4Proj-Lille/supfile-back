@@ -6,14 +6,18 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
 {
     private readonly IUserService _userService;
     private readonly IFolderService _folderService;
+    private readonly IMediaRepository _mediaRepository;
+    private readonly IFolderRepository _folderRepository;
 
     public ShareService(ILogger<ShareService> logger, IShareRepository repository,
-        IUserService userService, IFolderService folderService
-    ) : base(logger,
-        repository)
+        IUserService userService, IFolderService folderService,
+        IMediaRepository mediaRepository, IFolderRepository folderRepository
+    ) : base(logger, repository)
     {
         _userService = userService;
         _folderService = folderService;
+        _mediaRepository = mediaRepository;
+        _folderRepository = folderRepository;
     }
 
     public async Task<Result<Share>> AddOneAsync(ApplicationUser currentUser, Share entity)
@@ -42,6 +46,34 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
     {
         var accessUsersResult = await _userService.GetAccessUsersAsync<TMapped>(objectId, currentUser, type);
         return accessUsersResult;
+    }
+
+    public async Task<Result<Share>> UpdatePermissionAsync(ApplicationUser currentUser, UpdateSharePermissionDto dto)
+    {
+        int ownerId;
+        if (dto.Type == InvitationItemType.Media)
+        {
+            var mediaResult = await _mediaRepository.GetByIdAsync<Media>(dto.ObjectId);
+            if (mediaResult.IsFailed) return mediaResult.ToResult<Share>();
+            ownerId = mediaResult.Value.OwnerId;
+        }
+        else
+        {
+            var folderResult = await _folderRepository.GetByIdAsync<Folder>(dto.ObjectId);
+            if (folderResult.IsFailed) return folderResult.ToResult<Share>();
+            ownerId = folderResult.Value.OwnerId;
+        }
+
+        if (ownerId != currentUser.Id)
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Share, int>(dto.ObjectId));
+
+        var shareResult = await Repository.GetByObjectAndUserAsync(dto.ObjectId, dto.UserId, dto.Type);
+        if (shareResult.IsFailed) return shareResult;
+
+        var share = shareResult.Value;
+        share.Permission = dto.Permission.ToString();
+
+        return await UpdateAsync(share.Id, share);
     }
 
     public async Task<Result<Tuple<List<TFolder>, List<TMedia>>>> GetAllAsync<TFolder, TMedia>(ApplicationUser currentUser, SearchQuery query, int? folderId = null)
