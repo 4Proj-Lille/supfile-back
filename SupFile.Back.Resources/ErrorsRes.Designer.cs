@@ -176,7 +176,19 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("EmailNotConfirmed_Detail", resourceCulture);
             }
         }
-        
+
+        public static string InvalidVerificationToken_Title {
+            get {
+                return ResourceManager.GetString("InvalidVerificationToken_Title", resourceCulture);
+            }
+        }
+
+        public static string InvalidVerificationToken_Detail {
+            get {
+                return ResourceManager.GetString("InvalidVerificationToken_Detail", resourceCulture);
+            }
+        }
+
         public static string Entity_Not_Found_Title {
             get {
                 return ResourceManager.GetString("Entity_Not_Found_Title", resourceCulture);

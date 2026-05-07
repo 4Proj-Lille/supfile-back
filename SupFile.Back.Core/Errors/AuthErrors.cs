@@ -44,5 +44,11 @@ public static class AuthErrors
             ErrorsRes.EmailNotConfirmed_Title,
             ErrorsRes.EmailNotConfirmed_Detail
         );
-    
+
+    public static CustomError InvalidVerificationToken() =>
+        CommonErrorHelper.BadRequest(
+            ErrorsRes.InvalidVerificationToken_Title,
+            ErrorsRes.InvalidVerificationToken_Detail
+        );
+
 }

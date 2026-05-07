@@ -218,10 +218,9 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByIdAsync(confirmEmailDto.UserId.ToString());
         if (user == null || user.EmailConfirmed)
         {
-            // Don't reveal that the user does not exist or is already confirmed
             LogHelper.LogInformation(_logger, nameof(VerifyEmailAsync),
                 "User with ID {0} not found or email already confirmed.", confirmEmailDto.UserId);
-            return Result.Ok();
+            return Result.Fail(AuthErrors.InvalidVerificationToken());
         }
 
         var decodedToken = WebUtility.UrlDecode(confirmEmailDto.Code);

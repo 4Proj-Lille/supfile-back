@@ -77,6 +77,12 @@
   <data name="EmailNotConfirmed_Detail" xml:space="preserve">
     <value>Veuillez confirmer votre adresse email avant de vous connecter.</value>
   </data>
+  <data name="InvalidVerificationToken_Title" xml:space="preserve">
+    <value>Token de vérification invalide</value>
+  </data>
+  <data name="InvalidVerificationToken_Detail" xml:space="preserve">
+    <value>Le token de vérification est invalide ou a déjà été utilisé.</value>
+  </data>
   <data name="Entity_Not_Found_Title" xml:space="preserve">
     <value>Entite introuvable</value>
   </data>
