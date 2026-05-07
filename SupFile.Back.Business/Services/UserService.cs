@@ -141,17 +141,7 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         
         var result = await Repository.DeleteUserAsync(user);
         if (result.IsFailed)
-        {
             return Result.Fail(result.Errors);
-        }
-
-        var aspNetUser = await _userManager.FindByIdAsync(user.Id.ToString());
-        if (aspNetUser == null)
-        {
-            return Result.Fail(UserErrors.AspNetUserNotFound());
-        }
-
-        await _userManager.DeleteAsync(aspNetUser);
 
         return Result.Ok();
     }
@@ -171,40 +161,21 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
-        {
             return Result.Fail(AuthErrors.UserNotFound());
-        }
-        
-        if (user.ProfilePictureId == null)
+
+        if (user.ProfilePictureId != null)
         {
-            if (user.UserName == null)
-            {
-                return Result.Fail(UserErrors.UserNameNotfound());
-            }
-    
-            return await _mediaService.GenerateProfilePictureThumbnail(user.UserName);
-        }
-        
-        var mediaResult = await _mediaService.GetByUniqueIdAsync(user.ProfilePictureId.Value);
-        if (mediaResult.IsFailed) return mediaResult.ToResult();
-        
-        if (!mediaResult.Value.IsActive)
-        {
-            if (user.UserName == null)
-            {
-                return Result.Fail(UserErrors.UserNameNotfound());
-            }
-            
-            return await _mediaService.GenerateProfilePictureThumbnail(user.UserName);
-        }
-        
-        var fileResult = await _mediaService.DownloadPicture(user.ProfilePictureId.Value, true);
-        if (fileResult.IsFailed)
-        {
-            return Result.Fail(fileResult.Errors);
+            var mediaResult = await _mediaService.GetByUniqueIdAsync(user.ProfilePictureId.Value);
+            if (mediaResult.IsFailed) return mediaResult.ToResult();
+
+            if (mediaResult.Value.IsActive)
+                return await _mediaService.DownloadPicture(user.ProfilePictureId.Value, true);
         }
 
-        return fileResult;
+        if (user.UserName == null)
+            return Result.Fail(UserErrors.UserNameNotfound());
+
+        return await _mediaService.GenerateProfilePictureThumbnail(user.UserName);
     }
     
 
