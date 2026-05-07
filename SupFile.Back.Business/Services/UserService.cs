@@ -175,16 +175,26 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
             return Result.Fail(AuthErrors.UserNotFound());
         }
         
-        var mediaResult = await _mediaService.GetByUniqueIdAsync(user.ProfilePictureId.Value);
-        if (mediaResult.IsFailed) return mediaResult.ToResult();
-        
-        if (user.ProfilePictureId == null || !mediaResult.Value.IsActive)
+        if (user.ProfilePictureId == null)
         {
             if (user.UserName == null)
             {
                 return Result.Fail(UserErrors.UserNameNotfound());
             }
     
+            return await _mediaService.GenerateProfilePictureThumbnail(user.UserName);
+        }
+        
+        var mediaResult = await _mediaService.GetByUniqueIdAsync(user.ProfilePictureId.Value);
+        if (mediaResult.IsFailed) return mediaResult.ToResult();
+        
+        if (!mediaResult.Value.IsActive)
+        {
+            if (user.UserName == null)
+            {
+                return Result.Fail(UserErrors.UserNameNotfound());
+            }
+            
             return await _mediaService.GenerateProfilePictureThumbnail(user.UserName);
         }
         

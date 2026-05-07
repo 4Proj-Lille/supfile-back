@@ -13,6 +13,7 @@ public static class MediaTypeHelper
         { ".webp", nameof(MediaType.Picture) },
         { ".svg", nameof(MediaType.Picture) },
         { ".bmp", nameof(MediaType.Picture) },
+        { ".heic", nameof(MediaType.Picture) },
 
         { ".mp4", nameof(MediaType.Video) },
         { ".avi", nameof(MediaType.Video) },
