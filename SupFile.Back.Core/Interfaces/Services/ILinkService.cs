@@ -10,4 +10,6 @@ public interface ILinkService : IBaseService<Link, int>
     Task<Result<Share>> AcceptShareLinkAsync(ApplicationUser currentUser, string token);
     
     Task<Result<Link>> GetByTokenAsync(string token);
+
+    Task<Result<(byte[], string, string)>> DownloadByTokenAsync(string token);
 }

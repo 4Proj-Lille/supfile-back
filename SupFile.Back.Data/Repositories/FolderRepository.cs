@@ -142,4 +142,13 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
 
         return affected;
     }
+
+    public async Task<Result<List<Folder>>> GetSubfoldersPublicAsync(int parentId)
+    {
+        var folders = await Query()
+            .Where(x => x.ParentId == parentId && x.IsActive)
+            .ToListAsync();
+
+        return Result.Ok(folders);
+    }
 }

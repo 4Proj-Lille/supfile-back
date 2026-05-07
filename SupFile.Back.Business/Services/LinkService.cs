@@ -128,6 +128,33 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         return Result.Ok(link);
     }
 
+    public async Task<Result<(byte[], string, string)>> DownloadByTokenAsync(string token)
+    {
+        var linkResult = await GetByTokenAsync(token);
+        if (linkResult.IsFailed) return linkResult.ToResult<(byte[], string, string)>();
+
+        var link = linkResult.Value;
+
+        if (link.ShareMediaId is not null)
+        {
+            var mediaResult = await _mediaService.GetByIdAsync<Media>(link.ShareMediaId.Value);
+            if (mediaResult.IsFailed) return mediaResult.ToResult<(byte[], string, string)>();
+
+            return await _mediaService.DownloadPicture(mediaResult.Value.UniqueId);
+        }
+
+        if (link.ShareFolderId is not null)
+        {
+            var folderResult = await _folderService.DownloadFolderPublicAsync(link.ShareFolderId.Value);
+            if (folderResult.IsFailed) return folderResult.ToResult<(byte[], string, string)>();
+
+            var (name, bytes) = folderResult.Value;
+            return Result.Ok((bytes, "application/zip", $"{name}.zip"));
+        }
+
+        return Result.Fail(LinkErrors.InvalidType());
+    }
+
     public async Task<Result<Share>> AcceptShareLinkAsync(ApplicationUser currentUser, string token)
     {
         var linkResult = await GetByTokenAsync(token);

@@ -433,6 +433,10 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return await Repository.GetByUniqueIdAsync(uniqueId);
     }
 
+    public async Task<Result<List<Media>>> GetMediaByFolderPublicAsync(int folderId){
+        return await Repository.GetByFolderPublicAsync(folderId);
+    }
+
     public async Task<Result> DeleteAllBlobsByUserAsync(int userId)
     {
         var mediasResult = await Repository.GetAllByUserIdAsync(userId);

@@ -124,4 +124,13 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
 
         return Result.Ok(medias);
     }
+
+    public async Task<Result<List<Media>>> GetByFolderPublicAsync(int? folderId)
+    {
+        var medias = await Query()
+            .Where(x => x.FolderId == folderId && x.IsActive)
+            .ToListAsync();
+
+        return Result.Ok(medias);
+    }
 }

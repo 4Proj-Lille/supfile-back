@@ -288,6 +288,51 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return Result.Ok();
     }
     
+    public async Task<Result<Tuple<string, byte[]>>> DownloadFolderPublicAsync(int folderId)
+    {
+        var folderResult = await Repository.GetByIdAsync<Folder>(folderId);
+        if (folderResult.IsFailed) return folderResult.ToResult();
+
+        if (!folderResult.Value.IsActive)
+            return Result.Fail(FolderErrors.CannotDownloadSoftDeleted());
+
+        using var ms = new MemoryStream();
+        await using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            var buildResult = await AddFolderToArchivePublicAsync(archive, folderId, folderResult.Value.Name);
+            if (buildResult.IsFailed) return buildResult;
+        }
+
+        return Result.Ok(Tuple.Create(folderResult.Value.Name, ms.ToArray()));
+    }
+
+    private async Task<Result> AddFolderToArchivePublicAsync(ZipArchive archive, int folderId, string currentPath)
+    {
+        var mediasResult = await _mediaService.GetMediaByFolderPublicAsync(folderId);
+        if (mediasResult.IsFailed) return mediasResult.ToResult();
+
+        foreach (var media in mediasResult.Value)
+        {
+            var fileResult = await _storageProvider.ReadAsync(media.UniqueId.ToString(), media.Extension);
+            if (fileResult.IsFailed) continue;
+
+            var entry = archive.CreateEntry($"{currentPath}/{media.Name}{media.Extension}", CompressionLevel.Fastest);
+            await using var entryStream = await entry.OpenAsync();
+            await entryStream.WriteAsync(fileResult.Value);
+        }
+
+        var subFoldersResult = await Repository.GetSubfoldersPublicAsync(folderId);
+        if (subFoldersResult.IsFailed) return subFoldersResult.ToResult();
+
+        foreach (var subFolder in subFoldersResult.Value)
+        {
+            var subResult = await AddFolderToArchivePublicAsync(archive, subFolder.Id, $"{currentPath}/{subFolder.Name}");
+            if (subResult.IsFailed) return subResult;
+        }
+
+        return Result.Ok();
+    }
+
     public async Task<Result<long>> GetFolderSizeRecursive(int? folderId, ApplicationUser currentUser)
     {
         if (folderId != null)
