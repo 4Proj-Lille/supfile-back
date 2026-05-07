@@ -181,25 +181,41 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
     }
     
 
-    public async Task<Result<ApplicationUser>> UpdateProfilePicture(ApplicationUser currentUser, IFormFile file, int userId)
+    public async Task<Result<ApplicationUser>> UpdateProfilePicture(ApplicationUser currentUser, IFormFile? file, int userId)
     {
         if (currentUser.Id != userId)
         {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
         }
         
-        if (MediaTypeHelper.Resolve(Path.GetExtension(file.FileName)) != "Picture") 
+        if (file == null || file.Length == 0)
         {
-            return Result.Fail(MediaErrors.InvalideProfilePictureType());
+            if (currentUser.ProfilePictureId != null)
+            {
+                var deleteResult = await _mediaService.DeleteByUniqueIdAsync(currentUser.ProfilePictureId.Value);
+                if (deleteResult.IsFailed)
+                {
+                    return Result.Fail(deleteResult.Errors);
+                }
+            }
+            currentUser.ProfilePictureId = null;
         }
 
-        var mediaResult = await _mediaService.AddOneAsync(currentUser, file);
-        if (mediaResult.IsFailed)
+        else
         {
-            return Result.Fail(mediaResult.Errors);
-        }
+            if (MediaTypeHelper.Resolve(Path.GetExtension(file.FileName)) != "Picture") 
+            {
+                return Result.Fail(MediaErrors.InvalideProfilePictureType());
+            }
 
-        currentUser.ProfilePictureId = mediaResult.Value.UniqueId;
+            var mediaResult = await _mediaService.AddOneAsync(currentUser, file);
+            if (mediaResult.IsFailed)
+            {
+                return Result.Fail(mediaResult.Errors);
+            }
+
+            currentUser.ProfilePictureId = mediaResult.Value.UniqueId;
+        }
 
         var result = await Repository.UpdateAsync(currentUser.Id, currentUser);
         if (result.IsFailed)

@@ -20,6 +20,6 @@ public interface IUserService : IBaseService<ApplicationUser, int>
     
     Task<Result<(byte[], string, string)>> DownloadPicture(int userId);
 
-    Task<Result<ApplicationUser>> UpdateProfilePicture(ApplicationUser currentUser, IFormFile file, int userId);
+    Task<Result<ApplicationUser>> UpdateProfilePicture(ApplicationUser currentUser, IFormFile? file, int userId);
 
 }

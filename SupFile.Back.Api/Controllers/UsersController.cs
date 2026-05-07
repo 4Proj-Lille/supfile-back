@@ -93,7 +93,7 @@ public class UsersController : BaseAuthController
     }
     
     [HttpPatch("{userId:int}/ProfilePicture")]
-    public async Task<ActionResult<ApplicationUserModel>> UpdateProfilePicture(int userId, IFormFile file)
+    public async Task<ActionResult<ApplicationUserModel>> UpdateProfilePicture(int userId, IFormFile? file = null)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
 

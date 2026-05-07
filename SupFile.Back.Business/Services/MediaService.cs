@@ -102,6 +102,25 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return deletedMedia;
     }
 
+    public async Task<Result> DeleteByUniqueIdAsync(Guid uniqueId)
+    {
+        var mediaResult = await Repository.GetByUniqueIdAsync(uniqueId);
+        if (mediaResult.IsFailed) return mediaResult.ToResult();
+
+        var media = mediaResult.Value;
+
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+        var deleteBlobResult = await _storageProvider.DeleteAsync(media.UniqueId.ToString(), media.Extension);
+        if (deleteBlobResult.IsFailed) return deleteBlobResult;
+
+        var deleteDbResult = await DeleteAsync(media.Id);
+
+        scope.Complete();
+
+        return deleteDbResult;
+    }
+
     public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId,
         SearchQuery query, bool shared = false)
     {
