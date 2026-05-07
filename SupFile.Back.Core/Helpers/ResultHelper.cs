@@ -11,5 +11,5 @@ public static class ResultHelper
     public static Result ToFluentResult(IdentityResult identityResult)
         => identityResult.Succeeded
             ? Result.Ok()
-            : Result.Fail(identityResult.Errors.Select(e => e.Description));
+            : Result.Fail(identityResult.Errors.Select(e => CommonErrorHelper.BadRequest(e.Code, e.Description)));
 }
