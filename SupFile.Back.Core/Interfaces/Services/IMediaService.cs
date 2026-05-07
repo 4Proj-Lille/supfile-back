@@ -43,4 +43,5 @@ public interface IMediaService : IBaseService<Media, int>
     
     Task<Result<Media>> GetByUniqueIdAsync(Guid uniqueId);
 
+    Task<Result> DeleteAllBlobsByUserAsync(int userId);
 }

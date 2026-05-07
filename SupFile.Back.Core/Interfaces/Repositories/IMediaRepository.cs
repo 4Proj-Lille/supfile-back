@@ -20,4 +20,5 @@ public interface IMediaRepository : IBaseRepository<Media, int>
     
     Task<Result<int>> SoftDeleteByFolderIdAsync(List<int> folderIds);
     Task<Result<int>> RestoreByFolderIdsAsync(List<int> folderIds);
+    Task<Result<List<Media>>> GetAllByUserIdAsync(int userId);
 }

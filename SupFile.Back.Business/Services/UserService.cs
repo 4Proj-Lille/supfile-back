@@ -135,10 +135,12 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         var user = userResult.Value;
         
         if (currentUser.Id != userId)
-        {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
-        }
-        
+
+        var deleteBlobsResult = await _mediaService.DeleteAllBlobsByUserAsync(userId);
+        if (deleteBlobsResult.IsFailed)
+            return deleteBlobsResult;
+
         var result = await Repository.DeleteUserAsync(user);
         if (result.IsFailed)
             return Result.Fail(result.Errors);

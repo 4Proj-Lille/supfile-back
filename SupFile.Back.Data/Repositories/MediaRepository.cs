@@ -115,4 +115,13 @@ public class MediaRepository : BaseRepository<Media, int, SupFileContext>, IMedi
 
         return affected;
     }
+
+    public async Task<Result<List<Media>>> GetAllByUserIdAsync(int userId)
+    {
+        var medias = await Query()
+            .Where(x => x.OwnerId == userId)
+            .ToListAsync();
+
+        return Result.Ok(medias);
+    }
 }

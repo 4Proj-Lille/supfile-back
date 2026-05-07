@@ -379,9 +379,25 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return Result.Ok((bytes, "image/svg+xml", $"{initials}.svg"));
     }
     
-    public async Task<Result<Media>> GetByUniqueIdAsync(Guid uniqueId) 
+    public async Task<Result<Media>> GetByUniqueIdAsync(Guid uniqueId)
     {
         return await Repository.GetByUniqueIdAsync(uniqueId);
+    }
+
+    public async Task<Result> DeleteAllBlobsByUserAsync(int userId)
+    {
+        var mediasResult = await Repository.GetAllByUserIdAsync(userId);
+        if (mediasResult.IsFailed) return mediasResult.ToResult();
+
+        var errors = new List<IError>();
+        foreach (var media in mediasResult.Value)
+        {
+            var deleteResult = await _storageProvider.DeleteAsync(media.UniqueId.ToString(), media.Extension);
+            if (deleteResult.IsFailed)
+                errors.AddRange(deleteResult.Errors);
+        }
+
+        return errors.Count > 0 ? Result.Fail(errors) : Result.Ok();
     }
 
 }
