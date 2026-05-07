@@ -26,11 +26,12 @@ public sealed class SharesController : BaseAuthController
     }
     
     [HttpPatch("Permission")]
-    public async Task<ActionResult<Share>> UpdatePermission([FromBody] UpdateSharePermissionDto dto)
+    public async Task<ActionResult<ShareModel>> UpdatePermission([FromBody] UpdateSharePermissionDto dto)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var result = await _shareService.UpdatePermissionAsync(currentUser, dto);
-        return ToOkActionResult(result);
+        var shareModelResult = result.Map(share => share.Adapt<ShareModel>());
+        return ToOkActionResult(shareModelResult);
     }
 
     [HttpGet]
