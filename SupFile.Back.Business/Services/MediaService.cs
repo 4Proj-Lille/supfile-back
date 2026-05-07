@@ -125,12 +125,12 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
     }
 
     public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId,
-        SearchQuery query, bool shared = false, int? size = null)
+        SearchQuery query, bool shared = false, int? limit = null)
     {
         var filter = query.ToGridifyMediaFilter();
         var orderBy = query.ToGridifyMediaOrderBy();
 
-        var mediaResult = await Repository.GetFolderContents<TMapped>(currentUser, folderId, filter, orderBy, shared, size);
+        var mediaResult = await Repository.GetFolderContents<TMapped>(currentUser, folderId, filter, orderBy, shared, limit);
         return mediaResult;
     }
 

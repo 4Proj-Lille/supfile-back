@@ -10,7 +10,7 @@ public interface IMediaService : IBaseService<Media, int>
     Task<Result> DeleteOneAsync(ApplicationUser currentUser, int id);
     Task<Result> DeleteByUniqueIdAsync(Guid uniqueId);
 
-    Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId, SearchQuery query, bool shared = false, int? size = null);
+    Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser currentUser, int? folderId, SearchQuery query, bool shared = false, int? limit = null);
     
     Task<Result<Media>> UpdateAsync(int id, Media entity, ApplicationUser currentUser);
     
