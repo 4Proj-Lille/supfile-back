@@ -21,12 +21,15 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         return await DeleteAllAsync(x => x.OwnerId == user.Id && !x.IsActive);
     }
 
-    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? id, string filter, string orderBy, bool shared)
+    public async Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? id, string filter, string orderBy, bool shared, int? size = null)
     {
-        var q = Query().Where(x =>
+        IQueryable<Folder> q = Query().Where(x =>
             x.ParentId == id && x.IsActive &&
             (shared || x.OwnerId == user.Id)
         ).OrderBy(x => x.Name);
+
+        if (size.HasValue)
+            q = q.Take(size.Value);
 
         return Result.Ok(await q.FindListAsync<TMapped>(filter, orderBy: orderBy));
     }

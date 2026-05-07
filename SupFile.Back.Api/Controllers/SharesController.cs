@@ -17,7 +17,7 @@ public sealed class SharesController : BaseAuthController
         _shareService = shareService;
     }
     
-    [HttpPatch("{objectId:int}/Access")]
+    [HttpGet("{objectId:int}/Access")]
     public async Task<ActionResult<List<ApplicationUserModel>>> GetAccessUsersAsync(int objectId, [FromQuery] ObjectType type)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
@@ -35,10 +35,10 @@ public sealed class SharesController : BaseAuthController
     }
 
     [HttpGet]
-    public async Task<ActionResult<StorageModel>> GetShares([FromQuery] SearchQuery query, [FromQuery] int? folderId = null)
+    public async Task<ActionResult<StorageModel>> GetShares([FromQuery] SearchQuery query, [FromQuery] int? folderId = null, [FromQuery] int? size = null)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var sharesResult = await _shareService.GetAllAsync<FolderModel, MediaModel>(currentUser, query, folderId);
+        var sharesResult = await _shareService.GetAllAsync<FolderModel, MediaModel>(currentUser, query, folderId, size);
         return ToOkActionResult(sharesResult.Map(value =>
         {
             var (folders, medias) = value;

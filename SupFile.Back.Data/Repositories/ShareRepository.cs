@@ -11,19 +11,22 @@ public class ShareRepository : BaseRepository<Share, int, SupFileContext>, IShar
     {
     }
 
-    public async Task<Result<List<TMapped>>> GetAllFoldersSharedAsync<TMapped>(ApplicationUser user, string filter, string orderBy)
+    public async Task<Result<List<TMapped>>> GetAllFoldersSharedAsync<TMapped>(ApplicationUser user, string filter, string orderBy, int? size = null)
     {
         await using var ctx = await ContextFactory.CreateDbContextAsync();
 
         var q = ctx.Folders
             .Where(f => f.IsActive &&
                         ctx.Shares.Any(s => s.UserId == user.Id && s.ShareFolderId == f.Id));
-
+        
+        if (size.HasValue)
+            q = q.Take(size.Value);
+        
         var result = await q.FindListAsync<TMapped>(filter, orderBy: orderBy);
         return Result.Ok(result);
     }
 
-    public async Task<Result<List<TMapped>>> GetAllMediasSharedAsync<TMapped>(ApplicationUser user, string filter, string orderBy)
+    public async Task<Result<List<TMapped>>> GetAllMediasSharedAsync<TMapped>(ApplicationUser user, string filter, string orderBy, int? size = null)
     {
         await using var ctx = await ContextFactory.CreateDbContextAsync();
 
@@ -31,6 +34,9 @@ public class ShareRepository : BaseRepository<Share, int, SupFileContext>, IShar
             .Where(m => m.IsActive &&
                         ctx.Shares.Any(s => s.UserId == user.Id && s.ShareMediaId == m.Id));
 
+        if (size.HasValue)
+            q = q.Take(size.Value);
+        
         var result = await q.FindListAsync<TMapped>(filter, orderBy: orderBy);
         return Result.Ok(result);
     }

@@ -6,7 +6,7 @@ public interface IFolderRepository : IBaseRepository<Folder, int>
 
     Task<Result<int>> DeleteAllSoftDeleted(ApplicationUser user);
 
-    Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? id, string filter, string orderBy, bool shared = false);
+    Task<Result<List<TMapped>>> GetFolderContents<TMapped>(ApplicationUser user, int? id, string filter, string orderBy, bool shared = false, int? size = null);
 
     Task<Result<List<TMapped>>> GetPath<TMapped>(ApplicationUser user, int? id);
     Task<Result<int>> SoftDeleteChildrensAsync(int folderId);
