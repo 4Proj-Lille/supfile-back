@@ -365,11 +365,12 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             second = "Z";
         }
 
-        var initials = $"{first[0].ToString().ToUpper()}{second[0].ToString().ToUpper()}";
+        var initials = $"{char.ToUpper(first[0])}{char.ToUpper(second[0])}";
+        var color = GetColorFromString(userName ?? initials);
 
         var svg = $"""
                    <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128">
-                       <rect width="128" height="128" fill="#CCCCCC"/>
+                       <rect width="128" height="128" fill="{color}"/>
                        <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle"
                              font-size="52" font-family="Arial" fill="#FFFFFF">{initials}</text>
                    </svg>
@@ -377,6 +378,30 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
         var bytes = Encoding.UTF8.GetBytes(svg);
         return Result.Ok((bytes, "image/svg+xml", $"{initials}.svg"));
+    }
+
+    private static string GetColorFromString(string input)
+    {
+        var hash = input.Aggregate(0, (acc, c) => acc * 31 + c);
+        var hue = Math.Abs(hash) % 360;
+        return HslToHex(hue, saturation: 0.55, lightness: 0.45);
+    }
+
+    private static string HslToHex(int hue, double saturation, double lightness)
+    {
+        var c = (1 - Math.Abs(2 * lightness - 1)) * saturation;
+        var x = c * (1 - Math.Abs(hue / 60.0 % 2 - 1));
+        var m = lightness - c / 2;
+
+        double r, g, b;
+        if      (hue < 60)  { r = c; g = x; b = 0; }
+        else if (hue < 120) { r = x; g = c; b = 0; }
+        else if (hue < 180) { r = 0; g = c; b = x; }
+        else if (hue < 240) { r = 0; g = x; b = c; }
+        else if (hue < 300) { r = x; g = 0; b = c; }
+        else                { r = c; g = 0; b = x; }
+
+        return $"#{(int)((r + m) * 255):X2}{(int)((g + m) * 255):X2}{(int)((b + m) * 255):X2}";
     }
     
     public async Task<Result<Media>> GetByUniqueIdAsync(Guid uniqueId)
