@@ -14,13 +14,13 @@ public class LinkRepository : BaseRepository<Link, int, SupFileContext>, ILinkRe
         return await FindOneAsync<Link>(x => x.Token == token);
     }
 
-    public async Task<Result<List<Link>>> GetPendingInvitationsAsync(int userId)
+    public async Task<Result<List<TMapped>>> GetPendingInvitationsAsync<TMapped>(int userId)
     {
         var result = await Query()
             .Where(x => x.TargetUserId == userId && x.ExpirationDate > DateTime.Now)
+            .ProjectToType<TMapped>()
             .ToListAsync();
-        
+
         return Result.Ok(result);
-        
     }
 }

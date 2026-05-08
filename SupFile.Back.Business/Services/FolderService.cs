@@ -318,7 +318,9 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
 
             if (folderResult.Value.OwnerId != currentUser.Id)
             {
-                return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folderId.Value));
+                var hasAccess = await _shareRepository.HasAnyFolderAccessAsync(folderId.Value, currentUser.Id);
+                if (!hasAccess)
+                    return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folderId.Value));
             }
         }
         

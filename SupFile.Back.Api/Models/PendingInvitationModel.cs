@@ -11,4 +11,6 @@ public class PendingInvitationModel
     public int? ShareMediaId { get; set; }
     public int? ShareFolderId { get; set; }
     public int? TargetUserId { get; set; }
+    public string? ItemName { get; set; }
+    public int? ItemOwnerId { get; set; }
 }

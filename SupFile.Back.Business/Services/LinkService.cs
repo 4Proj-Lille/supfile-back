@@ -136,9 +136,9 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         return await Repository.DeleteAsync(linkResult.Value.Id);
     }
 
-    public async Task<Result<List<Link>>> GetPendingInvitationsAsync(ApplicationUser currentUser)
+    public async Task<Result<List<TMapped>>> GetPendingInvitationsAsync<TMapped>(ApplicationUser currentUser)
     {
-        return await Repository.GetPendingInvitationsAsync(currentUser.Id);
+        return await Repository.GetPendingInvitationsAsync<TMapped>(currentUser.Id);
     }
 
     public async Task<Result<Link>> GetByTokenAsync(string token)
@@ -199,6 +199,8 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
 
         var createResult = await _shareService.AddAsync(share);
         if (createResult.IsFailed) return createResult;
+
+        await Repository.DeleteAsync(linkResult.Value.Id);
 
         return Result.Ok(createResult.Value);
     }

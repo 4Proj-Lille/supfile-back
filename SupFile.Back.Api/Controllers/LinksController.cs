@@ -51,8 +51,8 @@ public sealed class LinksController : BaseAuthController
     public async Task<ActionResult<List<PendingInvitationModel>>> GetPendingInvitations()
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
-        var result = await _linkService.GetPendingInvitationsAsync(currentUser);
-        return ToOkActionResult(result.Map(links => links.Adapt<List<PendingInvitationModel>>()));
+        var result = await _linkService.GetPendingInvitationsAsync<PendingInvitationModel>(currentUser);
+        return ToOkActionResult(result);
     }
 
     [HttpDelete("decline")]
