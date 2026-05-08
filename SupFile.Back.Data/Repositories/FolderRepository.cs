@@ -62,6 +62,27 @@ public class FolderRepository : BaseRepository<Folder, int, SupFileContext>, IFo
         return Result.Ok(path);
     }
 
+    public async Task<Result<List<Folder>>> GetAncestorsAsync(int folderId)
+    {
+        var ancestors = new List<Folder>();
+        int? currentId = folderId;
+
+        while (currentId != null)
+        {
+            var folder = await Query()
+                .Where(x => x.Id == currentId && x.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (folder == null) break;
+
+            ancestors.Add(folder);
+            currentId = folder.ParentId;
+        }
+
+        ancestors.Reverse();
+        return Result.Ok(ancestors);
+    }
+
     public async Task<Result<int>> SoftDeleteChildrensAsync(int folderId)
     {
         var descendantIdsResult = await GetAllDescendantIdsAsync(folderId);

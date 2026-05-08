@@ -43,9 +43,7 @@ public class ShareRepository : BaseRepository<Share, int, SupFileContext>, IShar
 
     public async Task<bool> HasMediaPermissionAsync(int mediaId, int userId, SharePermission permission)
     {
-        await using var ctx = await ContextFactory.CreateDbContextAsync();
-
-        return await ctx.Shares.AnyAsync(s =>
+        return await Query().AnyAsync(s =>
             s.ShareMediaId == mediaId &&
             s.UserId == userId &&
             s.Permission == permission.ToString());
@@ -53,21 +51,22 @@ public class ShareRepository : BaseRepository<Share, int, SupFileContext>, IShar
 
     public async Task<bool> HasFolderPermissionAsync(int folderId, int userId, SharePermission permission)
     {
-        await using var ctx = await ContextFactory.CreateDbContextAsync();
-
-        return await ctx.Shares.AnyAsync(s =>
+        return await Query().AnyAsync(s =>
             s.ShareFolderId == folderId &&
             s.UserId == userId &&
             s.Permission == permission.ToString());
     }
 
+    public async Task<bool> HasAnyFolderAccessAsync(int folderId, int userId)
+    {
+        return await Query().AnyAsync(s => s.ShareFolderId == folderId && s.UserId == userId);
+    }
+
     public async Task<Result<Share>> GetByObjectAndUserAsync(int objectId, int userId, InvitationItemType type)
     {
-        await using var ctx = await ContextFactory.CreateDbContextAsync();
-
         var share = type == InvitationItemType.Media
-            ? await ctx.Shares.FirstOrDefaultAsync(s => s.ShareMediaId == objectId && s.UserId == userId)
-            : await ctx.Shares.FirstOrDefaultAsync(s => s.ShareFolderId == objectId && s.UserId == userId);
+            ? await Query().FirstOrDefaultAsync(s => s.ShareMediaId == objectId && s.UserId == userId)
+            : await Query().FirstOrDefaultAsync(s => s.ShareFolderId == objectId && s.UserId == userId);
 
         if (share == null)
             return Result.Fail(ShareErrors.ShareNotFound());

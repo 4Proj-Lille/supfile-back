@@ -159,17 +159,38 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
 
         var folder = folderResult.Value;
 
-        if (folder.OwnerId != user.Id)
+        if (folder.OwnerId == user.Id)
         {
-            return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(folder.Id));
+            if (folder.ParentId is null)
+                return Result.Ok(new List<TMapped>());
+            return await Repository.GetPath<TMapped>(user, folder.ParentId);
         }
 
-        if (folder.ParentId is null)
+        var ancestorsResult = await Repository.GetAncestorsAsync(id);
+        if (ancestorsResult.IsFailed) return ancestorsResult.ToResult();
+
+        var ancestors = ancestorsResult.Value;
+
+        int? sharedRootIndex = null;
+        for (var i = 0; i < ancestors.Count; i++)
         {
-            return Result.Ok(new List<TMapped>());
+            if (await _shareRepository.HasAnyFolderAccessAsync(ancestors[i].Id, user.Id))
+            {
+                sharedRootIndex = i;
+                break;
+            }
         }
 
-        return await Repository.GetPath<TMapped>(user, folder.ParentId);
+        if (sharedRootIndex is null)
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Folder, int>(id));
+
+        var visibleAncestors = ancestors.Skip(sharedRootIndex.Value).SkipLast(1).ToList();
+
+        var mapped = visibleAncestors
+            .Select(f => f.Adapt<TMapped>())
+            .ToList();
+
+        return Result.Ok(mapped);
     }
 
     public async Task<Result<List<TMapped>>> GetSoftDeleted<TMapped>(ApplicationUser currentUser)
