@@ -28,7 +28,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         _shareService = shareService;
     }
 
-    public async Task<Result<string>> GenerateMediaShareLinkAsync(ApplicationUser currentUser, int mediaId)
+    public async Task<Result<string>> GenerateMediaShareLinkAsync(ApplicationUser currentUser, int mediaId, int? targetUserId = null)
     {
         var media = await _mediaService.GetByIdAsync<Media>(mediaId);
         if (media.IsFailed) return media.ToResult();
@@ -45,7 +45,8 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
             Token = token,
             Type = InvitationItemType.Media,
             ExpirationDate = DateTime.Now.AddDays(7),
-            ShareMediaId = mediaId
+            ShareMediaId = mediaId,
+            TargetUserId = targetUserId
         };
 
         var result = await Repository.AddAsync(link);
@@ -57,7 +58,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         return share;
     }
 
-    public async Task<Result<string>> GenerateFolderShareLinkAsync(ApplicationUser currentUser, int folderId)
+    public async Task<Result<string>> GenerateFolderShareLinkAsync(ApplicationUser currentUser, int folderId, int? targetUserId = null)
     {
         var folder = await _folderService.GetByIdAsync<Folder>(folderId);
         if (folder.IsFailed) return folder.ToResult();
@@ -74,7 +75,8 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
             Token = token,
             Type = InvitationItemType.Folder,
             ExpirationDate = DateTime.Now.AddDays(7),
-            ShareFolderId = folderId
+            ShareFolderId = folderId,
+            TargetUserId = targetUserId
         };
 
         var result = await Repository.AddAsync(link);
@@ -99,8 +101,8 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
 
         var generatedLinkResult = type switch
         {
-            InvitationItemType.Media => await GenerateMediaShareLinkAsync(currentUser, itemId),
-            InvitationItemType.Folder => await GenerateFolderShareLinkAsync(currentUser, itemId),
+            InvitationItemType.Media => await GenerateMediaShareLinkAsync(currentUser, itemId, inviteUserId),
+            InvitationItemType.Folder => await GenerateFolderShareLinkAsync(currentUser, itemId, inviteUserId),
             _ => Result.Fail(LinkErrors.InvalidType())
         };
 
@@ -123,6 +125,11 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         return Result.Ok(generatedLinkResult.Value);
     }
 
+    public async Task<Result<List<Link>>> GetPendingInvitationsAsync(ApplicationUser currentUser)
+    {
+        return await Repository.GetPendingInvitationsAsync(currentUser.Id);
+    }
+
     public async Task<Result<Link>> GetByTokenAsync(string token)
     {
         var linkResult = await Repository.FindOneAsync<Link>(x => x.Token == token);
@@ -143,6 +150,11 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         var linkResult = await GetByTokenAsync(token);
         if (linkResult.IsFailed) return linkResult.ToResult();
 
+        if (linkResult.Value.TargetUserId != null && linkResult.Value.TargetUserId != currentUser.Id)
+        {
+            return Result.Fail(LinkErrors.UnauthorizedForLink());
+        }
+        
         if (linkResult.Value.ShareFolderId is not null)
         {
             var folderResult = await _folderService.GetByIdAsync<Folder>(linkResult.Value.ShareFolderId.Value);

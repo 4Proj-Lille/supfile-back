@@ -19,4 +19,10 @@ public static class LinkErrors
             ErrorsRes.LinkExpired_Title,
             ErrorsRes.LinkExpired_Detail
         );
+
+    public static CustomError UnauthorizedForLink() =>
+        CommonErrorHelper.Forbidden(
+            ErrorsRes.UnauthorizedForLink_Title,
+            ErrorsRes.UnauthorizedForLink_Detail
+        );
 }

@@ -53,7 +53,11 @@ namespace SupFile.Back.Data.Mapping
             builder.Property(t => t.ShareFolderId)
                 .HasColumnName("ShareFolderId")
                 .HasColumnType("int");
-            
+
+            builder.Property(t => t.TargetUserId)
+                .HasColumnName("TargetUserId")
+                .HasColumnType("int");
+
             // relationships
             builder.HasOne(t => t.ShareLinkFolder)
                 .WithMany(t => t.Links)
@@ -66,7 +70,13 @@ namespace SupFile.Back.Data.Mapping
                 .HasForeignKey(d => d.ShareMediaId)
                 .HasConstraintName("Link_File_Id_fk")
                 .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade);
-            
+
+            builder.HasOne(t => t.TargetUser)
+                .WithMany()
+                .HasForeignKey(d => d.TargetUserId)
+                .HasConstraintName("Link_TargetUser_Id_fk")
+                .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.SetNull);
+
             #endregion
         }
 
@@ -100,6 +110,9 @@ namespace SupFile.Back.Data.Mapping
             
             /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Link.ShareFolderId" /></summary>
             public const string ShareFolderId = "ShareFolderId";
+            
+            /// <summary>Column Name constant for property <see cref="SupFile.Back.Core.Entities.Link.TargetUserId" /></summary>
+            public const string TargetUserId = "TargetUserId";
         }
 
         #endregion

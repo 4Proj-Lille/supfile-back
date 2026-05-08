@@ -56,6 +56,8 @@ public class Link : BaseEntity<Link, int>, IEntity<Link, int>
     /// </value>
     public int? ShareFolderId { get; set; }
 
+    public int? TargetUserId { get; set; }
+
     #endregion
 
     #region Generated Relationships
@@ -77,6 +79,8 @@ public class Link : BaseEntity<Link, int>, IEntity<Link, int>
     /// </value>
     /// <seealso cref="ShareFolderId" />
     public virtual Folder? ShareLinkFolder { get; set; }
+
+    public virtual ApplicationUser? TargetUser { get; set; }
 
     #endregion
 }

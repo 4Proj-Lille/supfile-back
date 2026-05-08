@@ -308,7 +308,19 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("LinkExpired_Detail", resourceCulture);
             }
         }
-        
+
+        public static string UnauthorizedForLink_Title {
+            get {
+                return ResourceManager.GetString("UnauthorizedForLink_Title", resourceCulture);
+            }
+        }
+
+        public static string UnauthorizedForLink_Detail {
+            get {
+                return ResourceManager.GetString("UnauthorizedForLink_Detail", resourceCulture);
+            }
+        }
+
         public static string InvalidSortField_Title {
             get {
                 return ResourceManager.GetString("InvalidSortField_Title", resourceCulture);

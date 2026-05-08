@@ -47,6 +47,14 @@ public sealed class LinksController : BaseAuthController
         return ToOkActionResult(inviteLinkResult);
     }
 
+    [HttpGet("pending")]
+    public async Task<ActionResult<List<PendingInvitationModel>>> GetPendingInvitations()
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var result = await _linkService.GetPendingInvitationsAsync(currentUser);
+        return ToOkActionResult(result.Map(links => links.Adapt<List<PendingInvitationModel>>()));
+    }
+
     [HttpPost("accept")]
     public async Task<ActionResult> AcceptEmailInviteLink([FromQuery] string token)
     {
