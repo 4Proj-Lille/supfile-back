@@ -8,6 +8,7 @@ public interface ILinkService : IBaseService<Link, int>
     Task<Result<string>> GenerateFolderShareLinkAsync(ApplicationUser currentUser, int folderId, int? targetUserId = null);
     Task<Result<string>> GenerateEmailShareLinkAsync(ApplicationUser currentUser, int itemId, InvitationItemType type, int inviteUserId);
     Task<Result<Share>> AcceptShareLinkAsync(ApplicationUser currentUser, string token);
+    Task<Result> DeclineShareLinkAsync(ApplicationUser currentUser, string token);
     Task<Result<List<Link>>> GetPendingInvitationsAsync(ApplicationUser currentUser);
 
     Task<Result<Link>> GetByTokenAsync(string token);

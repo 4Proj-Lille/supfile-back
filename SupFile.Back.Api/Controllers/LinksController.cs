@@ -55,6 +55,14 @@ public sealed class LinksController : BaseAuthController
         return ToOkActionResult(result.Map(links => links.Adapt<List<PendingInvitationModel>>()));
     }
 
+    [HttpDelete("decline")]
+    public async Task<ActionResult> DeclineInviteLink([FromQuery] string token)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var result = await _linkService.DeclineShareLinkAsync(currentUser, token);
+        return ToNoContentActionResult(result);
+    }
+
     [HttpPost("accept")]
     public async Task<ActionResult> AcceptEmailInviteLink([FromQuery] string token)
     {

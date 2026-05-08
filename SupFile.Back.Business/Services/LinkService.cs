@@ -125,6 +125,17 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         return Result.Ok(generatedLinkResult.Value);
     }
 
+    public async Task<Result> DeclineShareLinkAsync(ApplicationUser currentUser, string token)
+    {
+        var linkResult = await GetByTokenAsync(token);
+        if (linkResult.IsFailed) return linkResult.ToResult();
+
+        if (linkResult.Value.TargetUserId != currentUser.Id)
+            return Result.Fail(LinkErrors.UnauthorizedForLink());
+
+        return await Repository.DeleteAsync(linkResult.Value.Id);
+    }
+
     public async Task<Result<List<Link>>> GetPendingInvitationsAsync(ApplicationUser currentUser)
     {
         return await Repository.GetPendingInvitationsAsync(currentUser.Id);
