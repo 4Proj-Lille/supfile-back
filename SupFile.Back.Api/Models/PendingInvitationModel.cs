@@ -13,4 +13,5 @@ public class PendingInvitationModel
     public int? TargetUserId { get; set; }
     public string? ItemName { get; set; }
     public int? ItemOwnerId { get; set; }
+    public string? ItemExtension { get; set; }
 }
