@@ -9,7 +9,7 @@
 @if (!string.IsNullOrEmpty(Model.AppSettings.LogoUrl))
 {
     <div style="text-align:center; margin-bottom: 30px;">
-        <img src="@Model.AppSettings.LogoUrl" alt="@Model.AppSettings.Name" style="max-width:48px; height:auto;"/>
+        <img src="@Model.AppSettings.LogoUrl" alt="@Model.AppSettings.Name" style="max-width:80px; height:auto; border-radius: 25%"/>
     </div>
 }
 
@@ -19,7 +19,7 @@
     verify your email address:</p>
 
 <a href="@Model.VerificationLink"
-   style="padding:12px 20px;background:#000;color:#fff;text-decoration:none;">
+   style="padding:12px 20px;background:#5D48D2;color:#fff;text-decoration:none;">
     Verify your email
 </a>
 
