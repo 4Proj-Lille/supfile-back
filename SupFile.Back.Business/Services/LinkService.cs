@@ -10,19 +10,21 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
     private readonly IFolderService _folderService;
     private readonly IShareService _shareService;
     private readonly FrontEndSettings _frontEndSettings;
-    private readonly IFluentEmail _fluentEmail;
+    private readonly AppSettings _appSettings;
+    private readonly IEmailService _emailService;
 
 
     public LinkService(ILogger<LinkService> logger, ILinkRepository repository,
         IUserService userService, IMediaService mediaService, IFolderService folderService, IShareService shareService,
-        IFluentEmail fluentEmail, IOptions<FrontEndSettings> frontEndSettings) : base(logger,
+        IEmailService emailService, IOptions<FrontEndSettings> frontEndSettings, IOptions<AppSettings> appSettings) : base(logger,
         repository)
     {
         _userService = userService;
         _mediaService = mediaService;
         _folderService = folderService;
-        _fluentEmail = fluentEmail;
+        _emailService = emailService;
         _frontEndSettings = frontEndSettings.Value;
+        _appSettings = appSettings.Value;
         _shareService = shareService;
     }
 
@@ -104,11 +106,19 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
 
         if (generatedLinkResult.IsFailed) return generatedLinkResult;
 
-        await _fluentEmail.To(user.Value.Email).Subject("Invitation to Access Shared Item")
-            .Body(
-                $" You have been invited to access a shared {type.ToString().ToLower()} by {currentUser.UserName}. Click on the link below to access it: <a href={generatedLinkResult.Value}>Accept Invitation</a>",
-                true)
-            .SendAsync();
+        var (template, subject) = EmailTemplateConstants.ShareInvitation;
+        await _emailService.SendEmailAsync(
+            user.Value.Email!,
+            subject,
+            template,
+            new ShareInvitationEmailModel
+            {
+                InvitedUserName = user.Value.UserName!,
+                InviterUserName = currentUser.UserName!,
+                ItemType = type,
+                ShareLink = generatedLinkResult.Value,
+                AppSettings = _appSettings
+            });
 
         return Result.Ok(generatedLinkResult.Value);
     }

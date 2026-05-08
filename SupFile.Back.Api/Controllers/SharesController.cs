@@ -34,6 +34,14 @@ public sealed class SharesController : BaseAuthController
         return ToOkActionResult(shareModelResult);
     }
 
+    [HttpDelete("Access")]
+    public async Task<ActionResult> RevokeAccess([FromQuery] int objectId, [FromQuery] int userId, [FromQuery] InvitationItemType type)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+        var result = await _shareService.RevokeAccessAsync(currentUser, objectId, userId, type);
+        return ToNoContentActionResult(result);
+    }
+
     [HttpGet]
     public async Task<ActionResult<StorageModel>> GetShares([FromQuery] SearchQuery query, [FromQuery] int? folderId = null, [FromQuery] int? limit = null)
     {

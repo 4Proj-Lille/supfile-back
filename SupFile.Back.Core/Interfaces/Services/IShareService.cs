@@ -15,4 +15,6 @@ public interface IShareService : IBaseService<Share, int>
     Task<Result<Tuple<List<TFolder>, List<TMedia>>>> GetAllAsync<TFolder, TMedia>(ApplicationUser currentUser, SearchQuery query, int? folderId = null, int? limit = null);
 
     Task<Result<Share>> UpdatePermissionAsync(ApplicationUser currentUser, UpdateSharePermissionDto dto);
+
+    Task<Result> RevokeAccessAsync(ApplicationUser currentUser, int objectId, int userId, InvitationItemType type);
 }

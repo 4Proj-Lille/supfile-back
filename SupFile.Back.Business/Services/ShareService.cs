@@ -50,21 +50,10 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
 
     public async Task<Result<Share>> UpdatePermissionAsync(ApplicationUser currentUser, UpdateSharePermissionDto dto)
     {
-        int ownerId;
-        if (dto.Type == InvitationItemType.Media)
-        {
-            var mediaResult = await _mediaRepository.GetByIdAsync<Media>(dto.ObjectId);
-            if (mediaResult.IsFailed) return mediaResult.ToResult<Share>();
-            ownerId = mediaResult.Value.OwnerId;
-        }
-        else
-        {
-            var folderResult = await _folderRepository.GetByIdAsync<Folder>(dto.ObjectId);
-            if (folderResult.IsFailed) return folderResult.ToResult<Share>();
-            ownerId = folderResult.Value.OwnerId;
-        }
+        var ownerResult = await GetOwnerIdAsync(dto.ObjectId, dto.Type);
+        if (ownerResult.IsFailed) return ownerResult.ToResult<Share>();
 
-        if (ownerId != currentUser.Id)
+        if (ownerResult.Value != currentUser.Id)
             return Result.Fail(AuthErrors.UnauthorizedForEntity<Share, int>(dto.ObjectId));
 
         var shareResult = await Repository.GetByObjectAndUserAsync(dto.ObjectId, dto.UserId, dto.Type);
@@ -74,6 +63,37 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
         share.Permission = dto.Permission.ToString();
 
         return await UpdateAsync(share.Id, share);
+    }
+
+    public async Task<Result> RevokeAccessAsync(ApplicationUser currentUser, int objectId, int userId, InvitationItemType type)
+    {
+        var ownerResult = await GetOwnerIdAsync(objectId, type);
+        if (ownerResult.IsFailed) return ownerResult.ToResult();
+
+        var isOwner = ownerResult.Value == currentUser.Id;
+        var isSelfRevoke = userId == currentUser.Id;
+
+        if (!isOwner && !isSelfRevoke)
+            return Result.Fail(AuthErrors.UnauthorizedForEntity<Share, int>(objectId));
+
+        var shareResult = await Repository.GetByObjectAndUserAsync(objectId, userId, type);
+        if (shareResult.IsFailed) return shareResult.ToResult();
+
+        return await DeleteAsync(shareResult.Value.Id);
+    }
+
+    private async Task<Result<int>> GetOwnerIdAsync(int objectId, InvitationItemType type)
+    {
+        if (type == InvitationItemType.Media)
+        {
+            var mediaResult = await _mediaRepository.GetByIdAsync<Media>(objectId);
+            if (mediaResult.IsFailed) return mediaResult.ToResult<int>();
+            return Result.Ok(mediaResult.Value.OwnerId);
+        }
+
+        var folderResult = await _folderRepository.GetByIdAsync<Folder>(objectId);
+        if (folderResult.IsFailed) return folderResult.ToResult<int>();
+        return Result.Ok(folderResult.Value.OwnerId);
     }
 
     public async Task<Result<Tuple<List<TFolder>, List<TMedia>>>> GetAllAsync<TFolder, TMedia>(ApplicationUser currentUser, SearchQuery query, int? folderId = null, int? limit = null)

@@ -7,9 +7,13 @@ public partial class RegisterDtoValidator : AbstractValidator<RegisterDto>
     public RegisterDtoValidator(IStringLocalizer<AuthenticationsRes> l, IStringLocalizer<SharedRes> sl)
     {
         const int MaxNameLength = 25;
+        const int MinNameLength = 4;
         RuleFor(x => x.Username)
             .NotEmpty()
             .WithMessage("Username is required.")
+            .MinimumLength(MinNameLength)
+            .WithMessage(string.Format(CultureInfo.CurrentCulture,
+                "Username must be at least {0} characters", MinNameLength))
             .MaximumLength(MaxNameLength)
             .WithMessage(string.Format(CultureInfo.CurrentCulture,
                 "Name cannot exceed {0} characters", MaxNameLength));

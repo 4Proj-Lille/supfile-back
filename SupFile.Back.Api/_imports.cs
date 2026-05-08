@@ -1,6 +1,7 @@
 ﻿global using AspNet.Security.OAuth.GitHub;
 global using FluentResults;
 global using FluentValidation;
+global using FluentValidation.AspNetCore;
 global using Mapster;
 global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Authentication.Google;

@@ -61,13 +61,13 @@ public class ShareRepository : BaseRepository<Share, int, SupFileContext>, IShar
             s.Permission == permission.ToString());
     }
 
-    public async Task<Result<Share>> GetByObjectAndUserAsync(int objectId, int targetUserId, InvitationItemType type)
+    public async Task<Result<Share>> GetByObjectAndUserAsync(int objectId, int userId, InvitationItemType type)
     {
         await using var ctx = await ContextFactory.CreateDbContextAsync();
 
         var share = type == InvitationItemType.Media
-            ? await ctx.Shares.FirstOrDefaultAsync(s => s.ShareMediaId == objectId && s.UserId == targetUserId)
-            : await ctx.Shares.FirstOrDefaultAsync(s => s.ShareFolderId == objectId && s.UserId == targetUserId);
+            ? await ctx.Shares.FirstOrDefaultAsync(s => s.ShareMediaId == objectId && s.UserId == userId)
+            : await ctx.Shares.FirstOrDefaultAsync(s => s.ShareFolderId == objectId && s.UserId == userId);
 
         if (share == null)
             return Result.Fail(ShareErrors.ShareNotFound());

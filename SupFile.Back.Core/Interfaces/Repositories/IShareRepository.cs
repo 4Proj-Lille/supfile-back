@@ -12,7 +12,7 @@ namespace SupFile.Back.Core.Interfaces.Repositories;
 
         Task<bool> HasFolderPermissionAsync(int folderId, int userId, SharePermission permission);
 
-        Task<Result<Share>> GetByObjectAndUserAsync(int objectId, int targetUserId, InvitationItemType type);
+        Task<Result<Share>> GetByObjectAndUserAsync(int objectId, int userId, InvitationItemType type);
  }
  
  
