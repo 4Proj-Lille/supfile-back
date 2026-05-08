@@ -9,6 +9,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
     private readonly IMediaService _mediaService;
     private readonly IFolderService _folderService;
     private readonly IShareService _shareService;
+    private readonly IShareRepository _shareRepository;
     private readonly FrontEndSettings _frontEndSettings;
     private readonly AppSettings _appSettings;
     private readonly IEmailService _emailService;
@@ -16,7 +17,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
 
     public LinkService(ILogger<LinkService> logger, ILinkRepository repository,
         IUserService userService, IMediaService mediaService, IFolderService folderService, IShareService shareService,
-        IEmailService emailService, IOptions<FrontEndSettings> frontEndSettings, IOptions<AppSettings> appSettings) : base(logger,
+        IShareRepository shareRepository, IEmailService emailService, IOptions<FrontEndSettings> frontEndSettings, IOptions<AppSettings> appSettings) : base(logger,
         repository)
     {
         _userService = userService;
@@ -26,6 +27,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         _frontEndSettings = frontEndSettings.Value;
         _appSettings = appSettings.Value;
         _shareService = shareService;
+        _shareRepository = shareRepository;
     }
 
     public async Task<Result<string>> GenerateMediaShareLinkAsync(ApplicationUser currentUser, int mediaId, int? targetUserId = null)
@@ -98,6 +100,16 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         {
             return Result.Fail(EntityErrors.NotFoundWithId<ApplicationUser, int>(inviteUserId));
         }
+
+        var alreadyShared = type switch
+        {
+            InvitationItemType.Media => await _shareRepository.HasAnyMediaAccessAsync(itemId, inviteUserId),
+            InvitationItemType.Folder => await _shareRepository.HasAnyFolderAccessAsync(itemId, inviteUserId),
+            _ => false
+        };
+
+        if (alreadyShared)
+            return Result.Fail(ShareErrors.AlreadyShared());
 
         var generatedLinkResult = type switch
         {
@@ -187,6 +199,13 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
                 return Result.Fail(LinkErrors.CannotAcceptOwnShareLink());
             }
         }
+
+        var alreadyShared = linkResult.Value.ShareMediaId is not null
+            ? await _shareRepository.HasAnyMediaAccessAsync(linkResult.Value.ShareMediaId.Value, currentUser.Id)
+            : await _shareRepository.HasAnyFolderAccessAsync(linkResult.Value.ShareFolderId!.Value, currentUser.Id);
+
+        if (alreadyShared)
+            return Result.Fail(ShareErrors.AlreadyShared());
 
         var share = new Share
         {

@@ -201,6 +201,18 @@ namespace SupFile.Back.Resources {
             }
         }
 
+        public static string AlreadyShared_Title {
+            get {
+                return ResourceManager.GetString("AlreadyShared_Title", resourceCulture);
+            }
+        }
+
+        public static string AlreadyShared_Detail {
+            get {
+                return ResourceManager.GetString("AlreadyShared_Detail", resourceCulture);
+            }
+        }
+
         public static string Entity_Not_Found_Title {
             get {
                 return ResourceManager.GetString("Entity_Not_Found_Title", resourceCulture);

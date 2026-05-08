@@ -96,6 +96,12 @@
   <data name="ShareNotFound_Detail" xml:space="preserve">
     <value>No share exists for this object with the specified user.</value>
   </data>
+  <data name="AlreadyShared_Title" xml:space="preserve">
+    <value>Already shared</value>
+  </data>
+  <data name="AlreadyShared_Detail" xml:space="preserve">
+    <value>This item is already shared with this user.</value>
+  </data>
   <data name="Entity_Not_Found_Title" xml:space="preserve">
     <value>Entity not found</value>
   </data>

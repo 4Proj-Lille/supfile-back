@@ -89,6 +89,12 @@
   <data name="ShareNotFound_Detail" xml:space="preserve">
     <value>Aucun partage n'existe pour cet objet avec l'utilisateur spécifié.</value>
   </data>
+  <data name="AlreadyShared_Title" xml:space="preserve">
+    <value>Déjà partagé</value>
+  </data>
+  <data name="AlreadyShared_Detail" xml:space="preserve">
+    <value>Cet élément est déjà partagé avec cet utilisateur.</value>
+  </data>
   <data name="Entity_Not_Found_Title" xml:space="preserve">
     <value>Entite introuvable</value>
   </data>

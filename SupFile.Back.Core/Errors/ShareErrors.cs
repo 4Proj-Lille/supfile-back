@@ -7,4 +7,10 @@ public static class ShareErrors
             ErrorsRes.ShareNotFound_Title,
             ErrorsRes.ShareNotFound_Detail
         );
+
+    public static CustomError AlreadyShared() =>
+        CommonErrorHelper.BadRequest(
+            ErrorsRes.AlreadyShared_Title,
+            ErrorsRes.AlreadyShared_Detail
+        );
 }

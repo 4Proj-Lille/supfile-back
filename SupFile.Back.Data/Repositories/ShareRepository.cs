@@ -62,6 +62,11 @@ public class ShareRepository : BaseRepository<Share, int, SupFileContext>, IShar
         return await Query().AnyAsync(s => s.ShareFolderId == folderId && s.UserId == userId);
     }
 
+    public async Task<bool> HasAnyMediaAccessAsync(int mediaId, int userId)
+    {
+        return await Query().AnyAsync(s => s.ShareMediaId == mediaId && s.UserId == userId);
+    }
+
     public async Task<Result<Share>> GetByObjectAndUserAsync(int objectId, int userId, InvitationItemType type)
     {
         var share = type == InvitationItemType.Media
