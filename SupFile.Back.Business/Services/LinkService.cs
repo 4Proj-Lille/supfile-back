@@ -106,7 +106,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
 
         await _fluentEmail.To(user.Value.Email).Subject("Invitation to Access Shared Item")
             .Body(
-                $" You have been invited to access a shared {type.ToString().ToLower()} by {currentUser.UserName}. Click on the link below to access it: <a href={generatedLinkResult}>Accept Invitation</a>",
+                $" You have been invited to access a shared {type.ToString().ToLower()} by {currentUser.UserName}. Click on the link below to access it: <a href={generatedLinkResult.Value}>Accept Invitation</a>",
                 true)
             .SendAsync();
 
