@@ -97,7 +97,7 @@ public class BaseController : ControllerBase
         {
             ErrorType.NotFound => NotFound(problemDetails),
             ErrorType.BadRequest => BadRequest(problemDetails),
-            ErrorType.Forbidden => StatusCode(problemDetails.Status ?? 403, problemDetails),
+            ErrorType.Forbidden => StatusCode(403, problemDetails),
             ErrorType.Failure => StatusCode(problemDetails.Status ?? 500, problemDetails),
             _ => StatusCode(problemDetails.Status ?? 500, problemDetails),
         };
