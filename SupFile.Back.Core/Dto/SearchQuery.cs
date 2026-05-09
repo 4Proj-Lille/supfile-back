@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using SupFile.Back.Core.Enums;
+using SupFile.Back.Core.Helpers;
 
 namespace SupFile.Back.Core.Dto;
 
@@ -28,10 +29,22 @@ public class SearchQuery
 
         if (Type.HasValue)
         {
-            var extensions = MediaTypeHelper.GetExtensionsByType(Type.Value);
-            var typeFilter = string.Join("|", extensions.Select(ext => $"Extension={ext}"));
-            if (!string.IsNullOrWhiteSpace(typeFilter))
-                filters.Add($"({typeFilter})");
+            if (Type.Value == MediaType.Other)
+            {
+                var knownExtensions = Enum.GetValues<MediaType>()
+                    .Where(t => t != MediaType.Other)
+                    .SelectMany(MediaTypeHelper.GetExtensionsByType);
+                var typeFilter = string.Join(",", knownExtensions.Select(ext => $"Extension!={ext}"));
+                if (!string.IsNullOrWhiteSpace(typeFilter))
+                    filters.Add($"({typeFilter})");
+            }
+            else
+            {
+                var extensions = MediaTypeHelper.GetExtensionsByType(Type.Value);
+                var typeFilter = string.Join("|", extensions.Select(ext => $"Extension={ext}"));
+                if (!string.IsNullOrWhiteSpace(typeFilter))
+                    filters.Add($"({typeFilter})");
+            }
         }
 
         if (ModifiedAfter.HasValue)
