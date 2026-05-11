@@ -25,7 +25,7 @@ public class SearchQuery
             filters.Add($"Name=*{Name}");
 
         if (!string.IsNullOrWhiteSpace(Extension))
-            filters.Add($"Extension={Extension}");
+            filters.Add($"Extension=*{Extension.ToLower()}");
 
         if (Type.HasValue)
         {

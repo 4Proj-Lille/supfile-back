@@ -40,7 +40,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         }
         
         var name = mediaName ?? Path.GetFileNameWithoutExtension(file.FileName);
-        var extension = Path.GetExtension(file.FileName);
+        var extension = Path.GetExtension(file.FileName).ToLower();
 
         await using var stream = file.OpenReadStream();
 
