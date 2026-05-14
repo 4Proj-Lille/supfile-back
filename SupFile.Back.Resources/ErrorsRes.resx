@@ -288,4 +288,10 @@
   <data name="InvalidUserName_Detail" xml:space="preserve">
     <value>The "Username" field must contain at least 3 characters</value>
   </data>
+  <data name="ForbiddenNotConnected_Title" xml:space="preserve">
+    <value>Forbidden</value>
+  </data>
+  <data name="ForbiddenNotConnected_Detail" xml:space="preserve">
+    <value>You must be logged in to accept this link</value>
+  </data>
 </root>

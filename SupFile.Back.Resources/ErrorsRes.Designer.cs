@@ -584,5 +584,17 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("InvalidUserName_Detail", resourceCulture);
             }
         }
+        
+        public static string ForbiddenNotConnected_Title {
+            get {
+                return ResourceManager.GetString("ForbiddenNotConnected_Title", resourceCulture);
+            }
+        }
+        
+        public static string ForbiddenNotConnected_Detail {
+            get {
+                return ResourceManager.GetString("ForbiddenNotConnected_Detail", resourceCulture);
+            }
+        }
     }
 }

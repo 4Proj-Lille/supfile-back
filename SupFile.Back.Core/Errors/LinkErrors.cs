@@ -25,4 +25,10 @@ public static class LinkErrors
             ErrorsRes.ForbiddenForLink_Title,
             ErrorsRes.ForbiddenForLink_Detail
         );
+    
+    public static CustomError ForbiddenNotConnected() =>
+        CommonErrorHelper.Forbidden(
+            ErrorsRes.ForbiddenNotConnected_Title,
+            ErrorsRes.ForbiddenNotConnected_Detail
+        );
 }

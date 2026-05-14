@@ -177,7 +177,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
 
         if (link.TargetUserId is not null)
         {
-            return Result.Fail(LinkErrors.ForbiddenForLink());
+            return Result.Fail(LinkErrors.ForbiddenNotConnected());
         }
         
         if (link.ShareMediaId is not null)

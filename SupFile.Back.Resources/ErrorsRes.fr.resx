@@ -281,4 +281,10 @@
   <data name="InvalidUserName_Detail" xml:space="preserve">
     <value>Le champ « Nom d'utilisateur » doit comporter au moins 3 caractères</value>
   </data>
+  <data name="ForbiddenNotConnected_Title" xml:space="preserve">
+    <value>Interdit</value>
+  </data>
+  <data name="ForbiddenNotConnected_Detail" xml:space="preserve">
+    <value>Vous devez être connecté pour accepter ce lien</value>
+  </data>
 </root>
