@@ -143,7 +143,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         if (linkResult.IsFailed) return linkResult.ToResult();
 
         if (linkResult.Value.TargetUserId != currentUser.Id)
-            return Result.Fail(LinkErrors.UnauthorizedForLink());
+            return Result.Fail(LinkErrors.ForbiddenForLink());
 
         return await Repository.DeleteAsync(linkResult.Value.Id);
     }
@@ -177,7 +177,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
 
         if (link.TargetUserId is not null)
         {
-            return Result.Fail(LinkErrors.UnauthorizedForLink());
+            return Result.Fail(LinkErrors.ForbiddenForLink());
         }
         
         if (link.ShareMediaId is not null)
@@ -207,7 +207,7 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
 
         if (linkResult.Value.TargetUserId != null && linkResult.Value.TargetUserId != currentUser.Id)
         {
-            return Result.Fail(LinkErrors.UnauthorizedForLink());
+            return Result.Fail(LinkErrors.ForbiddenForLink());
         }
         
         if (linkResult.Value.ShareFolderId is not null)

@@ -176,43 +176,43 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("EmailNotConfirmed_Detail", resourceCulture);
             }
         }
-
+        
         public static string InvalidVerificationToken_Title {
             get {
                 return ResourceManager.GetString("InvalidVerificationToken_Title", resourceCulture);
             }
         }
-
+        
         public static string InvalidVerificationToken_Detail {
             get {
                 return ResourceManager.GetString("InvalidVerificationToken_Detail", resourceCulture);
             }
         }
-
+        
         public static string ShareNotFound_Title {
             get {
                 return ResourceManager.GetString("ShareNotFound_Title", resourceCulture);
             }
         }
-
+        
         public static string ShareNotFound_Detail {
             get {
                 return ResourceManager.GetString("ShareNotFound_Detail", resourceCulture);
             }
         }
-
+        
         public static string AlreadyShared_Title {
             get {
                 return ResourceManager.GetString("AlreadyShared_Title", resourceCulture);
             }
         }
-
+        
         public static string AlreadyShared_Detail {
             get {
                 return ResourceManager.GetString("AlreadyShared_Detail", resourceCulture);
             }
         }
-
+        
         public static string Entity_Not_Found_Title {
             get {
                 return ResourceManager.GetString("Entity_Not_Found_Title", resourceCulture);
@@ -320,19 +320,19 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("LinkExpired_Detail", resourceCulture);
             }
         }
-
-        public static string UnauthorizedForLink_Title {
+        
+        public static string ForbiddenForLink_Title {
             get {
-                return ResourceManager.GetString("UnauthorizedForLink_Title", resourceCulture);
+                return ResourceManager.GetString("ForbiddenForLink_Title", resourceCulture);
             }
         }
-
-        public static string UnauthorizedForLink_Detail {
+        
+        public static string ForbiddenForLink_Detail {
             get {
-                return ResourceManager.GetString("UnauthorizedForLink_Detail", resourceCulture);
+                return ResourceManager.GetString("ForbiddenForLink_Detail", resourceCulture);
             }
         }
-
+        
         public static string InvalidSortField_Title {
             get {
                 return ResourceManager.GetString("InvalidSortField_Title", resourceCulture);

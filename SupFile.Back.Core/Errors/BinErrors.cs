@@ -9,25 +9,25 @@ public static class BinErrors
         );
 
     public static CustomError NoMediaFound() =>
-        CommonErrorHelper.Forbidden(
+        CommonErrorHelper.NotFound(
             ErrorsRes.NoMediaFound_Title,
             ErrorsRes.NoMediaFound_Detail
         );
     
     public static CustomError NoFolderFound() =>
-        CommonErrorHelper.Forbidden(
+        CommonErrorHelper.NotFound(
             ErrorsRes.NoFolderFound_Title,
             ErrorsRes.NoFolderFound_Detail
         );
     
     public static CustomError EmptyBin() =>
-        CommonErrorHelper.Forbidden(
+        CommonErrorHelper.NotFound(
             ErrorsRes.EmptyBin_Title,
             ErrorsRes.EmptyBin_Detail
         );
     
     public static CustomError BinItem() =>
-        CommonErrorHelper.Forbidden(
+        CommonErrorHelper.Failure(
             ErrorsRes.BinItem_Title,
             ErrorsRes.BinItem_Detail
         );

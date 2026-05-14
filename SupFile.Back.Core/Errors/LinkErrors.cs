@@ -20,9 +20,9 @@ public static class LinkErrors
             ErrorsRes.LinkExpired_Detail
         );
 
-    public static CustomError UnauthorizedForLink() =>
+    public static CustomError ForbiddenForLink() =>
         CommonErrorHelper.Forbidden(
-            ErrorsRes.UnauthorizedForLink_Title,
-            ErrorsRes.UnauthorizedForLink_Detail
+            ErrorsRes.ForbiddenForLink_Title,
+            ErrorsRes.ForbiddenForLink_Detail
         );
 }

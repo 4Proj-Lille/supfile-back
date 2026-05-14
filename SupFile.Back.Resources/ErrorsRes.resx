@@ -156,10 +156,10 @@
   <data name="LinkExpired_Detail" xml:space="preserve">
     <value>This link has expired.</value>
   </data>
-  <data name="UnauthorizedForLink_Title" xml:space="preserve">
-    <value>Unauthorized</value>
+  <data name="ForbiddenForLink_Title" xml:space="preserve">
+    <value>Forbidden</value>
   </data>
-  <data name="UnauthorizedForLink_Detail" xml:space="preserve">
+  <data name="ForbiddenForLink_Detail" xml:space="preserve">
     <value>This link is not intended for you.</value>
   </data>
   <data name="InvalidSortField_Title" xml:space="preserve">
