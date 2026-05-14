@@ -16,4 +16,5 @@ public interface IFolderRepository : IBaseRepository<Folder, int>
 
     Task<Result<long>> GetFolderSizeRecursive(int? folderId);
 
+    Task<Result<List<Folder>>> GetSubfoldersPublicAsync(int parentId);
 }

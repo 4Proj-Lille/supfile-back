@@ -26,6 +26,8 @@ public interface IFolderService : IBaseService<Folder, int>
     Task<Result<List<int>>> RestoreChainAsync(ApplicationUser currentUser, int folderId);
 
     Task<Result<Tuple<string, byte[]>>> DownloadFolderAsync(int folderId, ApplicationUser currentUser);
+
+    Task<Result<Tuple<string, byte[]>>> DownloadFolderPublicAsync(int folderId);
     
     Task<Result<long>> GetFolderSizeRecursive(int? folderId, ApplicationUser currentUser);
 }

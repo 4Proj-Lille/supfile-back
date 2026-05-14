@@ -12,4 +12,6 @@ public interface ILinkService : IBaseService<Link, int>
     Task<Result<List<TMapped>>> GetPendingInvitationsAsync<TMapped>(ApplicationUser currentUser);
 
     Task<Result<Link>> GetByTokenAsync(string token);
+
+    Task<Result<(byte[], string, string)>> DownloadByTokenAsync(string token);
 }

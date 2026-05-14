@@ -63,11 +63,21 @@ public sealed class LinksController : BaseAuthController
         return ToNoContentActionResult(result);
     }
 
+    [AllowAnonymous]
     [HttpPost("accept")]
-    public async Task<ActionResult> AcceptEmailInviteLink([FromQuery] string token)
+    public async Task<IActionResult> AcceptEmailInviteLink([FromQuery] string token)
     {
-        var currentUser = await GetAuthenticatedAppUserAsync();
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            var downloadResult = await _linkService.DownloadByTokenAsync(token);
+            if (downloadResult.IsFailed)
+                return ToErrorActionResult(downloadResult.ToResult());
 
+            var (bytes, contentType, fileName) = downloadResult.Value;
+            return File(bytes, contentType, fileName);
+        }
+
+        var currentUser = await GetAuthenticatedAppUserAsync();
         var inviteLinkResult = await _linkService.AcceptShareLinkAsync(currentUser, token);
         return ToNoContentActionResult(inviteLinkResult.ToResult());
     }
