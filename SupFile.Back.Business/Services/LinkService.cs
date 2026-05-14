@@ -175,6 +175,11 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
 
         var link = linkResult.Value;
 
+        if (link.TargetUserId is not null)
+        {
+            return Result.Fail(LinkErrors.UnauthorizedForLink());
+        }
+        
         if (link.ShareMediaId is not null)
         {
             var mediaResult = await _mediaService.GetByIdAsync<Media>(link.ShareMediaId.Value);
