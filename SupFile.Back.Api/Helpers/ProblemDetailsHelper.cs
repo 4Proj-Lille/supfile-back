@@ -31,7 +31,8 @@ public static class ProblemDetailsHelper
         return error.ErrorType switch
         {
             ErrorType.BadRequest => StatusCodes.Status400BadRequest,
-            ErrorType.Forbidden => StatusCodes.Status401Unauthorized,
+            ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
+            ErrorType.Forbidden => StatusCodes.Status403Forbidden,
             ErrorType.NotFound => StatusCodes.Status404NotFound,
             ErrorType.Failure => StatusCodes.Status500InternalServerError,
             _ => StatusCodes.Status500InternalServerError,
