@@ -354,6 +354,23 @@ public class FolderService : BaseService<Folder, int, IFolderRepository>, IFolde
         return Result.Ok();
     }
 
+    public async Task<Result<Tuple<List<TFolder>, List<TMedia>>>> SearchAsync<TFolder, TMedia>(ApplicationUser currentUser, SearchQuery query)
+    {
+        var folderFilter = $"OwnerId={currentUser.Id},IsActive=true";
+        var folderNameFilter = query.ToGridifyFolderFilter();
+        if (!string.IsNullOrWhiteSpace(folderNameFilter))
+            folderFilter += $",{folderNameFilter}";
+
+        var folderOrderBy = query.ToGridifyFolderOrderBy();
+        var folderResult = await Repository.FindListAsync<TFolder>(folderFilter, orderBy: folderOrderBy);
+        if (folderResult.IsFailed) return folderResult.ToResult();
+
+        var mediaResult = await _mediaService.SearchAsync<TMedia>(currentUser, query);
+        if (mediaResult.IsFailed) return mediaResult.ToResult();
+
+        return Result.Ok(Tuple.Create(folderResult.Value, mediaResult.Value.ToList()));
+    }
+
     public async Task<Result<long>> GetFolderSizeRecursive(int? folderId, ApplicationUser currentUser)
     {
         if (folderId != null)

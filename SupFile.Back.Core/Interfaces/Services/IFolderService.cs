@@ -30,4 +30,6 @@ public interface IFolderService : IBaseService<Folder, int>
     Task<Result<Tuple<string, byte[]>>> DownloadFolderPublicAsync(int folderId);
     
     Task<Result<long>> GetFolderSizeRecursive(int? folderId, ApplicationUser currentUser);
+
+    Task<Result<Tuple<List<TFolder>, List<TMedia>>>> SearchAsync<TFolder, TMedia>(ApplicationUser currentUser, SearchQuery query);
 }

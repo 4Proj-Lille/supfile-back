@@ -99,8 +99,25 @@ public sealed class FoldersController : BaseAuthController
         return File(content, "application/zip", $"{folderName}.zip");
     }
     
+    [HttpGet("Search")]
+    public async Task<ActionResult<StorageModel>> Search([FromQuery] SearchQuery query)
+    {
+        var currentUser = await GetAuthenticatedAppUserAsync();
+
+        var result = await _folderService.SearchAsync<FolderModel, MediaModel>(currentUser, query);
+
+        return ToOkActionResult(result.Map(value =>
+        {
+            var (folders, medias) = value;
+            return new StorageModel
+            {
+                Folders = folders, Medias = medias
+            };
+        }));
+    }
+
     [HttpGet("TotalSize")]
-    public async Task<ActionResult<long>> GetFolderSizeRecursive([FromQuery] int? folderId = null) 
+    public async Task<ActionResult<long>> GetFolderSizeRecursive([FromQuery] int? folderId = null)
     {
         var currentUser = await GetAuthenticatedAppUserAsync();
         var result = await _folderService.GetFolderSizeRecursive(folderId, currentUser);
