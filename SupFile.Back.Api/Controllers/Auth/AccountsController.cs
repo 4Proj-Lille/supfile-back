@@ -21,7 +21,8 @@ public sealed class AccountsController : BaseController
     public async Task<ActionResult> Register([FromBody] RegisterDto model,
         [FromServices] IValidator<RegisterDto> validator)
     {
-        await validator.ValidateAndThrowAsync(model);
+        var invalid = await ValidateAsync(validator, model);
+        if (invalid != null) return invalid;
 
         var result = await _authService.Register(model);
         if (result.IsFailed) return ToErrorActionResult(result);

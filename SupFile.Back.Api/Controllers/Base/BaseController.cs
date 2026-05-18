@@ -15,6 +15,14 @@ public class BaseController : ControllerBase
 
     protected ILogger Logger { get; }
 
+    protected async Task<ActionResult?> ValidateAsync<T>(IValidator<T> validator, T model)
+    {
+        var result = await validator.ValidateAsync(model);
+        if (result.IsValid) return null;
+        result.AddToModelState(ModelState);
+        return ValidationProblem(ModelState);
+    }
+
     protected ActionResult<T> ToOkActionResult<T>(Result<T> result)
     {
         ArgumentNullException.ThrowIfNull(result);

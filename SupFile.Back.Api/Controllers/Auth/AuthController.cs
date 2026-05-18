@@ -19,8 +19,8 @@ public sealed class AuthController : BaseController
     public async Task<ActionResult<ResponseLoginDto>> Login([FromForm] LoginDto loginDto,
         [FromServices] IValidator<LoginDto> validator)
     {
-        // throw new NotImplementedException();
-        await validator.ValidateAndThrowAsync(loginDto);
+        var invalid = await ValidateAsync(validator, loginDto);
+        if (invalid != null) return invalid;
 
         var responseLoginDto = await _authService.Login(loginDto);
         return ToOkActionResult(responseLoginDto);
@@ -43,7 +43,8 @@ public sealed class AuthController : BaseController
         [FromBody] ConfirmEmailDto model,
         [FromServices] IValidator<ConfirmEmailDto> validator)
     {
-        await validator.ValidateAndThrowAsync(model);
+        var invalid = await ValidateAsync(validator, model);
+        if (invalid != null) return invalid;
 
         var responseLoginDto = await _authService.VerifyEmailAsync(model);
 
@@ -55,7 +56,8 @@ public sealed class AuthController : BaseController
         [FromForm] ResendVerificationEmailDto resendVerificationEmailDto,
         [FromServices] IValidator<ResendVerificationEmailDto> validator)
     {
-        await validator.ValidateAndThrowAsync(resendVerificationEmailDto);
+        var invalid = await ValidateAsync(validator, resendVerificationEmailDto);
+        if (invalid != null) return invalid;
 
         var responseDto = await _authService.ResendVerificationEmailAsync(resendVerificationEmailDto);
         return ToNoContentActionResult(responseDto);
@@ -66,7 +68,8 @@ public sealed class AuthController : BaseController
     public async Task<IActionResult> ForgotPassword([FromForm] ForgotPasswordDto forgotPasswordDto,
         [FromServices] IValidator<ForgotPasswordDto> validator)
     {
-        await validator.ValidateAndThrowAsync(forgotPasswordDto);
+        var invalid = await ValidateAsync(validator, forgotPasswordDto);
+        if (invalid != null) return invalid;
 
         var responseForgotPasswordDto = await _authService.ForgotPasswordAsync(forgotPasswordDto);
         return ToNoContentActionResult(responseForgotPasswordDto);
@@ -76,7 +79,8 @@ public sealed class AuthController : BaseController
     public async Task<IActionResult> ResetPassword([FromForm] ResetPasswordDto resetPasswordDto,
         [FromServices] IValidator<ResetPasswordDto> validator)
     {
-        await validator.ValidateAndThrowAsync(resetPasswordDto);
+        var invalid = await ValidateAsync(validator, resetPasswordDto);
+        if (invalid != null) return invalid;
 
         var responseResetPasswordDto = await _authService.ResetPasswordAsync(resetPasswordDto);
         return ToNoContentActionResult(responseResetPasswordDto);

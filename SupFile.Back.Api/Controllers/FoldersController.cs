@@ -19,7 +19,8 @@ public sealed class FoldersController : BaseAuthController
     public async Task<ActionResult<FolderModel>> Post([FromBody] FolderPostModel model,
         [FromServices] IValidator<FolderPostModel> validator)
     {
-        await validator.ValidateAndThrowAsync(model);
+        var invalid = await ValidateAsync(validator, model);
+        if (invalid != null) return invalid;
 
         var currentUser = await GetAuthenticatedAppUserAsync();
         var createdFolderResult = await _folderService.AddOneAsync(currentUser, model.Adapt<Folder>());
