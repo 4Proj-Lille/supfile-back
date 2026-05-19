@@ -12,7 +12,6 @@ namespace SupFile.Back.Business.Services;
 public class BinService : IBinService
 {
     private readonly IMediaService _mediaService;
-    private readonly IMediaRepository _mediaRepository;
     private readonly IFolderService _folderService;
 
     public BinService(
@@ -21,7 +20,6 @@ public class BinService : IBinService
     {
         _mediaService = mediaService;
         _folderService = folderService;
-        _mediaRepository = mediaRepository;
     }
 
     public async Task<Result> RestoreAsync(int id, ApplicationUser currentUser, ObjectType type)
@@ -51,7 +49,7 @@ public class BinService : IBinService
                         return restoredFolder.ToResult();
 
                     var chainResult = await _folderService.RestoreChainAsync(currentUser, id);
-                    if (chainResult.IsSuccess) await _mediaRepository.RestoreByFolderIdsAsync(chainResult.Value);
+                    if (chainResult.IsSuccess) await _mediaService.RestoreByFolderIdsAsync(chainResult.Value);
 
                     var parentFolderId = restoredFolder.Value.ParentId;
                     if (!parentFolderId.HasValue)

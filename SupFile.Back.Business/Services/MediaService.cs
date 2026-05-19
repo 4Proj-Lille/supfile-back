@@ -453,4 +453,8 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return errors.Count > 0 ? Result.Fail(errors) : Result.Ok();
     }
 
+    public async Task<Result<int>> RestoreByFolderIdsAsync(List<int> folderIds)
+    {
+        return await Repository.RestoreByFolderIdsAsync(folderIds);
+    }
 }

@@ -17,4 +17,8 @@ public interface IShareService : IBaseService<Share, int>
     Task<Result<Share>> UpdatePermissionAsync(ApplicationUser currentUser, UpdateSharePermissionDto dto);
 
     Task<Result> RevokeAccessAsync(ApplicationUser currentUser, int objectId, int userId, InvitationItemType type);
+
+    Task<bool> HasAnyFolderAccessAsync(int folderId, int userId);
+
+    Task<bool> HasAnyMediaAccessAsync(int mediaId, int userId);
 }

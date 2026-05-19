@@ -7,17 +7,15 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
     private readonly IUserService _userService;
     private readonly IFolderService _folderService;
     private readonly IMediaRepository _mediaRepository;
-    private readonly IFolderRepository _folderRepository;
 
     public ShareService(ILogger<ShareService> logger, IShareRepository repository,
         IUserService userService, IFolderService folderService,
-        IMediaRepository mediaRepository, IFolderRepository folderRepository
+        IMediaRepository mediaRepository
     ) : base(logger, repository)
     {
         _userService = userService;
         _folderService = folderService;
         _mediaRepository = mediaRepository;
-        _folderRepository = folderRepository;
     }
 
     public async Task<Result<Share>> AddOneAsync(ApplicationUser currentUser, Share entity)
@@ -91,7 +89,7 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
             return Result.Ok(mediaResult.Value.OwnerId);
         }
 
-        var folderResult = await _folderRepository.GetByIdAsync<Folder>(objectId);
+        var folderResult = await _folderService.GetByIdAsync<Folder>(objectId);
         if (folderResult.IsFailed) return folderResult.ToResult<int>();
         return Result.Ok(folderResult.Value.OwnerId);
     }
@@ -112,5 +110,15 @@ public class ShareService : BaseService<Share, int, IShareRepository>, IShareSer
         var mediaResult = await Repository.GetAllMediasSharedAsync<TMedia>(currentUser, mediaFilter, mediaOrderBy, limit);
         
         return Tuple.Create(folderResult.Value, mediaResult.Value);
+    }
+    
+    public async Task<bool> HasAnyFolderAccessAsync(int folderId, int userId)
+    {
+        return await Repository.HasAnyFolderAccessAsync(folderId, userId);
+    }
+    
+    public async Task<bool> HasAnyMediaAccessAsync(int mediaId, int userId)
+    {
+        return await Repository.HasAnyMediaAccessAsync(mediaId, userId);
     }
 }

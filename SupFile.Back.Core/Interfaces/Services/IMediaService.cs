@@ -47,4 +47,6 @@ public interface IMediaService : IBaseService<Media, int>
     Task<Result> DeleteAllBlobsByUserAsync(int userId);
 
     Task<Result<List<Media>>> GetMediaByFolderPublicAsync(int folderId);
+
+    Task<Result<int>> RestoreByFolderIdsAsync(List<int> folderIds);
 }
