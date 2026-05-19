@@ -48,10 +48,10 @@ public class SearchQuery
         }
 
         if (ModifiedAfter.HasValue)
-            filters.Add($"CreatedDate>={ModifiedAfter.Value:yyyy-MM-dd}");
+            filters.Add($"UpdatedDate>={ModifiedAfter.Value:yyyy-MM-dd}");
 
         if (ModifiedBefore.HasValue)
-            filters.Add($"CreatedDate<={ModifiedBefore.Value:yyyy-MM-dd}");
+            filters.Add($"UpdatedDate<={ModifiedBefore.Value:yyyy-MM-dd}");
 
         return string.Join(",", filters);
     }
