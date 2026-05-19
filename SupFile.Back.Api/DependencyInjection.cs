@@ -1,6 +1,8 @@
 using SupFile.Back.Api.ExceptionHandlers;
 using SupFile.Back.Api.Settings;
 using SupFile.Back.Storage;
+using Quartz;
+using SupFile.Back.Business.Jobs;
 
 namespace SupFile.Back.Api;
 
@@ -91,6 +93,8 @@ internal static class DependencyInjection
     public static WebApplicationBuilder AddMessageBusses(this WebApplicationBuilder builder)
     {
         builder.Services.AddSignalR();
+        
+        builder.AddScheduledJobs();
 
         return builder;
     }
@@ -194,6 +198,43 @@ internal static class DependencyInjection
             .BindConfiguration(typeof(TSettings).Name)
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        return builder;
+    }
+    
+    public static WebApplicationBuilder AddScheduledJobs(this WebApplicationBuilder builder)
+    {
+        var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>().CreateLogger(nameof(DependencyInjection));
+
+        builder.Services.AddSingleton(provider =>
+        {
+            var factory = provider.GetRequiredService<ISchedulerFactory>();
+            return factory.GetScheduler().Result;
+        });
+
+        var settingsSectionName = nameof(ScheduledJobsSettings);
+        var jobSettings = builder.Configuration.GetSection(settingsSectionName).Get<ScheduledJobsSettings>();
+        if (jobSettings == null)
+        {
+            return builder;
+        }
+
+        if (jobSettings.Jobs == null || !jobSettings.Jobs.Any())
+        {
+            return builder;
+        }
+
+        var quartzLogger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+
+        builder.Services.AddQuartz(q =>
+        {
+            q.AddJob<ExpireLinkJob>(jobSettings, quartzLogger);
+        });
+
+        builder.Services.AddQuartzHostedService(opt =>
+        {
+            opt.WaitForJobsToComplete = true;
+        });
 
         return builder;
     }

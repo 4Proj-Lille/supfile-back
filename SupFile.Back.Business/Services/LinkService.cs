@@ -200,6 +200,11 @@ public class LinkService : BaseService<Link, int, ILinkRepository>, ILinkService
         return Result.Fail(LinkErrors.InvalidType());
     }
 
+    public async Task<Result<List<Link>>> GetExpiredLinksAsync()
+    {
+        return await Repository.GetExpiredLinksAsync();
+    }
+
     public async Task<Result<Share>> AcceptShareLinkAsync(ApplicationUser currentUser, string token)
     {
         var linkResult = await GetByTokenAsync(token);

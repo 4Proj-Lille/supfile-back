@@ -4,6 +4,7 @@ namespace SupFile.Back.Core.Interfaces.Repositories;
  {
      Task<Result<Link>> GetByTokenAsync(string token);
      Task<Result<List<TMapped>>> GetPendingInvitationsAsync<TMapped>(int userId);
+     Task<Result<List<Link>>> GetExpiredLinksAsync();
  }
  
  

@@ -14,4 +14,5 @@ public interface ILinkService : IBaseService<Link, int>
     Task<Result<Link>> GetByTokenAsync(string token);
 
     Task<Result<(byte[], string, string)>> DownloadByTokenAsync(string token);
+    Task<Result<List<Link>>> GetExpiredLinksAsync();
 }

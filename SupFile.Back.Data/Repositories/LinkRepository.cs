@@ -23,4 +23,13 @@ public class LinkRepository : BaseRepository<Link, int, SupFileContext>, ILinkRe
 
         return Result.Ok(result);
     }
+
+    public async Task<Result<List<Link>>> GetExpiredLinksAsync()
+    {
+        var result = await Query()
+            .Where(x => x.ExpirationDate < DateTime.Now)
+            .ToListAsync();
+
+        return Result.Ok(result);
+    }
 }
