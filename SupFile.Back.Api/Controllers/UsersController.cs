@@ -38,7 +38,7 @@ public class UsersController : BaseAuthController
     }
     
     [HttpPatch("{userId:int}")]
-    public async Task<ActionResult<UserModel>> Patch(int userId, [FromForm] UserPatchModel model,
+    public async Task<ActionResult<UserModel>> Patch(int userId, [FromBody] UserPatchModel model,
         [FromServices] IValidator<UserPatchModel> validator) {
          var validationResult = await validator.ValidateAsync(model);
          if (!validationResult.IsValid)
