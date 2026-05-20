@@ -54,8 +54,8 @@ public class UserRepository : BaseRepository<ApplicationUser, int, SupFileContex
             : await ctx.Folders.Where(f => f.Id == objectId).Select(f => (int?)f.OwnerId).FirstOrDefaultAsync();
 
         var q = Query()
-            .Where(x => sharedUserIds.Contains(x.Id) || (ownerId != null && x.Id == ownerId));
-        //.Where(x => x.Id != currentUserId) -> Exclude the current user from the list of access users ?
+            .Where(x => sharedUserIds.Contains(x.Id) || (ownerId != null && x.Id == ownerId))
+            .Where(x => x.Id != currentUserId);
 
         return Result.Ok(await q.FindListAsync<TMapped>(""));
     }
