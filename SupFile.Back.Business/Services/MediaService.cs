@@ -80,6 +80,24 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
         return addMedia;
     }
 
+    public async Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, byte[] content, string fileName, string mimeType)
+    {
+        var name = Path.GetFileNameWithoutExtension(fileName);
+        var extension = Path.GetExtension(fileName).ToLower();
+
+        Media entity = new()
+        {
+            Name = name,
+            Extension = extension,
+            Size = content.Length,
+            MimeType = mimeType,
+            OwnerId = currentUser.Id,
+        };
+
+        await _storageProvider.WriteAsync(entity.UniqueId.ToString(), extension, content);
+
+        return await AddAsync(entity);
+    }
 
     public async Task<Result> DeleteOneAsync(ApplicationUser currentUser, int id)
     {

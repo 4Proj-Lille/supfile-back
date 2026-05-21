@@ -44,6 +44,7 @@ internal static class DependencyInjection
         builder.Services.ConfigureLocalization(appSettings);
 
         builder.Services.AddHttpContextAccessor();
+        builder.Services.AddHttpClient();
 
         builder.Services.AddOpenApi();
         builder.Services.ConfigureSwagger(appSettings);

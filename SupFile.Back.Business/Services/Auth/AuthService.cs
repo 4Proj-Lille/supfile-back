@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
+using MimeDetective;
 using Microsoft.IdentityModel.Tokens;
 using SupFile.Back.Core.Errors.Base;
 
@@ -13,12 +14,16 @@ public class AuthService : IAuthService
     private readonly IAuthTokenProcessor _authTokenProcessor;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailService _emailService;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IMediaService _mediaService;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         IAuthTokenProcessor authTokenProcessor,
         UserManager<ApplicationUser> userManager,
         IEmailService emailService,
+        IHttpClientFactory httpClientFactory,
+        IMediaService mediaService,
         IOptions<AppSettings> appSettings,
         IOptions<FrontEndSettings> frontEndSettings,
         IOptions<JwtSettings> jwtSettings,
@@ -27,6 +32,8 @@ public class AuthService : IAuthService
         _authTokenProcessor = authTokenProcessor;
         _userManager = userManager;
         _emailService = emailService;
+        _httpClientFactory = httpClientFactory;
+        _mediaService = mediaService;
 
         _appSettings = appSettings.Value;
         _frontEndSettings = frontEndSettings.Value;
@@ -316,6 +323,18 @@ public class AuthService : IAuthService
                         errors);
                     return Result.Fail<ResponseLoginDto>(errors);
                 }
+
+                // Download and set profile picture from Google on first login
+                var pictureUrl = claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+                if (!string.IsNullOrEmpty(pictureUrl))
+                {
+                    var pictureResult = await DownloadAndStoreProfilePictureAsync(user, pictureUrl);
+                    if (pictureResult.IsSuccess)
+                    {
+                        user.ProfilePictureId = pictureResult.Value;
+                        await _userManager.UpdateAsync(user);
+                    }
+                }
             }
 
             await _userManager.AddLoginAsync(user, new UserLoginInfo(providerKey.ToString(), providerId, "Google"));
@@ -377,5 +396,43 @@ public class AuthService : IAuthService
         } while (await _userManager.FindByNameAsync(candidate) != null);
 
         return candidate;
+    }
+
+    private async Task<Result<Guid>> DownloadAndStoreProfilePictureAsync(ApplicationUser user, string pictureUrl)
+    {
+        try
+        {
+            if (!Uri.TryCreate(pictureUrl, UriKind.Absolute, out var uri))
+                return Result.Fail<Guid>("Invalid profile picture URL");
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var response = await httpClient.GetAsync(uri);
+            if (!response.IsSuccessStatusCode)
+                return Result.Fail<Guid>("Failed to download profile picture");
+
+            var bytes = await response.Content.ReadAsByteArrayAsync();
+
+            var inspector = new ContentInspectorBuilder()
+            {
+                Definitions = MimeDetective.Definitions.DefaultDefinitions.All()
+            }.Build();
+            var results = inspector.Inspect(bytes);
+            var mimeType = results.ByMimeType().FirstOrDefault()?.MimeType
+                ?? response.Content.Headers.ContentType?.MediaType
+                ?? "image/jpeg";
+            var ext = results.ByFileExtension().FirstOrDefault()?.Extension is { } e ? $".{e}" : ".jpg";
+
+            var mediaResult = await _mediaService.AddOneAsync(user, bytes, $"profile{ext}", mimeType);
+            if (mediaResult.IsFailed)
+                return mediaResult.ToResult();
+
+            return Result.Ok(mediaResult.Value.UniqueId);
+        }
+        catch (Exception ex)
+        {
+            LogHelper.LogError(_logger, nameof(DownloadAndStoreProfilePictureAsync),
+                ex, "Error downloading profile picture from {0}", pictureUrl);
+            return Result.Fail<Guid>("Error downloading profile picture");
+        }
     }
 }
