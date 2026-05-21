@@ -294,4 +294,10 @@
   <data name="ForbiddenNotConnected_Detail" xml:space="preserve">
     <value>You must be logged in to accept this link</value>
   </data>
+  <data name="IncorrectNewPassword_Title" xml:space="preserve">
+    <value>Incorrect new Password</value>
+  </data>
+  <data name="IncorrectNewPassword_Detail" xml:space="preserve">
+    <value>The new password is incorrect.</value>
+  </data>
 </root>

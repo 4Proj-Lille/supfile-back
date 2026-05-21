@@ -121,7 +121,7 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
             return Result.Ok(user);
         }
 
-        return Result.Fail(result.Errors.Select(e => e.Description).ToList());
+        return Result.Fail(UserErrors.IncorrectNewPassword());
     }
 
     public async Task<Result> DeleteUserAsync(ApplicationUser currentUser, int userId)

@@ -8,6 +8,12 @@ public static class UserErrors
             ErrorsRes.IncorrectPassword_Detail
         );
     
+    public static CustomError IncorrectNewPassword() =>
+        CommonErrorHelper.BadRequest(
+            ErrorsRes.IncorrectNewPassword_Title,
+            ErrorsRes.IncorrectNewPassword_Detail
+        );
+    
     public static CustomError PasswordDoesntMatch() =>
         CommonErrorHelper.BadRequest(
             ErrorsRes.PasswordDoesntMatch_Title,

@@ -596,5 +596,17 @@ namespace SupFile.Back.Resources {
                 return ResourceManager.GetString("ForbiddenNotConnected_Detail", resourceCulture);
             }
         }
+        
+        public static string IncorrectNewPassword_Title {
+            get {
+                return ResourceManager.GetString("IncorrectNewPassword_Title", resourceCulture);
+            }
+        }
+        
+        public static string IncorrectNewPassword_Detail {
+            get {
+                return ResourceManager.GetString("IncorrectNewPassword_Detail", resourceCulture);
+            }
+        }
     }
 }

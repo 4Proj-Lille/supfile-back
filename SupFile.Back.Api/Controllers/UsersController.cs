@@ -60,7 +60,7 @@ public class UsersController : BaseAuthController
 
     [HttpPatch("{userId:int}/Password")]
     public async Task<ActionResult<ApplicationUserModel>> Patch(int userId,
-         [FromBody] PasswordPatchModel model)
+         [FromBody] PasswordPatchModel model, [FromServices] IValidator<PasswordPatchModel> validator)
     { 
         var currentUser = await GetAuthenticatedAppUserAsync();
         var userResult = await _userService.UpdatePasswordAsync(userId, model.CurrentPassword, model.NewPassword, model.ConfirmNewPassword, currentUser);

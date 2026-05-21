@@ -287,4 +287,10 @@
   <data name="ForbiddenNotConnected_Detail" xml:space="preserve">
     <value>Vous devez être connecté pour accepter ce lien</value>
   </data>
+  <data name="IncorrectNewPassword_Title" xml:space="preserve">
+    <value>Nouveau mot de passe incorrect</value>
+  </data>
+  <data name="IncorrectNewPassword_Detail" xml:space="preserve">
+    <value>Le nouveau mot de passe saisi est incorrect.</value>
+  </data>
 </root>
