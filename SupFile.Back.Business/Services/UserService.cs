@@ -183,21 +183,24 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
 
     public async Task<Result<ApplicationUser>> UpdateProfilePicture(ApplicationUser currentUser, IFormFile? file, int userId)
     {
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
         if (currentUser.Id != userId)
         {
             return Result.Fail(AuthErrors.UnauthorizedForEntity<ApplicationUser, int>(userId));
         }
         
+        if (currentUser.ProfilePictureId != null)
+        {
+            var deleteResult = await _mediaService.DeleteByUniqueIdAsync(currentUser.ProfilePictureId.Value);
+            if (deleteResult.IsFailed)
+            {
+                return Result.Fail(deleteResult.Errors);
+            }
+        }
+        
         if (file == null || file.Length == 0)
         {
-            if (currentUser.ProfilePictureId != null)
-            {
-                var deleteResult = await _mediaService.DeleteByUniqueIdAsync(currentUser.ProfilePictureId.Value);
-                if (deleteResult.IsFailed)
-                {
-                    return Result.Fail(deleteResult.Errors);
-                }
-            }
             currentUser.ProfilePictureId = null;
         }
 
@@ -213,7 +216,6 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
             {
                 return Result.Fail(mediaResult.Errors);
             }
-
             currentUser.ProfilePictureId = mediaResult.Value.UniqueId;
         }
 
@@ -222,6 +224,8 @@ public class UserService : BaseService<ApplicationUser, int, IUserRepository>, I
         {
             return Result.Fail(result.Errors);
         }
+
+        scope.Complete();
 
         return result;
     }
