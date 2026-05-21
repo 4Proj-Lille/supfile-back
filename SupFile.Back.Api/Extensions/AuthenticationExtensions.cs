@@ -51,6 +51,8 @@ internal static class AuthenticationExtensions
                 options.CallbackPath = "/auth/google/callback";
                 options.SaveTokens = true;
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.Scope.Add("profile");
+                options.ClaimActions.MapJsonKey("picture", "picture");
             });
         
 

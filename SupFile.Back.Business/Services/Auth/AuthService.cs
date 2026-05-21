@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
+using MimeDetective;
 using Microsoft.IdentityModel.Tokens;
 using SupFile.Back.Core.Errors.Base;
 
@@ -410,8 +411,16 @@ public class AuthService : IAuthService
                 return Result.Fail<Guid>("Failed to download profile picture");
 
             var bytes = await response.Content.ReadAsByteArrayAsync();
-            var mimeType = response.Content.Headers.ContentType?.MediaType ?? "image/jpeg";
-            var ext = mimeType == "image/png" ? ".png" : ".jpg";
+
+            var inspector = new ContentInspectorBuilder()
+            {
+                Definitions = MimeDetective.Definitions.DefaultDefinitions.All()
+            }.Build();
+            var results = inspector.Inspect(bytes);
+            var mimeType = results.ByMimeType().FirstOrDefault()?.MimeType
+                ?? response.Content.Headers.ContentType?.MediaType
+                ?? "image/jpeg";
+            var ext = results.ByFileExtension().FirstOrDefault()?.Extension is { } e ? $".{e}" : ".jpg";
 
             var mediaResult = await _mediaService.AddOneAsync(user, bytes, $"profile{ext}", mimeType);
             if (mediaResult.IsFailed)
