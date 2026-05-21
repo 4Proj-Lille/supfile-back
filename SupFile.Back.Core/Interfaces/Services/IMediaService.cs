@@ -7,6 +7,8 @@ public interface IMediaService : IBaseService<Media, int>
 {
     Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, IFormFile file, int? folderId = null, string? mediaName = null);
 
+    Task<Result<Media>> AddOneAsync(ApplicationUser currentUser, byte[] content, string fileName, string mimeType);
+
     Task<Result> DeleteOneAsync(ApplicationUser currentUser, int id);
     Task<Result> DeleteByUniqueIdAsync(Guid uniqueId);
 
