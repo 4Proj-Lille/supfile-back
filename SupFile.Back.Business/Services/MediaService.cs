@@ -66,7 +66,12 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             FolderId = folderId,
             OwnerId = currentUser.Id,
         };
-
+        
+        if (FileExtensionConstant.ExtensionToMime.TryGetValue(entity.Extension, out var value) )
+        {
+            entity.MimeType = value;
+        }
+        
         await _storageProvider.WriteAsync(entity.UniqueId.ToString(), extension, bytes);
 
         var addMedia = await AddAsync(entity);
