@@ -10,5 +10,6 @@ public static class FileExtensionConstant
     {
         { ".markdown", "text/markdown" },
         { ".md", "text/markdown" },
+        { ".rtf", "text/plain" },
     };
 }
