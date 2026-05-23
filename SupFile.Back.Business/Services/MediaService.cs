@@ -1,4 +1,5 @@
 using System.Transactions;
+using Microsoft.AspNetCore.StaticFiles;
 using MimeDetective;
 using SupFile.Back.Core.Enums;
 using SupFile.Back.Storage.Interfaces;
@@ -61,7 +62,7 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             Name = name,
             Extension = extension,
             Size = (int)file.Length,
-            MimeType = results.ByMimeType().FirstOrDefault()?.MimeType ?? "application/octet-stream",
+            MimeType = ResolveMimeType(results.ByMimeType().FirstOrDefault()?.MimeType, extension),
             FolderId = folderId,
             OwnerId = currentUser.Id,
         };
@@ -474,5 +475,14 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
     public async Task<Result<int>> RestoreByFolderIdsAsync(List<int> folderIds)
     {
         return await Repository.RestoreByFolderIdsAsync(folderIds);
+    }
+
+    private static string ResolveMimeType(string? detectedMime, string extension)
+    {
+        if (!string.IsNullOrEmpty(detectedMime) && detectedMime != "application/octet-stream")
+            return detectedMime;
+
+        var provider = new FileExtensionContentTypeProvider();
+        return provider.TryGetContentType($"file{extension}", out var extMime) ? extMime : "application/octet-stream";
     }
 }

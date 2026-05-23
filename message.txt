@@ -1,0 +1,227 @@
+1 - Contexte du projet
+
+L’entreprise “Framinfo” souhaite construire FreeTube, une alternative française à Youtube, leader mondial de l’hébergement de vidéos.
+
+En anticipation d’une levée de fond, “Framinfo” vous a choisi en tant que prestataire pour la réaliser un MVP (Minimum Viable Product).
+
+Le projet est individuel. Tout plagiat ou utilisation d’intelligence artificielle est strictement interdit. Le code que vous allez rendre doit être votre propre création et non des éléments copiés/collés. Si du plagiat est constaté, votre note sera d’office de 0/20.
+2 - Description du projet
+
+2.1 - Généralités
+
+Freetube est une application d’hébergement et de partage de vidéos destinée à deux profils d’utilisateurs :
+
+    Les créateurs de contenus, qui mettent en ligne leurs productions afin de s’adresser à leur audience (Divertissement, professionnels, publicités, etc.),
+    Les “consommateurs”, qui regardent le contenu postés par les créateurs de contenus.
+
+Afin de concurrencer les plateformes existantes, il est important que l’expérience utilisateur soit parfaitement adaptée à chaque utilisateur en fonction de son profil : Un soin tout particulier doit donc être accordé à l’interface et l’expérience utilisateur.
+
+2.2 - Fonctionnalités de l’application à implémenter
+
+2.2.1 - Connexion
+
+Un utilisateur pourra se connecter à l'application via un compte créé spécifiquement ou en utilisant au moins un service d’Oauth2 (Google, Microsoft, Github, etc.).
+
+2.2.2 - Gestion utilisateur
+
+Chaque utilisateur doit pouvoir administrer son compte, à savoir :
+
+    Modifier son adresse email et nom d’utilisateur (qui doivent être uniques),
+    Modifier son mot de passe (doit être suffisamment sécurisé),
+    Modifier sa photo de profil,
+    Créer/Modifier un nom d’affichage pour sa chaîne Freetube,
+    Créer/Modifier une description pour sa chaîne Freetube,
+
+2.2.3 - Administration d’une chaine Freetube
+
+Les créateurs de contenus doivent évidemment pouvoir administrer leur chaine Freetube, publier des vidéos mais aussi suivre toutes leurs statistiques sur un panneau d’administration leur étant dédié.
+
+Un utilisateur peut :
+
+    Mettre en ligne une vidéo qui générera un lien partageable et qui comprend :
+        Un média vidéo, tout type de fichier vidéo est accepté (MP4, AVI, WEBM, etc.)
+        Une miniature de vidéo, tout type de format image est accepté (JPG, PNG, WEBP, etc.)
+        Un titre,
+        Une description,
+        La date de mise en ligne, définie automatiquement lorsque la vidéo est rendue disponible,
+        La possibilité de mettre la vidéo en publique (accessible à tous les utilisateurs de Freetube via les fonctionnalités de recherche et de mise en avant) ou de la mettre en privée (accessible uniquement par les utilisateur possédant le lien pour accéder à cette dernière).
+        Jusqu’à 10 mots-clefs prenant la forme de hashtags afin de permettre aux créateurs de contenus de mieux se référencer sur les fonctionnalités de recherches.
+    Éditer n’importe quel élément une vidéo précédemment créée (tous les points précédemment décrits)
+    Changer la visibilité d’une vidéo (privée/publique)
+    Supprimer une vidéo
+    Consulter les statistiques de chaque vidéo individuellement (Nombre de “J’aime” et commentaire)
+    Consulter les statistiques globales de sa chaine Freetube dans une page dédiée (Cumul des statistiques de l’ensemble des vidéos)
+
+2.2.4 - Utilisation de Freetube
+
+N’importe quel utilisateur de Freetube, authentifié ou non, peut accéder à la plateforme gratuitement et librement.
+
+Page d’accueil :
+
+Bien que la disposition de la page d’accueil de l’application soit similaire pour tous les utilisateurs, qu’ils soient authentifiés ou non, les sections et recommendations diffèrent :
+
+    Pour un utilisateur authentifié :
+        Une section “Recommendations”, mettant en avant du contenu que l’utilisateur n’a pas encore jamais vu et similaire au contenu qu’il regardé et avec lequel il a pu interagir (“J’aime”, commentaire, ajout à une playlist),
+        Une section “À consulter plus tard” comprenant les vidéos qu’un utilisateur a ajouté à la playlist du même nom,
+        Une section “Tendances” avec le contenu de la plateforme ayant généré le plus d’interaction récemment.
+    Pour une utilisateur non-authentifié :
+        Une section “Recommendations”, mettant en avant les 3 mots-clefs les plus utilisés de la plateforme (par exemple “Informations”, “Jeu vidéo”, etc.)
+        Une section “Tendances” avec le contenu de la plateforme ayant généré le plus d’interaction récemment,
+        Une section “Top Créateurs” affichant sous forme de cartes, la photo de profil, le nom et la description de la chaine, des créateurs ayant le plus d’abonnés de la plateforme.
+
+Page “Abonnements” :
+
+Pour les utilisateurs non-authentifiés, la page redirige vers la page de connexion/création de compte.
+
+Affiche le fil d’actualités et les dernières vidéos publiées par les créateurs de contenu auquel l’utilisateur est abonné.
+
+Page “Utilisateur” :
+
+Pour les utilisateurs non-authentifiés, la page redirige vers la page de connexion/création de compte.
+
+Cette page met en avant deux sections :
+
+    Historique des vidéos regardées par l’utilisateur,
+    Playlists de l’utilisateur :
+        Liste des playlists de l’utilisateur (dont celle “À consulter plus tard” créée par défaut)
+        Création/Suppression de playlists
+
+Page “Playlist” :
+
+Un utilisateur accède à cette page depuis la liste de ses playlists dans la page “Utilisateur”.
+
+Cette page comprend uniquement le nom de la playlist et les vidéos (miniature, titre et chaine Freetube) contenus dans cette dernière, trié par date d’ajout dans cette dernière.
+
+Page pour les vidéos :
+
+Lorsque un utilisateur clique sur la miniature d’une vidéo ou utilise le lien de partage d’une vidéo, il arrive sur cette page qui affiche :
+
+    Un lecteur vidéo qui comprend :
+        La vidéo publiée,
+        Les fonctionnalités de base d’un lecteur vidéo : 
+            Play, 
+            Pause, 
+            Avance de XX secondes dans la vidéo,
+            Recul de XX secondes dans la vidéo,
+    Les informations du créateur de contenu :
+        Image de profil
+        Nom de la chaine
+        Nombre de “J’aime(s)” de la vidéo,
+        Nombre d’abonnés du créateur
+    Un bouton pour s’abonner à la chaine Freetube du créateur de la vidéo,
+    Un bouton pour aimer la vidéo,
+    Un bouton pour ajouter à une playlist (soit la playlist créée par défaut “À consulter plus tard”, soit une playlist personnalisée)
+    La description de la vidéo,
+    Un espace commentaire :
+        Possibilité de laisser un commentaire,
+        Feed de commentaires, affichés par date de publication (les commentaires les plus récents en premier)
+    Une section “Recommendations” pour un utilisateur authentifié ou une section “Tendance” pour un utilisateur non-authentifié,
+
+2.3 - Architecture et déploiement :
+
+2.3.1 - Architecture
+
+Votre application doit comporter trois briques distinctes :
+
+    un serveur, devant être une API REST ou GraphQL et devant implémenter l'ensemble des fonctionnalités précédemment énoncées,
+    un client web devant uniquement interagir avec le serveur.,
+    une base de données (choix libre).
+
+Aucune logique ne doit avoir lieu sur le client qui ne sert que d'interface et redirige les différentes requêtes vers le serveur.
+
+2.3.2 - Containérisation
+
+Le projet doit comporter un fichier docker-compose.yml à la racine du projet permettant de déployer au moins 3 services Docker distincts, respectivement pour le serveur, le client web et la base de données.
+
+L'application doit pouvoir être lancée intégralement via docker compose et être fonctionnelle.
+3 - Rendu
+
+Il se fera sous la forme d'une archive au format "zip" contenant le code source, les fichiers annexes (sons, images, etc.), la documentations technique et le manuel utilisateur.
+
+La documentation technique est à destination de professionnels du domaine et contiendra au moins les éléments suivants :
+
+    Informations et éléments à renseigner nécessaires au fonctionnement de l'application,
+    Guide de déploiement de l'application,
+    Justification du choix des langages et des librairies,
+    Diagrammes UML,
+    Schéma de la base de données,
+
+Le manuel utilisateur explique lui comment se servir de la solution et présente les différentes fonctionnalités.
+
+Aucun secret (clef d'API, mot de passe, etc.) ne doit être présent dans le rendu. Un secret présent en clair entrainera un malus de points sur la notation en fonction de la criticité de ce dernier.
+
+Tout rendu effectué en retard ne pourra pas être pris en compte.
+
+Ce projet est noté sur 500 points avec possibilité d'obtenir 50 points en bonus :
+
+    Documentations : 50 points (une note inférieure à 30 points sur cette partie entraînera un ajournement à ce projet)
+        Documentation technique : 30 points
+        Manuel utilisateur : 20 points
+    Déploiement : 50 points (une note inférieure à 30 points sur cette partie entraînera un ajournement à ce projet)
+        Architecture et abstraction : 20 points
+        Containérisation : 30 points
+    Interface utilisateur : 50 points
+    Expérience utilisateur : 50 points
+    Fonctionnalités : 200 points (une note inférieure à 120 points sur cette partie entraînera un ajournement à ce projet) :
+        Inscription et connexion : 15 points
+            Connexion utilisateur standard (nom d’utilisateur et mot de passe) : 5 points
+            Connexion via OAuth2 (Facebook, Google, etc.) : 10 points
+        Gestion d’utilisateur : 10 points
+        Administration d’une chaine Freetube : 55 points
+            Mettre en ligne une vidéo : 30 points
+                Un média vidéo : 10 points 
+                Une miniature de vidéo : 2 points
+                Un titre : 2 points
+                Une description : 2 points
+                La date de mise en ligne : 2 points
+                Mots-clefs : 2 points
+                Visibilité : 5 points
+                Lien partageable : 5 points
+            Éditer une vidéo existante : 5 points
+            Changer la visibilité : 5 points
+            Supprimer une vidéo : 5 points
+            Statistiques d’une vidéo : 5 points
+            Statistiques globales : 5 poins
+        Page Accueil : 30 points
+            Authentifié : 15 points
+                Recommendations : 5 points
+                À consulter plus tard : 5 points
+                Tendances : 5 points
+            Non-authentifié : 15 points
+                Recommendations : 5 points
+                Tendances : 5 points
+                Top créateurs : 5 points
+        Page Abonnements : 10 points
+            Fil d’actualité : 8 points
+            Redirection non-authentifié : 2 points
+        Page Utilisateur : 15 points :
+            Historique des vidéos : 10 points
+            Gestion et liste des playlists : 5 points
+        Page Playlist : 10 points
+        Page Vidéo : 50 points
+            Lecteur vidéo : 20 points :
+                Média visualisable : 10 points
+                Pause : 2 points
+                Play : 2 points
+                Saut XX secondes en avant : 3 points
+                Saut XX secondes en arrière : 3 points
+            Informations de la vidéo : 20 points
+                Titre de la vidéo : 2 points
+                Description : 2 points
+                Nom de la chaine : 2 points
+                Compteur abonnés : 2 points
+                Compteur “J’aime(s)” : 2 points
+                Bouton “J’aime” : 5 points
+                Bouton “S’abonner” : 5 points
+            Commentaires : 10 points
+                Créer un commentaire : 5 points 
+                Voir les commentaires : 5 points
+            Recommendations : 5 points
+    Qualité du code : 100 points (une note inférieure à 60 points sur cette partie entraînera un ajournement à ce projet) :
+        Le barème item par item est identique à celui des fonctionnalités. Pour un item non réalisé ou complètement dysfonctionnel, la note de qualité de code correspondante sera automatiquement égale à zéro.
+        Les critères appréciés ici sont essentiellement :
+            Structures de données adaptées.
+            Absence de duplication inutile de code.
+            Lisibilité du code (cela inclut la cohérence et le sens du nommage des variables et sous-programmes).
+            Facilité de maintenance.
+            Abstraction du code
