@@ -1,6 +1,9 @@
+using Gridify;
 using SupFile.Back.Api;
 using SupFile.Back.Api.Middlewares;
 using SupFile.Back.Api.Settings;
+
+GridifyGlobalConfiguration.CaseInsensitiveFiltering = true;
 
 var builder = WebApplication.CreateBuilder(args);
 
