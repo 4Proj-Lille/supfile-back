@@ -67,11 +67,6 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
             OwnerId = currentUser.Id,
         };
         
-        if (FileExtensionConstant.ExtensionToMime.TryGetValue(entity.Extension, out var value) )
-        {
-            entity.MimeType = value;
-        }
-        
         await _storageProvider.WriteAsync(entity.UniqueId.ToString(), extension, bytes);
 
         var addMedia = await AddAsync(entity);
@@ -484,6 +479,9 @@ public class MediaService : BaseService<Media, int, IMediaRepository>, IMediaSer
 
     private static string ResolveMimeType(string? detectedMime, string extension)
     {
+        if (FileExtensionConstant.ExtensionToMime.TryGetValue(extension, out var knownMime))
+            return knownMime;
+
         if (!string.IsNullOrEmpty(detectedMime) && detectedMime != "application/octet-stream")
             return detectedMime;
 
